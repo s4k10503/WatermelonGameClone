@@ -3,6 +3,8 @@
 "Watermelon Game" is a puzzle game that combines the systems of a falling object puzzle game and a merge game.  
 This repository aims to clone that game in Unity.
 
+![ScreenShot](./Images/ScreenShot.png)
+
 ## Features
 
 - [x] Move the sphere before it falls with the mouse
