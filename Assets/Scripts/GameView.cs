@@ -13,7 +13,6 @@ namespace SuikaGameClone
         [SerializeField] GameObject _rankingPanel;
         [SerializeField] GameObject _evolutionCirclePanel;
 
-
         [Header("Parameter")]
         [SerializeField, Range(0f, 10f)] float _moveSpeed = 0f;
         [SerializeField, Range(0f, 10f)] float _moveHeight = 0f;
@@ -21,12 +20,16 @@ namespace SuikaGameClone
         private Vector3 _scorePanelPos;
         private Vector3 _nextSpherePanelPos;
 
-
-        public void UpdateScore(int newScore)
+        public void UpdateCurrentScore(int currentScore)
         {
-            var scoreUI = _scorePanel.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
-            scoreUI.SetText(newScore.ToString());
-            // Debug.Log("Score: " + newScore.ToString());
+            var currentScoreUI = _scorePanel.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            currentScoreUI.SetText(currentScore.ToString());
+        }
+
+        public void UpdateBestScore(int bestScore)
+        {
+            var bestScoreUI = _scorePanel.transform.GetChild(3).GetComponent<TextMeshProUGUI>();
+            bestScoreUI.SetText(bestScore.ToString());
         }
 
         private void MoveUI()
