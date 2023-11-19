@@ -31,6 +31,7 @@ namespace SuikaGameClone
 
             _gameView = GameObject.Find("GameView").GetComponent<GameView>();
 
+            SetBestScore();
             CreateSphere();
         }
 
@@ -51,8 +52,12 @@ namespace SuikaGameClone
 
         public void SetBestScore()
         {
-            _gameModel.SaveBestScore(_gameModel.CurrentScore.Value);
-            _gameView.UpdateBestScore(_gameModel.BestScore.Value);
+            int pastBestScore = PlayerPrefs.GetInt("BestScore");
+            if (_gameModel.CurrentScore.Value > pastBestScore)
+            {
+                _gameModel.SaveBestScore(_gameModel.CurrentScore.Value);
+                _gameView.UpdateBestScore(_gameModel.BestScore.Value);
+            }
         }
 
         private void CreateSphere()

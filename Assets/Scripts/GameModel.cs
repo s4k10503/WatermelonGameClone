@@ -54,7 +54,7 @@ namespace SuikaGameClone
         public void SaveBestScore(int currentScore)
         {
             BestScore.Value = currentScore;
-            PlayerPrefs.SetInt("key1", BestScore.Value);
+            PlayerPrefs.SetInt("BestScore", BestScore.Value);
         }
     }
 }
