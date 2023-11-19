@@ -43,10 +43,16 @@ namespace SuikaGameClone
             }
         }
 
-        public void SetScore(int _sphereNo)
+        public void SetCurrentScore(int _sphereNo)
         {
-            _gameModel.AddScore(_sphereNo);
-            _gameView.UpdateScore(_gameModel.CurrentScore.Value);
+            _gameModel.CalcScore(_sphereNo);
+            _gameView.UpdateCurrentScore(_gameModel.CurrentScore.Value);
+        }
+
+        public void SetBestScore()
+        {
+            _gameModel.SaveBestScore(_gameModel.CurrentScore.Value);
+            _gameView.UpdateBestScore(_gameModel.BestScore.Value);
         }
 
         private void CreateSphere()
@@ -70,7 +76,7 @@ namespace SuikaGameClone
             sphereIns._isDrop = true;
             sphereIns.GetComponent<Rigidbody2D>().simulated = true;
             sphereIns.gameObject.SetActive(true);
-            SetScore(_sphereNo);
+            SetCurrentScore(_sphereNo);
         }
 
         public void CheckGameOver(float sphereYPosition)
@@ -78,6 +84,7 @@ namespace SuikaGameClone
             if (sphereYPosition >= _ceilingYPosition)
             {
                 SetGameState(GameModel.GameState.GameOver);
+                SetBestScore();
                 Debug.Log("sphereYPosition: " + sphereYPosition);
                 Debug.Log("Game Over");
                 Time.timeScale = 0f;

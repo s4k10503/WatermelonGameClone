@@ -18,6 +18,8 @@ namespace SuikaGameClone
 
         private ReactiveProperty<GameState> _currentState = new ReactiveProperty<GameState>(GameState.Initializing);
         private ReactiveProperty<int> _currentScore = new ReactiveProperty<int>(0);
+        private ReactiveProperty<int> _bestScore = new ReactiveProperty<int>(0);
+
         private readonly int _scoreCoefficient = 10;
 
         public ReactiveProperty<GameState> CurrentState
@@ -32,15 +34,27 @@ namespace SuikaGameClone
             private set { _currentScore = value; }
         }
 
-        public void AddScore(int sphereNo)
+        public ReactiveProperty<int> BestScore
         {
-            int scoreToAdd = (sphereNo + 1) * _scoreCoefficient;
-            CurrentScore.Value += scoreToAdd;
+            get { return _bestScore; }
+            private set { _bestScore = value; }
         }
 
         public void ChangeState(GameState newState)
         {
             CurrentState.Value = newState;
+        }
+
+        public void CalcScore(int sphereNo)
+        {
+            int scoreToAdd = (sphereNo + 1) * _scoreCoefficient;
+            CurrentScore.Value += scoreToAdd;
+        }
+
+        public void SaveBestScore(int currentScore)
+        {
+            BestScore.Value = currentScore;
+            PlayerPrefs.SetInt("key1", BestScore.Value);
         }
     }
 }
