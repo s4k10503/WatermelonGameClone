@@ -6,7 +6,7 @@ namespace SuikaGameClone
     public class Sphere : MonoBehaviour
     {
         private Rigidbody2D _rb;
-        public bool _isMergeFlag = false;
+        public bool _isMerge = false;
         public bool _isDrop = false;
         public int _sphereNo;
 
@@ -15,8 +15,7 @@ namespace SuikaGameClone
         [SerializeField] private float _fixedY = 3.5f;
 
         private float _minDiameter = 0.4f;
-        private float stepSize = 0.2f;
-        private bool _isTouched = false;
+        private float _stepSize = 0.2f;
         private GameModel.GameState _currentState;
 
         void Start()
@@ -27,34 +26,25 @@ namespace SuikaGameClone
 
         void Update()
         {
-            _currentState = GameManager._instance.GetCurrentState();
+            _currentState = GameManager.Instance.GetCurrentState();
 
-            if (_currentState == GameModel.GameState.SphereMoving && !_isDrop)
-                _rb.simulated = false;  // Disable physics for the selected sphere
-            else
-                _rb.simulated = true;  // Enable physics for all other spheres
-
-            if (Input.GetMouseButton(0) && !_isDrop)
-                Drop();
-
-            if (_isDrop && _rb.velocity.sqrMagnitude < 0.01f && _isTouched)
+            if (_isDrop)
             {
-                GameManager._instance.SetGameState(GameModel.GameState.SphereDropping);
-                GameManager._instance.CheckGameOver(transform.position.y);
+                _rb.simulated = true;
             }
-            else if (!_isDrop)
+            else
+            {
+                if (Input.GetMouseButton(0))
+                    Drop();
+
                 UpdatePosition();
+            }
         }
 
         private void UpdatePosition()
         {
-            if (_currentState == GameModel.GameState.GameOver)
-                return;
-
-            GameManager._instance.SetGameState(GameModel.GameState.SphereMoving);
-
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            float currentDiameter = _minDiameter + stepSize * (_sphereNo + 1);
+            float currentDiameter = _minDiameter + _stepSize * (_sphereNo + 1);
             float offset = currentDiameter / 2 + 0.01f;
             float adjustedMinX = _minX + offset;
             float adjustedMaxX = _maxX - offset;
@@ -65,54 +55,40 @@ namespace SuikaGameClone
 
         private void Drop()
         {
-            if (_isDrop)
-                return;
-
-            GameManager._instance.SetGameState(GameModel.GameState.SphereDropping);
+            GameManager.Instance.SetGameState(GameModel.GameState.SphereDropping);
 
             _isDrop = true;
             _rb.velocity = Vector2.zero;
             _rb.simulated = true;
-            GameManager._instance._isNext = true;
+            GameManager.Instance.IsNext = true;
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (_currentState == GameModel.GameState.GameOver)
-                return;
-
             if (IsEligibleForMerge(collision, out Sphere colSphere))
-            {
                 PerformMerge(colSphere);
-            }
-
-            if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Sphere"))
-            {
-                _isTouched = true;
-            }
         }
 
         private bool IsEligibleForMerge(Collision2D collision, out Sphere colSphere)
         {
             colSphere = null;
             GameObject colObj = collision.gameObject;
-            if (!colObj.CompareTag("Sphere")) return false;
+            if (!colObj.CompareTag("Sphere"))
+                return false;
 
             colSphere = colObj.GetComponent<Sphere>();
             return _sphereNo == colSphere._sphereNo &&
-                !_isMergeFlag &&
-                !colSphere._isMergeFlag;
+                !_isMerge &&
+                !colSphere._isMerge;
         }
 
         private void PerformMerge(Sphere colSphere)
         {
-            GameManager._instance.SetGameState(GameModel.GameState.Merging);
+            _isMerge = true;
+            colSphere._isMerge = true;
 
-            _isMergeFlag = true;
-            colSphere._isMergeFlag = true;
-
-            if (_sphereNo < GameManager._instance._maxSphereNo - 1)
-                GameManager._instance.MergeNext(transform.position, _sphereNo);
+            if (_sphereNo < GameManager.Instance.MaxSphereNo - 1)
+                GameManager.Instance.MergeNext(transform.position, _sphereNo);
 
             Destroy(gameObject);
             Destroy(colSphere.gameObject);
