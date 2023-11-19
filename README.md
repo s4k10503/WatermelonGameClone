@@ -12,7 +12,7 @@ This repository aims to clone that game in Unity.
 - [x] Merge fallen spheres
 - [x] Display scores by merging
 - [x] Game over when reaching a certain height
-- [ ] Display your highest score so far
+- [x] Display your highest score so far
 - [ ] Display the next operable sphere
 - [ ] Display today's score ranking
 - [ ] Display Display the circle of evolution
