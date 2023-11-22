@@ -56,6 +56,7 @@ namespace SuikaGameClone
         private void Drop()
         {
             GameManager.Instance.SetGameState(GameModel.GameState.SphereDropping);
+            GameManager.Instance.PlaySoundEffect(GameModel.SoundEffect.Drop);
 
             _isDrop = true;
             _rb.velocity = Vector2.zero;
