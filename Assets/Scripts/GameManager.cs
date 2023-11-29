@@ -11,9 +11,13 @@ namespace SuikaGameClone
         [SerializeField] private GameView _gameView;
         [SerializeField] private Ceiling _ceiling;
 
+        [Header("Parameters")]
+        [SerializeField, Range(0, 1.0f)] private float _audioVolume;
+
 
         private GameModel _gameModel = new GameModel();
         private readonly float _invokeTime = 1.0f;
+        private AudioSource _audioSourceEffect;
 
         public static GameManager Instance { get; private set; }
         public bool IsNext { get; set; }
@@ -30,6 +34,10 @@ namespace SuikaGameClone
 
             _gameView = GameObject.Find("GameView").GetComponent<GameView>();
             _ceiling = GameObject.Find("Ceiling").GetComponent<Ceiling>();
+
+            _audioSourceEffect = gameObject.AddComponent<AudioSource>();
+            _gameModel.SetSoundEffect();
+            _gameModel.SetSoundVolume(_audioVolume);
 
             SetBestScore();
             CreateSphere();
@@ -77,6 +85,7 @@ namespace SuikaGameClone
         public void MergeNext(Vector3 target, int _sphereNo)
         {
             SetGameState(GameModel.GameState.Merging);
+            _gameModel.PlaySoundEffect(GameModel.SoundEffect.Merge, _audioSourceEffect);
 
             Sphere sphereIns = Instantiate(_spherePrefab[_sphereNo + 1], target, Quaternion.identity, _spherePosition);
             sphereIns._sphereNo = _sphereNo + 1;
@@ -104,6 +113,11 @@ namespace SuikaGameClone
         public void SetGameState(GameModel.GameState newState)
         {
             _gameModel.ChangeState(newState);
+        }
+
+        public void PlaySoundEffect(GameModel.SoundEffect effect)
+        {
+            _gameModel.PlaySoundEffect(effect, _audioSourceEffect);
         }
     }
 }

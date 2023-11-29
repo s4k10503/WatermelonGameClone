@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using UniRx;
 using SuikaGameClone;
 
@@ -16,11 +17,20 @@ namespace SuikaGameClone
             GameOver
         }
 
+        public enum SoundEffect
+        {
+            Drop,
+            Merge
+        }
+
         private ReactiveProperty<GameState> _currentState = new ReactiveProperty<GameState>(GameState.Initializing);
         private ReactiveProperty<int> _currentScore = new ReactiveProperty<int>(0);
         private ReactiveProperty<int> _bestScore = new ReactiveProperty<int>(0);
 
+        private Dictionary<SoundEffect, AudioClip> soundEffects = new Dictionary<SoundEffect, AudioClip>();
+
         private readonly int _scoreCoefficient = 10;
+        private float _soundVolume = 1.0f;
 
         public ReactiveProperty<GameState> CurrentState
         {
@@ -55,6 +65,40 @@ namespace SuikaGameClone
         {
             BestScore.Value = currentScore;
             PlayerPrefs.SetInt("BestScore", BestScore.Value);
+        }
+
+        public void SetSoundEffect()
+        {
+            LoadSoundEffect(SoundEffect.Drop, "Drop");
+            LoadSoundEffect(SoundEffect.Merge, "Merge");
+        }
+
+        public void SetSoundVolume(float volume)
+        {
+            _soundVolume = Mathf.Clamp(volume, 0.0f, 1.0f);
+        }
+
+        private void LoadSoundEffect(SoundEffect effect, string resourcePath)
+        {
+            AudioClip clip = Resources.Load<AudioClip>(resourcePath);
+            if (clip != null)
+            {
+                soundEffects[effect] = clip;
+            }
+            else
+            {
+                Debug.LogError("Sound effect not found at path: " + resourcePath);
+            }
+        }
+
+        public void PlaySoundEffect(SoundEffect effect, AudioSource source)
+        {
+            if (soundEffects.TryGetValue(effect, out AudioClip clip))
+            {
+                source.clip = clip;
+                source.volume = _soundVolume;
+                source.Play();
+            }
         }
     }
 }
