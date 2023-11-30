@@ -998,7 +998,7 @@ MonoBehaviour:
   _spherePosition: {fileID: 1280835132}
   _gameView: {fileID: 1997723644}
   _ceiling: {fileID: 257282277}
-  _soundVolume: 0.2
+  _audioVolume: 0.172
 --- !u!4 &713621977
 Transform:
   m_ObjectHideFlags: 0
