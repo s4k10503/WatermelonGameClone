@@ -1,7 +1,6 @@
 using UnityEngine;
-using SuikaGameClone;
 
-namespace SuikaGameClone
+namespace WatermelonGameClone
 {
     public class GameManager : MonoBehaviour
     {
@@ -14,9 +13,8 @@ namespace SuikaGameClone
         [Header("Parameters")]
         [SerializeField, Range(0, 1.0f)] private float _audioVolume;
 
-
         private GameModel _gameModel = new GameModel();
-        private readonly float _invokeTime = 1.0f;
+        private static readonly float s_invokeTime = 1.0f;
         private AudioSource _audioSourceEffect;
 
         public static GameManager Instance { get; private set; }
@@ -50,13 +48,13 @@ namespace SuikaGameClone
             if (IsNext)
             {
                 IsNext = false;
-                Invoke("CreateSphere", _invokeTime);
+                Invoke("CreateSphere", s_invokeTime);
             }
         }
 
-        public void SetCurrentScore(int _sphereNo)
+        public void SetCurrentScore(int SphereNo)
         {
-            _gameModel.CalcScore(_sphereNo);
+            _gameModel.CalcScore(SphereNo);
             _gameView.UpdateCurrentScore(_gameModel.CurrentScore.Value);
         }
 
@@ -78,21 +76,21 @@ namespace SuikaGameClone
             int i = Random.Range(0, maxIndex + 1);
 
             Sphere sphereIns = Instantiate(_spherePrefab[i], _spherePosition);
-            sphereIns._sphereNo = i;
+            sphereIns.SphereNo = i;
             sphereIns.gameObject.SetActive(true);
         }
 
-        public void MergeNext(Vector3 target, int _sphereNo)
+        public void MergeNext(Vector3 target, int SphereNo)
         {
             SetGameState(GameModel.GameState.Merging);
             _gameModel.PlaySoundEffect(GameModel.SoundEffect.Merge, _audioSourceEffect);
 
-            Sphere sphereIns = Instantiate(_spherePrefab[_sphereNo + 1], target, Quaternion.identity, _spherePosition);
-            sphereIns._sphereNo = _sphereNo + 1;
-            sphereIns._isDrop = true;
+            Sphere sphereIns = Instantiate(_spherePrefab[SphereNo + 1], target, Quaternion.identity, _spherePosition);
+            sphereIns.SphereNo = SphereNo + 1;
+            sphereIns.IsDrop = true;
             sphereIns.GetComponent<Rigidbody2D>().simulated = true;
             sphereIns.gameObject.SetActive(true);
-            SetCurrentScore(_sphereNo);
+            SetCurrentScore(SphereNo);
         }
 
         public void CheckGameOver()

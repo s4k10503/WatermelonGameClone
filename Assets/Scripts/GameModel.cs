@@ -1,9 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UniRx;
-using SuikaGameClone;
 
-namespace SuikaGameClone
+namespace WatermelonGameClone
 {
     public class GameModel
     {
@@ -29,7 +28,7 @@ namespace SuikaGameClone
 
         private Dictionary<SoundEffect, AudioClip> soundEffects = new Dictionary<SoundEffect, AudioClip>();
 
-        private readonly int _scoreCoefficient = 10;
+        private static readonly int s_scoreCoefficient = 10;
         private float _soundVolume = 1.0f;
 
         public ReactiveProperty<GameState> CurrentState
@@ -57,7 +56,7 @@ namespace SuikaGameClone
 
         public void CalcScore(int sphereNo)
         {
-            int scoreToAdd = (sphereNo + 1) * _scoreCoefficient;
+            int scoreToAdd = (sphereNo + 1) * s_scoreCoefficient;
             CurrentScore.Value += scoreToAdd;
         }
 
