@@ -1,4 +1,6 @@
 using UnityEngine;
+using UniRx;
+
 
 namespace WatermelonGameClone
 {
@@ -17,7 +19,6 @@ namespace WatermelonGameClone
         private Rigidbody2D _rb;
         private float _minDiameter = 0.4f;
         private float _stepSize = 0.2f;
-        private GameModel.GameState _currentState;
 
         void Start()
         {
@@ -27,18 +28,17 @@ namespace WatermelonGameClone
 
         void Update()
         {
-            _currentState = GameManager.Instance.GetCurrentState();
-
             if (IsDrop)
             {
                 _rb.simulated = true;
             }
             else
             {
-                if (Input.GetMouseButton(0))
-                    Drop();
-
                 UpdatePosition();
+                if (Input.GetMouseButton(0))
+                {
+                    Drop();
+                }
             }
         }
 
@@ -56,9 +56,7 @@ namespace WatermelonGameClone
 
         private void Drop()
         {
-            GameManager.Instance.SetGameState(GameModel.GameState.SphereDropping);
-            GameManager.Instance.PlaySoundEffect(GameModel.SoundEffect.Drop);
-
+            GameManager.Instance.GameEvent.Execute(GameModel.GameState.SphereDropping);
             IsDrop = true;
             _rb.velocity = Vector2.zero;
             _rb.simulated = true;
@@ -86,11 +84,17 @@ namespace WatermelonGameClone
 
         private void PerformMerge(Sphere colSphere)
         {
+            GameManager.Instance.GameEvent.Execute(GameModel.GameState.Merging);
+
             IsMerge = true;
             colSphere.IsMerge = true;
 
             if (SphereNo < GameManager.Instance.MaxSphereNo - 1)
+            {
                 GameManager.Instance.MergeNext(transform.position, SphereNo);
+            }
+
+            GameManager.Instance.GameEvent.Execute(GameModel.GameState.SphereMoving);
 
             Destroy(gameObject);
             Destroy(colSphere.gameObject);

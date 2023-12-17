@@ -11,7 +11,6 @@ namespace WatermelonGameClone
             Initializing,
             SphereMoving,
             SphereDropping,
-            CheckingCollision,
             Merging,
             GameOver
         }
@@ -49,7 +48,7 @@ namespace WatermelonGameClone
             private set { _bestScore = value; }
         }
 
-        public void ChangeState(GameState newState)
+        public void SetGameState(GameState newState)
         {
             CurrentState.Value = newState;
         }

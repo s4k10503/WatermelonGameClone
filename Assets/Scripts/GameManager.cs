@@ -1,4 +1,5 @@
 using UnityEngine;
+using UniRx;
 
 namespace WatermelonGameClone
 {
@@ -17,6 +18,13 @@ namespace WatermelonGameClone
         private static readonly float s_invokeTime = 1.0f;
         private AudioSource _audioSourceEffect;
 
+        private ReactiveProperty<GameModel.GameState> _reactiveGameState;
+        public IReadOnlyReactiveProperty<GameModel.GameState> GameState => _reactiveGameState;
+
+        private ReactiveProperty<int> _reactiveCurrentScore;
+
+        public ReactiveCommand<GameModel.GameState> GameEvent = new ReactiveCommand<GameModel.GameState>();
+
         public static GameManager Instance { get; private set; }
         public bool IsNext { get; set; }
         public int MaxSphereNo { get; private set; }
@@ -24,7 +32,8 @@ namespace WatermelonGameClone
 
         void Start()
         {
-            _gameModel.ChangeState(GameModel.GameState.Initializing);
+            _reactiveGameState = new ReactiveProperty<GameModel.GameState>(_gameModel.CurrentState.Value);
+            _reactiveCurrentScore = new ReactiveProperty<int>(_gameModel.CurrentScore.Value);
 
             Instance = this;
             IsNext = false;
@@ -37,14 +46,17 @@ namespace WatermelonGameClone
             _gameModel.SetSoundEffect();
             _gameModel.SetSoundVolume(_audioVolume);
 
+            _gameModel.SetGameState(GameModel.GameState.Initializing);
+
+            SubscribeToGameEvents();
+            SubscribeToScoreChanges();
+
             SetBestScore();
             CreateSphere();
         }
 
         void Update()
         {
-            CheckGameOver();
-
             if (IsNext)
             {
                 IsNext = false;
@@ -52,10 +64,47 @@ namespace WatermelonGameClone
             }
         }
 
+        private void SubscribeToGameEvents()
+        {
+            GameEvent.Subscribe(state =>
+            {
+                _reactiveGameState.Value = state;
+                _gameModel.SetGameState(state);
+                switch (state)
+                {
+                    case GameModel.GameState.Initializing:
+                        break;
+
+                    case GameModel.GameState.SphereMoving:
+                        break;
+
+                    case GameModel.GameState.SphereDropping:
+                        _gameModel.PlaySoundEffect(GameModel.SoundEffect.Drop, _audioSourceEffect);
+                        break;
+
+                    case GameModel.GameState.Merging:
+                        _gameModel.PlaySoundEffect(GameModel.SoundEffect.Merge, _audioSourceEffect);
+                        break;
+
+                    case GameModel.GameState.GameOver:
+                        HandleGameOver();
+                        break;
+                }
+            }).AddTo(this);
+        }
+
+        private void SubscribeToScoreChanges()
+        {
+            _reactiveCurrentScore.Subscribe(score =>
+            {
+                _gameView.UpdateCurrentScore(score);
+            }).AddTo(this);
+        }
+
         public void SetCurrentScore(int SphereNo)
         {
             _gameModel.CalcScore(SphereNo);
-            _gameView.UpdateCurrentScore(_gameModel.CurrentScore.Value);
+            _reactiveCurrentScore.Value = _gameModel.CurrentScore.Value;
         }
 
         public void SetBestScore()
@@ -67,10 +116,9 @@ namespace WatermelonGameClone
                 _gameView.UpdateBestScore(_gameModel.BestScore.Value);
             }
         }
-
         private void CreateSphere()
         {
-            SetGameState(GameModel.GameState.SphereMoving);
+            GameEvent.Execute(GameModel.GameState.SphereMoving);
 
             int maxIndex = MaxSphereNo / 2 - 1;
             int i = Random.Range(0, maxIndex + 1);
@@ -82,9 +130,6 @@ namespace WatermelonGameClone
 
         public void MergeNext(Vector3 target, int SphereNo)
         {
-            SetGameState(GameModel.GameState.Merging);
-            _gameModel.PlaySoundEffect(GameModel.SoundEffect.Merge, _audioSourceEffect);
-
             Sphere sphereIns = Instantiate(_spherePrefab[SphereNo + 1], target, Quaternion.identity, _spherePosition);
             sphereIns.SphereNo = SphereNo + 1;
             sphereIns.IsDrop = true;
@@ -93,29 +138,10 @@ namespace WatermelonGameClone
             SetCurrentScore(SphereNo);
         }
 
-        public void CheckGameOver()
+        private void HandleGameOver()
         {
-            if (_gameModel.CurrentState.Value == GameModel.GameState.GameOver)
-            {
-                SetBestScore();
-                Debug.Log("Game Over");
-                Time.timeScale = 0f;
-            }
-        }
-
-        public GameModel.GameState GetCurrentState()
-        {
-            return _gameModel.CurrentState.Value;
-        }
-
-        public void SetGameState(GameModel.GameState newState)
-        {
-            _gameModel.ChangeState(newState);
-        }
-
-        public void PlaySoundEffect(GameModel.SoundEffect effect)
-        {
-            _gameModel.PlaySoundEffect(effect, _audioSourceEffect);
+            SetBestScore();
+            Time.timeScale = 0f;
         }
     }
 }

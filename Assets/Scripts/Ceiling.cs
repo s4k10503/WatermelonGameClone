@@ -14,7 +14,7 @@ namespace WatermelonGameClone
                 _stayTime += Time.deltaTime;
                 if (_stayTime > s_timeLimit)
                 {
-                    GameManager.Instance.SetGameState(GameModel.GameState.GameOver);
+                    GameManager.Instance.GameEvent.Execute(GameModel.GameState.GameOver);
                 }
             }
         }
