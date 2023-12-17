@@ -16,7 +16,7 @@ This repository aims to clone that game in Unity.
 - [x] Play sound effects
 - [ ] Display the next operable sphere
 - [ ] Display today's score ranking
-- [ ] Display Display the circle of evolution
+- [ ] Display the circle of evolution
 
 ## Requirements
 
