@@ -1,9 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using SuikaGameClone;
 
-namespace SuikaGameClone
+namespace WatermelonGameClone
 {
     public class GameView : MonoBehaviour
     {
@@ -13,7 +12,7 @@ namespace SuikaGameClone
         [SerializeField] GameObject _rankingPanel;
         [SerializeField] GameObject _evolutionCirclePanel;
 
-        [Header("Parameter")]
+        [Header("Parameters")]
         [SerializeField, Range(0f, 10f)] float _moveSpeed = 0f;
         [SerializeField, Range(0f, 10f)] float _moveHeight = 0f;
 

@@ -1,20 +1,20 @@
 using UnityEngine;
 
-namespace SuikaGameClone
+namespace WatermelonGameClone
 {
     public class Ceiling : MonoBehaviour
     {
         private float _stayTime;
-        private readonly float _timeLimit = 0.5f;
+        private static readonly float s_timeLimit = 0.5f;
 
         private void OnTriggerStay2D(Collider2D collision)
         {
             if (collision.CompareTag("Sphere"))
             {
                 _stayTime += Time.deltaTime;
-                if (_stayTime > _timeLimit)
+                if (_stayTime > s_timeLimit)
                 {
-                    GameManager.Instance.SetGameState(GameModel.GameState.GameOver);
+                    GameManager.Instance.GameEvent.Execute(GameModel.GameState.GameOver);
                 }
             }
         }

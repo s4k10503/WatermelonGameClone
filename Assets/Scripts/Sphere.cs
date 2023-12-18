@@ -1,22 +1,24 @@
 using UnityEngine;
-using SuikaGameClone;
+using UniRx;
 
-namespace SuikaGameClone
+
+namespace WatermelonGameClone
 {
     public class Sphere : MonoBehaviour
     {
-        private Rigidbody2D _rb;
-        public bool _isMerge = false;
-        public bool _isDrop = false;
-        public int _sphereNo;
+        [Header("Sphere Information")]
+        public bool IsMerge = false;
+        public bool IsDrop = false;
+        public int SphereNo;
 
+        [Header("Sphere movement restrictions")]
         [SerializeField] private float _minX = -2.7f;
         [SerializeField] private float _maxX = 2.7f;
         [SerializeField] private float _fixedY = 3.5f;
 
+        private Rigidbody2D _rb;
         private float _minDiameter = 0.4f;
         private float _stepSize = 0.2f;
-        private GameModel.GameState _currentState;
 
         void Start()
         {
@@ -26,25 +28,24 @@ namespace SuikaGameClone
 
         void Update()
         {
-            _currentState = GameManager.Instance.GetCurrentState();
-
-            if (_isDrop)
+            if (IsDrop)
             {
                 _rb.simulated = true;
             }
             else
             {
-                if (Input.GetMouseButton(0))
-                    Drop();
-
                 UpdatePosition();
+                if (Input.GetMouseButton(0))
+                {
+                    Drop();
+                }
             }
         }
 
         private void UpdatePosition()
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            float currentDiameter = _minDiameter + _stepSize * (_sphereNo + 1);
+            float currentDiameter = _minDiameter + _stepSize * (SphereNo + 1);
             float offset = currentDiameter / 2 + 0.01f;
             float adjustedMinX = _minX + offset;
             float adjustedMaxX = _maxX - offset;
@@ -55,10 +56,8 @@ namespace SuikaGameClone
 
         private void Drop()
         {
-            GameManager.Instance.SetGameState(GameModel.GameState.SphereDropping);
-            GameManager.Instance.PlaySoundEffect(GameModel.SoundEffect.Drop);
-
-            _isDrop = true;
+            GameManager.Instance.GameEvent.Execute(GameModel.GameState.SphereDropping);
+            IsDrop = true;
             _rb.velocity = Vector2.zero;
             _rb.simulated = true;
             GameManager.Instance.IsNext = true;
@@ -78,18 +77,24 @@ namespace SuikaGameClone
                 return false;
 
             colSphere = colObj.GetComponent<Sphere>();
-            return _sphereNo == colSphere._sphereNo &&
-                !_isMerge &&
-                !colSphere._isMerge;
+            return SphereNo == colSphere.SphereNo &&
+                !IsMerge &&
+                !colSphere.IsMerge;
         }
 
         private void PerformMerge(Sphere colSphere)
         {
-            _isMerge = true;
-            colSphere._isMerge = true;
+            GameManager.Instance.GameEvent.Execute(GameModel.GameState.Merging);
 
-            if (_sphereNo < GameManager.Instance.MaxSphereNo - 1)
-                GameManager.Instance.MergeNext(transform.position, _sphereNo);
+            IsMerge = true;
+            colSphere.IsMerge = true;
+
+            if (SphereNo < GameManager.Instance.MaxSphereNo - 1)
+            {
+                GameManager.Instance.MergeNext(transform.position, SphereNo);
+            }
+
+            GameManager.Instance.GameEvent.Execute(GameModel.GameState.SphereMoving);
 
             Destroy(gameObject);
             Destroy(colSphere.gameObject);
