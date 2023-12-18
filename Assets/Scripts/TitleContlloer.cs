@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace SuikaGameClone
+namespace WatermelonGameClone
 {
-
-
-    public class TitleContlloer : MonoBehaviour
+    public class TitleContller : MonoBehaviour
     {
         // Start is called before the first frame update
         void Start()
