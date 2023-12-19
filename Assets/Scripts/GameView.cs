@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UniRx;
 
 namespace WatermelonGameClone
 {
@@ -11,13 +13,20 @@ namespace WatermelonGameClone
         [SerializeField] GameObject _nextSpherePanel;
         [SerializeField] GameObject _rankingPanel;
         [SerializeField] GameObject _evolutionCirclePanel;
+        [SerializeField] Transform _canvasTransform;
+        [SerializeField] GameObject _gameOverPopupPrefab;
 
         [Header("Parameters")]
         [SerializeField, Range(0f, 10f)] float _moveSpeed = 0f;
         [SerializeField, Range(0f, 10f)] float _moveHeight = 0f;
 
+        private Subject<Unit> _onRestartRequested = new Subject<Unit>();
+        public IObservable<Unit> OnRestartRequested => _onRestartRequested;
+
         private Vector3 _scorePanelPos;
         private Vector3 _nextSpherePanelPos;
+
+        private GameObject _gameOverPopupInstance;
 
         public void UpdateCurrentScore(int currentScore)
         {
@@ -41,6 +50,16 @@ namespace WatermelonGameClone
         {
             _scorePanelPos = _scorePanel.transform.localPosition;
             _nextSpherePanelPos = _nextSpherePanel.transform.localPosition;
+        }
+
+        public void ShowGameOverPopup()
+        {
+            _gameOverPopupInstance = Instantiate(_gameOverPopupPrefab, _canvasTransform);
+
+            var restartButton = _gameOverPopupInstance.GetComponentInChildren<Button>(true);
+            restartButton.OnClickAsObservable()
+                .Subscribe(_ => _onRestartRequested.OnNext(Unit.Default))
+                .AddTo(this);
         }
 
         private void Start()
