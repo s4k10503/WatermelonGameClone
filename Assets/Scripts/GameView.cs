@@ -21,13 +21,13 @@ namespace WatermelonGameClone
 
         public void UpdateCurrentScore(int currentScore)
         {
-            var currentScoreUI = _scorePanel.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+            var currentScoreUI = _scorePanel.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
             currentScoreUI.SetText(currentScore.ToString());
         }
 
         public void UpdateBestScore(int bestScore)
         {
-            var bestScoreUI = _scorePanel.transform.GetChild(3).GetComponent<TextMeshProUGUI>();
+            var bestScoreUI = _scorePanel.transform.GetChild(4).GetComponent<TextMeshProUGUI>();
             bestScoreUI.SetText(bestScore.ToString());
         }
 
