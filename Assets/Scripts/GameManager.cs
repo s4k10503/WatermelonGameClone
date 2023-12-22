@@ -111,6 +111,14 @@ namespace WatermelonGameClone
             }).AddTo(this);
         }
 
+        private void SubscribeBackToTitleRequest()
+        {
+            _gameView.OnBackToTitleRequested.Subscribe(_ =>
+            {
+                HandleBackToTitle();
+            }).AddTo(this);
+        }
+
 
         public void SetCurrentScore(int SphereNo)
         {
@@ -157,10 +165,16 @@ namespace WatermelonGameClone
             _gameView.ShowGameOverPopup();
         }
 
-        public void HandleRestart()
+        private void HandleRestart()
         {
             Time.timeScale = 1f;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        private void HandleBackToTitle()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("Title");
         }
     }
 }

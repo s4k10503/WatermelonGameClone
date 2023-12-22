@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -22,6 +24,9 @@ namespace WatermelonGameClone
 
         private Subject<Unit> _onRestartRequested = new Subject<Unit>();
         public IObservable<Unit> OnRestartRequested => _onRestartRequested;
+
+        private Subject<Unit> _onBackToTitleRequested = new Subject<Unit>();
+        public IObservable<Unit> OnBackToTitleRequested => _onBackToTitleRequested;
 
         private Vector3 _scorePanelPos;
         private Vector3 _nextSpherePanelPos;
@@ -55,11 +60,26 @@ namespace WatermelonGameClone
         public void ShowGameOverPopup()
         {
             _gameOverPopupInstance = Instantiate(_gameOverPopupPrefab, _canvasTransform);
+            var buttons = _gameOverPopupInstance.GetComponentsInChildren<Button>(true);
+            var buttonActions = new Dictionary<string, Action>
+            {
+                { "Restart", () => _onRestartRequested.OnNext(Unit.Default) },
+                { "Back to title", () => _onBackToTitleRequested.OnNext(Unit.Default) }
+            };
 
-            var restartButton = _gameOverPopupInstance.GetComponentInChildren<Button>(true);
-            restartButton.OnClickAsObservable()
-                .Subscribe(_ => _onRestartRequested.OnNext(Unit.Default))
-                .AddTo(this);
+            foreach (var button in buttons)
+            {
+                if (buttonActions.TryGetValue(button.name, out var action))
+                {
+                    button.OnClickAsObservable()
+                        .Subscribe(_ => action())
+                        .AddTo(this);
+                }
+                else
+                {
+                    Debug.LogWarning($"No action defined for button {button.name} in the game over popup!");
+                }
+            }
         }
 
         private void Start()

@@ -2867,8 +2867,8 @@ MonoBehaviour:
   _nextSpherePanel: {fileID: 1863037558}
   _rankingPanel: {fileID: 1490347796}
   _evolutionCirclePanel: {fileID: 34535267}
-  _canvasTransform: {fileID: 0}
-  _gameOverPopupPrefab: {fileID: 8012527297430545927, guid: 06ce2c838c2fea2469e2500de397ecc5, type: 3}
+  _canvasTransform: {fileID: 234646189}
+  _gameOverPopupPrefab: {fileID: 6920113508760262703, guid: 364a42c5cdca1da44be54e28d843f7c8, type: 3}
   _moveSpeed: 5
   _moveHeight: 5
 --- !u!1 &2046569582
