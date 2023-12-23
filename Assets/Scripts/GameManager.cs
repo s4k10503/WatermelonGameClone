@@ -52,6 +52,7 @@ namespace WatermelonGameClone
             SubscribeToGameEvents();
             SubscribeToScoreChanges();
             SubscribeToRestartRequest();
+            SubscribeToTitleReturnRequest();
 
             SetBestScore();
             CreateSphere();
@@ -111,7 +112,7 @@ namespace WatermelonGameClone
             }).AddTo(this);
         }
 
-        private void SubscribeBackToTitleRequest()
+        private void SubscribeToTitleReturnRequest()
         {
             _gameView.OnBackToTitleRequested.Subscribe(_ =>
             {

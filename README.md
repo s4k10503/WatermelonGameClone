@@ -13,6 +13,20 @@ This repository aims to clone that game in Unity.
 
 ## Features
 
+### Title scene
+
+#### Out Game
+
+- [x] Start button: Click to move to main scene
+- [ ] My Score button: Click to move to score scene?
+- [ ] How to play button: Click to move to how to play scene?
+- [ ] language choice
+
+### Main scene
+
+#### In Game
+
+- [ ] Direction before the game starts
 - [x] Move the sphere before it falls with the mouse
 - [x] Click to drop the sphere
 - [x] Merge fallen spheres
@@ -23,6 +37,12 @@ This repository aims to clone that game in Unity.
 - [ ] Display the next operable sphere
 - [ ] Display today's score ranking
 - [ ] Display the circle of evolution
+
+#### Out Game
+
+- [x] Restart button: Click to move to initialized main scene
+- [ ] My Score button: Click to move to Score Scene?
+- [x] Back to title button: Click to move to title scene
 
 ## Requirements
 
