@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UniRx;
 
 namespace WatermelonGameClone
@@ -50,6 +51,8 @@ namespace WatermelonGameClone
 
             SubscribeToGameEvents();
             SubscribeToScoreChanges();
+            SubscribeToRestartRequest();
+            SubscribeToTitleReturnRequest();
 
             SetBestScore();
             CreateSphere();
@@ -101,6 +104,23 @@ namespace WatermelonGameClone
             }).AddTo(this);
         }
 
+        private void SubscribeToRestartRequest()
+        {
+            _gameView.OnRestartRequested.Subscribe(_ =>
+            {
+                HandleRestart();
+            }).AddTo(this);
+        }
+
+        private void SubscribeToTitleReturnRequest()
+        {
+            _gameView.OnBackToTitleRequested.Subscribe(_ =>
+            {
+                HandleBackToTitle();
+            }).AddTo(this);
+        }
+
+
         public void SetCurrentScore(int SphereNo)
         {
             _gameModel.CalcScore(SphereNo);
@@ -116,6 +136,7 @@ namespace WatermelonGameClone
                 _gameView.UpdateBestScore(_gameModel.BestScore.Value);
             }
         }
+
         private void CreateSphere()
         {
             GameEvent.Execute(GameModel.GameState.SphereMoving);
@@ -142,6 +163,19 @@ namespace WatermelonGameClone
         {
             SetBestScore();
             Time.timeScale = 0f;
+            _gameView.ShowGameOverPopup(_gameModel.CurrentScore.Value);
+        }
+
+        private void HandleRestart()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        private void HandleBackToTitle()
+        {
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("Title");
         }
     }
 }

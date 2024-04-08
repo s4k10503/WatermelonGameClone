@@ -1,6 +1,13 @@
+using System;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UniRx;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 namespace WatermelonGameClone
 {
@@ -11,13 +18,23 @@ namespace WatermelonGameClone
         [SerializeField] GameObject _nextSpherePanel;
         [SerializeField] GameObject _rankingPanel;
         [SerializeField] GameObject _evolutionCirclePanel;
+        [SerializeField] Transform _canvasTransform;
+        [SerializeField] GameObject _gameOverPopupPrefab;
 
         [Header("Parameters")]
         [SerializeField, Range(0f, 10f)] float _moveSpeed = 0f;
         [SerializeField, Range(0f, 10f)] float _moveHeight = 0f;
 
+        private Subject<Unit> _onRestartRequested = new Subject<Unit>();
+        public IObservable<Unit> OnRestartRequested => _onRestartRequested;
+
+        private Subject<Unit> _onBackToTitleRequested = new Subject<Unit>();
+        public IObservable<Unit> OnBackToTitleRequested => _onBackToTitleRequested;
+
         private Vector3 _scorePanelPos;
         private Vector3 _nextSpherePanelPos;
+
+        private GameObject _gameOverPopupInstance;
 
         public void UpdateCurrentScore(int currentScore)
         {
@@ -43,8 +60,37 @@ namespace WatermelonGameClone
             _nextSpherePanelPos = _nextSpherePanel.transform.localPosition;
         }
 
+        public void ShowGameOverPopup(int score)
+        {
+            _gameOverPopupInstance = Instantiate(_gameOverPopupPrefab, _canvasTransform);
+            _gameOverPopupInstance.transform.localScale = Vector3.zero;
+            _gameOverPopupInstance.transform.DOScale(1, 0.5f).SetEase(Ease.OutBack).SetUpdate(true);
+
+            var buttons = _gameOverPopupInstance.GetComponentsInChildren<Button>(true);
+            var buttonActions = new Dictionary<string, Action>
+            {
+                { "Restart", () => _onRestartRequested.OnNext(Unit.Default) },
+                { "Back to title", () => _onBackToTitleRequested.OnNext(Unit.Default) }
+            };
+
+            foreach (var button in buttons)
+            {
+                if (buttonActions.TryGetValue(button.name, out var action))
+                {
+                    button.OnClickAsObservable()
+                        .Subscribe(_ => action())
+                        .AddTo(this);
+                }
+                else
+                {
+                    Debug.LogWarning($"No action defined for button {button.name} in the game over popup!");
+                }
+            }
+        }
+
         private void Start()
         {
+            DOTween.Init();
             GetUIPos();
         }
 
