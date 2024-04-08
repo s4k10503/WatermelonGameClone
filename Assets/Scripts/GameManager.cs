@@ -1,23 +1,31 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UniRx;
+using DG.Tweening;
 
 namespace WatermelonGameClone
 {
     public class GameManager : MonoBehaviour
     {
-        [Header("Objects")]
+        [Header("View Elements")]
+        [SerializeField] private GameView _gameView;
         [SerializeField] private Sphere[] _spherePrefab;
         [SerializeField] private Transform _spherePosition;
-        [SerializeField] private GameView _gameView;
         [SerializeField] private Ceiling _ceiling;
 
         [Header("Parameters")]
         [SerializeField, Range(0, 1.0f)] private float _audioVolume;
 
+        //Model Elements
         private GameModel _gameModel = new GameModel();
-        private static readonly float s_invokeTime = 1.0f;
+
+        public static GameManager Instance { get; private set; }
+        public bool IsNext { get; set; }
+        public int MaxSphereNo { get; private set; }
+
+        private static readonly float s_delayedTime = 1.0f;
         private AudioSource _audioSourceEffect;
+        private int _nextSphereIndex;
 
         private ReactiveProperty<GameModel.GameState> _reactiveGameState;
         public IReadOnlyReactiveProperty<GameModel.GameState> GameState => _reactiveGameState;
@@ -25,10 +33,6 @@ namespace WatermelonGameClone
         private ReactiveProperty<int> _reactiveCurrentScore;
 
         public ReactiveCommand<GameModel.GameState> GameEvent = new ReactiveCommand<GameModel.GameState>();
-
-        public static GameManager Instance { get; private set; }
-        public bool IsNext { get; set; }
-        public int MaxSphereNo { get; private set; }
 
 
         void Start()
@@ -55,6 +59,7 @@ namespace WatermelonGameClone
             SubscribeToTitleReturnRequest();
 
             SetBestScore();
+            UpdateNextSphereIndex();
             CreateSphere();
         }
 
@@ -63,7 +68,11 @@ namespace WatermelonGameClone
             if (IsNext)
             {
                 IsNext = false;
-                Invoke("CreateSphere", s_invokeTime);
+                DOVirtual.DelayedCall(s_delayedTime, () =>
+                {
+                    CreateSphere();
+                    UpdateNextSphereIndex();
+                });
             }
         }
 
@@ -141,12 +150,15 @@ namespace WatermelonGameClone
         {
             GameEvent.Execute(GameModel.GameState.SphereMoving);
 
-            int maxIndex = MaxSphereNo / 2 - 1;
-            int i = Random.Range(0, maxIndex + 1);
-
-            Sphere sphereIns = Instantiate(_spherePrefab[i], _spherePosition);
-            sphereIns.SphereNo = i;
+            Sphere sphereIns = Instantiate(_spherePrefab[_nextSphereIndex], _spherePosition);
+            sphereIns.SphereNo = _nextSphereIndex;
             sphereIns.gameObject.SetActive(true);
+        }
+
+        private void UpdateNextSphereIndex()
+        {
+            int maxIndex = MaxSphereNo / 2 - 1;
+            _nextSphereIndex = Random.Range(0, maxIndex + 1);
         }
 
         public void MergeNext(Vector3 target, int SphereNo)
