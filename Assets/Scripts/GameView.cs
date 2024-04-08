@@ -5,6 +5,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UniRx;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 namespace WatermelonGameClone
 {
@@ -57,9 +60,12 @@ namespace WatermelonGameClone
             _nextSpherePanelPos = _nextSpherePanel.transform.localPosition;
         }
 
-        public void ShowGameOverPopup()
+        public void ShowGameOverPopup(int score)
         {
             _gameOverPopupInstance = Instantiate(_gameOverPopupPrefab, _canvasTransform);
+            _gameOverPopupInstance.transform.localScale = Vector3.zero;
+            _gameOverPopupInstance.transform.DOScale(1, 0.5f).SetEase(Ease.OutBack).SetUpdate(true);
+
             var buttons = _gameOverPopupInstance.GetComponentsInChildren<Button>(true);
             var buttonActions = new Dictionary<string, Action>
             {
@@ -84,6 +90,7 @@ namespace WatermelonGameClone
 
         private void Start()
         {
+            DOTween.Init();
             GetUIPos();
         }
 

@@ -163,7 +163,7 @@ namespace WatermelonGameClone
         {
             SetBestScore();
             Time.timeScale = 0f;
-            _gameView.ShowGameOverPopup();
+            _gameView.ShowGameOverPopup(_gameModel.CurrentScore.Value);
         }
 
         private void HandleRestart()
