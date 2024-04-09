@@ -20,6 +20,7 @@ namespace WatermelonGameClone
         [SerializeField] GameObject _evolutionCirclePanel;
         [SerializeField] Transform _canvasTransform;
         [SerializeField] GameObject _gameOverPopupPrefab;
+        [SerializeField] GameObject[] _nextSphereImage;
 
         [Header("Parameters")]
         [SerializeField, Range(0f, 10f)] float _moveSpeed = 0f;
@@ -35,6 +36,36 @@ namespace WatermelonGameClone
         private Vector3 _nextSpherePanelPos;
 
         private GameObject _gameOverPopupInstance;
+        private GameObject[] _instantiatedSpheres;
+
+        private CompositeDisposable _disposables = new CompositeDisposable();
+
+        public void Initialize()
+        {
+            DOTween.Init();
+            GetUIPos();
+            CreateNextSpheres();
+        }
+
+        private void OnDestroy()
+        {
+            if (_disposables != null)
+            {
+                _disposables.Dispose();
+            }
+        }
+
+        public void CreateNextSpheres()
+        {
+            _instantiatedSpheres = new GameObject[_nextSphereImage.Length];
+            for (int i = 0; i < _nextSphereImage.Length; i++)
+            {
+                GameObject instantiatedSphere = Instantiate(_nextSphereImage[i], _nextSpherePanel.transform);
+                instantiatedSphere.SetActive(false);
+                _instantiatedSpheres[i] = instantiatedSphere;
+                instantiatedSphere.transform.SetAsLastSibling();
+            }
+        }
 
         public void UpdateCurrentScore(int currentScore)
         {
@@ -48,7 +79,15 @@ namespace WatermelonGameClone
             bestScoreUI.SetText(bestScore.ToString());
         }
 
-        private void MoveUI()
+        public void UpdateNextSphere(int nextSphereIndex)
+        {
+            for (int i = 0; i < _instantiatedSpheres.Length; i++)
+            {
+                _instantiatedSpheres[i].SetActive(i == nextSphereIndex);
+            }
+        }
+
+        public void MoveUI()
         {
             _scorePanel.transform.localPosition = _scorePanelPos + new Vector3(0f, Mathf.Sin(Time.time * _moveSpeed) * _moveHeight, 0f);
             _nextSpherePanel.transform.localPosition = _nextSpherePanelPos + new Vector3(0f, Mathf.Cos(Time.time * _moveSpeed) * _moveHeight, 0f);
@@ -79,24 +118,13 @@ namespace WatermelonGameClone
                 {
                     button.OnClickAsObservable()
                         .Subscribe(_ => action())
-                        .AddTo(this);
+                        .AddTo(_disposables);
                 }
                 else
                 {
                     Debug.LogWarning($"No action defined for button {button.name} in the game over popup!");
                 }
             }
-        }
-
-        private void Start()
-        {
-            DOTween.Init();
-            GetUIPos();
-        }
-
-        private void Update()
-        {
-            MoveUI();
         }
     }
 }
