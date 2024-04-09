@@ -1058,6 +1058,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21f2ccd645c40a341bf38dc6f6ec0d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gameView: {fileID: 1997723644}
   _spherePrefab:
   - {fileID: 7670361748452697546, guid: 3e3a9601bc8a6f142b95ee048e87035c, type: 3}
   - {fileID: 7670361748452697546, guid: 76ad17511959cb445a3cc9cde760e558, type: 3}
@@ -1071,7 +1072,6 @@ MonoBehaviour:
   - {fileID: 7670361748452697546, guid: 54dad903f4094ce4b924c68a24277fa2, type: 3}
   - {fileID: 7670361748452697546, guid: 8681fd0fff2a3cf4b8cc18f1a4fb894c, type: 3}
   _spherePosition: {fileID: 1280835132}
-  _gameView: {fileID: 1997723644}
   _ceiling: {fileID: 257282277}
   _audioVolume: 0.172
 --- !u!4 &713621977

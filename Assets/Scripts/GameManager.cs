@@ -25,17 +25,21 @@ namespace WatermelonGameClone
 
         private static readonly float s_delayedTime = 1.0f;
         private AudioSource _audioSourceEffect;
-        private int _nextSphereIndex;
 
+        // ReactiveProperty
         private ReactiveProperty<GameModel.GameState> _reactiveGameState;
         public IReadOnlyReactiveProperty<GameModel.GameState> GameState => _reactiveGameState;
+
+        private ReactiveProperty<int> _nextSphereIndex = new ReactiveProperty<int>();
+        public IReadOnlyReactiveProperty<int> NextSphereIndex => _nextSphereIndex;
 
         private ReactiveProperty<int> _reactiveCurrentScore;
 
         public ReactiveCommand<GameModel.GameState> GameEvent = new ReactiveCommand<GameModel.GameState>();
 
+        private CompositeDisposable _disposables = new CompositeDisposable();
 
-        void Start()
+        void Awake()
         {
             _reactiveGameState = new ReactiveProperty<GameModel.GameState>(_gameModel.CurrentState.Value);
             _reactiveCurrentScore = new ReactiveProperty<int>(_gameModel.CurrentScore.Value);
@@ -45,6 +49,8 @@ namespace WatermelonGameClone
             MaxSphereNo = _spherePrefab.Length;
 
             _gameView = GameObject.Find("GameView").GetComponent<GameView>();
+            _gameView.Initialize();
+
             _ceiling = GameObject.Find("Ceiling").GetComponent<Ceiling>();
 
             _audioSourceEffect = gameObject.AddComponent<AudioSource>();
@@ -52,27 +58,49 @@ namespace WatermelonGameClone
             _gameModel.SetSoundVolume(_audioVolume);
 
             _gameModel.SetGameState(GameModel.GameState.Initializing);
+        }
 
+        void Start()
+        {
             SubscribeToGameEvents();
             SubscribeToScoreChanges();
             SubscribeToRestartRequest();
             SubscribeToTitleReturnRequest();
+            SubscribeToNextSphereIndex();
 
             SetBestScore();
+
             UpdateNextSphereIndex();
-            CreateSphere();
+
+            DOVirtual.DelayedCall(s_delayedTime, () =>
+            {
+                CreateSphere();
+            });
         }
 
         void Update()
         {
+            _gameView.MoveUI();
+
             if (IsNext)
             {
                 IsNext = false;
                 DOVirtual.DelayedCall(s_delayedTime, () =>
                 {
-                    CreateSphere();
+                    if (_reactiveGameState.Value != GameModel.GameState.GameOver)
+                    {
+                        CreateSphere();
+                    }
                     UpdateNextSphereIndex();
                 });
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_disposables != null)
+            {
+                _disposables.Dispose();
             }
         }
 
@@ -102,7 +130,7 @@ namespace WatermelonGameClone
                         HandleGameOver();
                         break;
                 }
-            }).AddTo(this);
+            }).AddTo(_disposables);
         }
 
         private void SubscribeToScoreChanges()
@@ -110,7 +138,7 @@ namespace WatermelonGameClone
             _reactiveCurrentScore.Subscribe(score =>
             {
                 _gameView.UpdateCurrentScore(score);
-            }).AddTo(this);
+            }).AddTo(_disposables);
         }
 
         private void SubscribeToRestartRequest()
@@ -118,7 +146,7 @@ namespace WatermelonGameClone
             _gameView.OnRestartRequested.Subscribe(_ =>
             {
                 HandleRestart();
-            }).AddTo(this);
+            }).AddTo(_disposables);
         }
 
         private void SubscribeToTitleReturnRequest()
@@ -126,7 +154,15 @@ namespace WatermelonGameClone
             _gameView.OnBackToTitleRequested.Subscribe(_ =>
             {
                 HandleBackToTitle();
-            }).AddTo(this);
+            }).AddTo(_disposables);
+        }
+
+        private void SubscribeToNextSphereIndex()
+        {
+            NextSphereIndex.Subscribe(index =>
+            {
+                _gameView.UpdateNextSphere(index);
+            }).AddTo(_disposables);
         }
 
 
@@ -150,15 +186,15 @@ namespace WatermelonGameClone
         {
             GameEvent.Execute(GameModel.GameState.SphereMoving);
 
-            Sphere sphereIns = Instantiate(_spherePrefab[_nextSphereIndex], _spherePosition);
-            sphereIns.SphereNo = _nextSphereIndex;
+            Sphere sphereIns = Instantiate(_spherePrefab[_nextSphereIndex.Value], _spherePosition);
+            sphereIns.SphereNo = _nextSphereIndex.Value;
             sphereIns.gameObject.SetActive(true);
         }
 
         private void UpdateNextSphereIndex()
         {
             int maxIndex = MaxSphereNo / 2 - 1;
-            _nextSphereIndex = Random.Range(0, maxIndex + 1);
+            _nextSphereIndex.Value = Random.Range(0, maxIndex + 1);
         }
 
         public void MergeNext(Vector3 target, int SphereNo)
