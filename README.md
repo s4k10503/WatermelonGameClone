@@ -34,7 +34,7 @@ This repository aims to clone that game in Unity.
 - [x] Game over when reaching a certain height
 - [x] Display your highest score so far
 - [x] Play sound effects
-- [ ] Display the next operable sphere
+- [x] Display the next operable sphere
 - [ ] Display today's score ranking
 - [ ] Display the circle of evolution
 
