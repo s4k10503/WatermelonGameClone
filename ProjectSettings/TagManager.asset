@@ -8,6 +8,7 @@ TagManager:
   - ship
   - asteroid
   - Wall
+  - Ceiling
   layers:
   - Default
   - TransparentFX

@@ -44,7 +44,7 @@ namespace WatermelonGameClone
         {
             DOTween.Init();
             GetUIPos();
-            CreateNextSpheres();
+            CreateNextSphereImages();
         }
 
         private void OnDestroy()
@@ -55,7 +55,7 @@ namespace WatermelonGameClone
             }
         }
 
-        public void CreateNextSpheres()
+        public void CreateNextSphereImages()
         {
             _instantiatedSpheres = new GameObject[_nextSphereImage.Length];
             for (int i = 0; i < _nextSphereImage.Length; i++)
@@ -79,7 +79,7 @@ namespace WatermelonGameClone
             bestScoreUI.SetText(bestScore.ToString());
         }
 
-        public void UpdateNextSphere(int nextSphereIndex)
+        public void UpdateNextSphereImages(int nextSphereIndex)
         {
             for (int i = 0; i < _instantiatedSpheres.Length; i++)
             {

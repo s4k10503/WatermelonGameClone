@@ -6,21 +6,6 @@ namespace WatermelonGameClone
 {
     public class GameModel
     {
-        public enum GameState
-        {
-            Initializing,
-            SphereMoving,
-            SphereDropping,
-            Merging,
-            GameOver
-        }
-
-        public enum SoundEffect
-        {
-            Drop,
-            Merge
-        }
-
         private ReactiveProperty<GameState> _currentState = new ReactiveProperty<GameState>(GameState.Initializing);
         private ReactiveProperty<int> _currentScore = new ReactiveProperty<int>(0);
         private ReactiveProperty<int> _bestScore = new ReactiveProperty<int>(0);
@@ -50,19 +35,28 @@ namespace WatermelonGameClone
 
         public void SetGameState(GameState newState)
         {
-            CurrentState.Value = newState;
+            _currentState.Value = newState;
         }
 
-        public void CalcScore(int sphereNo)
+        public void SetBestScore()
         {
-            int scoreToAdd = (sphereNo + 1) * s_scoreCoefficient;
-            CurrentScore.Value += scoreToAdd;
+            int pastBestScore = PlayerPrefs.GetInt("BestScore");
+            if (_currentScore.Value > pastBestScore)
+            {
+                SaveBestScore(_currentScore.Value);
+            }
         }
 
         public void SaveBestScore(int currentScore)
         {
-            BestScore.Value = currentScore;
-            PlayerPrefs.SetInt("BestScore", BestScore.Value);
+            _bestScore.Value = currentScore;
+            PlayerPrefs.SetInt("BestScore", _bestScore.Value);
+        }
+
+        public void SetCurrentScore(int SphereNo)
+        {
+            int scoreToAdd = (SphereNo + 1) * s_scoreCoefficient;
+            _currentScore.Value += scoreToAdd;
         }
 
         public void SetSoundEffect()
