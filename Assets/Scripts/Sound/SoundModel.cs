@@ -4,7 +4,7 @@ using UniRx;
 
 namespace WatermelonGameClone
 {
-    public class SoundModel
+    public class SoundModel : ISoundModel
     {
         private Dictionary<SoundEffect, AudioClip> soundEffects = new Dictionary<SoundEffect, AudioClip>();
 
@@ -22,6 +22,16 @@ namespace WatermelonGameClone
             _soundVolume = Mathf.Clamp(volume, 0.0f, 1.0f);
         }
 
+        public void PlaySoundEffect(SoundEffect effect, AudioSource source)
+        {
+            if (soundEffects.TryGetValue(effect, out AudioClip clip))
+            {
+                source.clip = clip;
+                source.volume = _soundVolume;
+                source.Play();
+            }
+        }
+
         private void LoadSoundEffect(SoundEffect effect, string resourcePath)
         {
             AudioClip clip = Resources.Load<AudioClip>(resourcePath);
@@ -32,16 +42,6 @@ namespace WatermelonGameClone
             else
             {
                 Debug.LogError("Sound effect not found at path: " + resourcePath);
-            }
-        }
-
-        public void PlaySoundEffect(SoundEffect effect, AudioSource source)
-        {
-            if (soundEffects.TryGetValue(effect, out AudioClip clip))
-            {
-                source.clip = clip;
-                source.volume = _soundVolume;
-                source.Play();
             }
         }
     }

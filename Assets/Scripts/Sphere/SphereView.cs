@@ -5,7 +5,7 @@ using UniRx;
 
 namespace WatermelonGameClone
 {
-    public class SphereView : MonoBehaviour
+    public class SphereView : MonoBehaviour, ISphereView
     {
         [Header("Movement restrictions")]
         [SerializeField] private float _minX = -2.7f;
@@ -40,13 +40,17 @@ namespace WatermelonGameClone
         private Subject<MergeData> _onMergingRequest = new Subject<MergeData>();
         public IObservable<MergeData> OnMergingRequest => _onMergingRequest;
 
-        void Awake()
+        // ReactiveProperty
+        private ReactiveProperty<int> _nextSphereIndex = new ReactiveProperty<int>();
+        public IReadOnlyReactiveProperty<int> NextSphereIndex => _nextSphereIndex.ToReadOnlyReactiveProperty();
+
+        private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             _rb.simulated = false;
         }
 
-        void Update()
+        private void Update()
         {
             HandleUserInput();
         }

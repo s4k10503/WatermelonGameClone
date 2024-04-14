@@ -11,7 +11,7 @@ using DG.Tweening;
 
 namespace WatermelonGameClone
 {
-    public class GameView : MonoBehaviour
+    public class GameView : MonoBehaviour, IGameView
     {
         [Header("Objects")]
         [SerializeField] GameObject _scorePanel;
@@ -31,7 +31,7 @@ namespace WatermelonGameClone
         [SerializeField, Range(0f, 10f)] float _moveSpeed = 0f;
         [SerializeField, Range(0f, 10f)] float _moveHeight = 0f;
 
-        // ReactiveProperty
+        // Observables
         private Subject<Unit> _onRestartRequested = new Subject<Unit>();
         public IObservable<Unit> OnRestartRequested => _onRestartRequested;
 
