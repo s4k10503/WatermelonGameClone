@@ -22,23 +22,22 @@ namespace WatermelonGameClone
         [SerializeField] GameObject _gameOverPopupPrefab;
         [SerializeField] GameObject[] _nextSphereImage;
 
+        private GameObject _gameOverPopupInstance;
+        private GameObject[] _instantiatedSpheres;
+        private Vector3 _scorePanelPos;
+        private Vector3 _nextSpherePanelPos;
+
         [Header("Parameters")]
         [SerializeField, Range(0f, 10f)] float _moveSpeed = 0f;
         [SerializeField, Range(0f, 10f)] float _moveHeight = 0f;
 
+        // ReactiveProperty
         private Subject<Unit> _onRestartRequested = new Subject<Unit>();
         public IObservable<Unit> OnRestartRequested => _onRestartRequested;
 
         private Subject<Unit> _onBackToTitleRequested = new Subject<Unit>();
         public IObservable<Unit> OnBackToTitleRequested => _onBackToTitleRequested;
 
-        private Vector3 _scorePanelPos;
-        private Vector3 _nextSpherePanelPos;
-
-        private GameObject _gameOverPopupInstance;
-        private GameObject[] _instantiatedSpheres;
-
-        private CompositeDisposable _disposables = new CompositeDisposable();
 
         public void Initialize()
         {
@@ -49,10 +48,7 @@ namespace WatermelonGameClone
 
         private void OnDestroy()
         {
-            if (_disposables != null)
-            {
-                _disposables.Dispose();
-            }
+
         }
 
         public void CreateNextSphereImages()
@@ -118,7 +114,7 @@ namespace WatermelonGameClone
                 {
                     button.OnClickAsObservable()
                         .Subscribe(_ => action())
-                        .AddTo(_disposables);
+                        .AddTo(this);
                 }
                 else
                 {

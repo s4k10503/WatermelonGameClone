@@ -5,7 +5,7 @@ using UniRx;
 
 namespace WatermelonGameClone
 {
-    public class Sphere : MonoBehaviour
+    public class SphereView : MonoBehaviour
     {
         [Header("Movement restrictions")]
         [SerializeField] private float _minX = -2.7f;
@@ -16,16 +16,18 @@ namespace WatermelonGameClone
         public bool _isMerge = false;
         public bool _isDrop = false;
 
-        // Paramerters
+        // Physics
         private Rigidbody2D _rb;
         private float _minDiameter = 0.4f;
         private float _stepSize = 0.2f;
         private float _ceilingContactTime;
         private static readonly float s_timeLimit = 0.5f;
+
+        // Game Logic
         private int _maxSphereNo;
         private int _sphereNo;
 
-        // ReactiveProperty
+        // Observables
         private Subject<Unit> _onGameOverRequest = new Subject<Unit>();
         public IObservable<Unit> OnGameOverRequest => _onGameOverRequest;
 
@@ -38,29 +40,18 @@ namespace WatermelonGameClone
         private Subject<MergeData> _onMergingRequest = new Subject<MergeData>();
         public IObservable<MergeData> OnMergingRequest => _onMergingRequest;
 
-        public class MergeData
-        {
-            public Vector3 Position;
-            public int SphereNo;
-            public GameObject SphereA;
-            public GameObject SphereB;
-
-            public MergeData(Vector3 position, int sphereNo, GameObject sphereA, GameObject sphereB)
-            {
-                Position = position;
-                SphereNo = sphereNo;
-                SphereA = sphereA;
-                SphereB = sphereB;
-            }
-        }
-
-        void Start()
+        void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             _rb.simulated = false;
         }
 
         void Update()
+        {
+            HandleUserInput();
+        }
+
+        private void HandleUserInput()
         {
             if (_isDrop)
             {
@@ -71,15 +62,15 @@ namespace WatermelonGameClone
                 UpdatePosition();
                 if (Input.GetMouseButton(0))
                 {
-                    Drop();
+                    StartDropping();
                 }
             }
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (IsEligibleForMerge(collision, out Sphere colSphere))
-                PerformMerge(colSphere);
+            if (IsEligibleForMerge(collision, out SphereView otherSphere))
+                PerformMerge(otherSphere);
         }
 
         private void OnTriggerStay2D(Collider2D collision)
@@ -125,41 +116,37 @@ namespace WatermelonGameClone
             transform.position = mousePos;
         }
 
-        private void Drop()
+        private void StartDropping()
         {
-            _onDroppingRequest.OnNext(Unit.Default);
-
             _isDrop = true;
             _rb.velocity = Vector2.zero;
             _rb.simulated = true;
+
+            _onDroppingRequest.OnNext(Unit.Default);
         }
 
-        private bool IsEligibleForMerge(Collision2D collision, out Sphere colSphere)
+        private bool IsEligibleForMerge(Collision2D collision, out SphereView otherSphere)
         {
-            colSphere = null;
+            otherSphere = null;
             GameObject colObj = collision.gameObject;
             if (!colObj.CompareTag("Sphere"))
                 return false;
 
-            colSphere = colObj.GetComponent<Sphere>();
-            return _sphereNo == colSphere._sphereNo;
+            otherSphere = colObj.GetComponent<SphereView>();
+            return _sphereNo == otherSphere._sphereNo;
         }
 
-        private void PerformMerge(Sphere colSphere)
+        private void PerformMerge(SphereView otherSphere)
         {
-            if (gameObject.GetInstanceID() < colSphere.gameObject.GetInstanceID())
+            if (gameObject.GetInstanceID() < otherSphere.gameObject.GetInstanceID() && _sphereNo < _maxSphereNo - 1)
             {
-                if (_sphereNo < _maxSphereNo - 1)
-                {
-                    var newPosition = (transform.position + colSphere.transform.position) / 2;
-                    _onMergingRequest.OnNext(new MergeData(newPosition, _sphereNo, gameObject, colSphere.gameObject));
-                    GamePresenter.Instance.MergeSphere(newPosition, _sphereNo);
-                }
+                var newPosition = (transform.position + otherSphere.transform.position) / 2;
+                Destroy(gameObject);
+                Destroy(otherSphere.gameObject);
+
+                _onMergingRequest.OnNext(new MergeData(newPosition, _sphereNo, gameObject, otherSphere.gameObject));
             }
             _onMovingRequest.OnNext(Unit.Default);
-
-            Destroy(gameObject);
-            Destroy(colSphere.gameObject);
         }
     }
 }
