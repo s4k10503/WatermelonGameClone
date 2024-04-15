@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1847617892139495874
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3099890941211094982}
+  - component: {fileID: 2323306782817472913}
+  m_Layer: 0
+  m_Name: GameView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3099890941211094982
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847617892139495874}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2323306782817472913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1847617892139495874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1db1daa3d42645f4c80f2d6834cc5468, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scorePanel: {fileID: 1703830474044082366, guid: 1b889b89b7a3d224c9cbbba523f7732c, type: 3}
+  _nextSpherePanel: {fileID: 5767814150324829003, guid: 0048796631659dc4d8e4be775fad755d, type: 3}
+  _rankingPanel: {fileID: 1885936404142188741, guid: c13713c3a6f5c144b9487070711976c5, type: 3}
+  _evolutionCirclePanel: {fileID: 6394372994724701237, guid: d5b7c80cb5546bb459f90beb74a78f33, type: 3}
+  _canvasTransform: {fileID: 8316913323384018162, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+  _gameOverPopupPrefab: {fileID: 6920113508760262703, guid: 364a42c5cdca1da44be54e28d843f7c8, type: 3}
+  _nextSphereImage:
+  - {fileID: 1896000490732014204, guid: c4462ef735dc63e4aab84e2001491579, type: 3}
+  - {fileID: 1896000490732014204, guid: d90c34e482383324ab0a0e1c9b17c6b9, type: 3}
+  - {fileID: 1896000490732014204, guid: 1b6866645a384254bb8ff0817fa37bb4, type: 3}
+  - {fileID: 1896000490732014204, guid: fb1f57db111d2514ba4600283abfabee, type: 3}
+  - {fileID: 1896000490732014204, guid: d690634e387e44a4c8702cf689d03560, type: 3}
+  - {fileID: 1896000490732014204, guid: 5940fa53f896db7479246371ae9c28e2, type: 3}
+  - {fileID: 1896000490732014204, guid: 8d24c1aa2df36214693fd7e63e73af48, type: 3}
+  - {fileID: 1896000490732014204, guid: 5aef7d58f332aca45aa5561ffd9cad4d, type: 3}
+  - {fileID: 1896000490732014204, guid: ca3a30b17b3da014c983982a654830ab, type: 3}
+  - {fileID: 1896000490732014204, guid: 39845b22c13ff2d4f822463d776642a6, type: 3}
+  - {fileID: 1896000490732014204, guid: 7409785b89c1aba47a0aca392a08f350, type: 3}
+  _moveSpeed: 5
+  _moveHeight: 5

@@ -7,8 +7,8 @@ namespace WatermelonGameClone
     public interface IGameView
     {
         // Observables for UI events
-        IObservable<Unit> OnRestartRequested { get; }
-        IObservable<Unit> OnBackToTitleRequested { get; }
+        IObservable<Unit> OnRestart { get; }
+        IObservable<Unit> OnBackToTitle { get; }
 
         // Methods related to game state and UI updates
         void Initialize();

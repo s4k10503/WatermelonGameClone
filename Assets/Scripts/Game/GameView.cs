@@ -31,16 +31,20 @@ namespace WatermelonGameClone
         [SerializeField, Range(0f, 10f)] float _moveSpeed = 0f;
         [SerializeField, Range(0f, 10f)] float _moveHeight = 0f;
 
-        // Observables
-        private Subject<Unit> _onRestartRequested = new Subject<Unit>();
-        public IObservable<Unit> OnRestartRequested => _onRestartRequested;
+        // Subjects
+        private Subject<Unit> _onRestart = new Subject<Unit>();
+        private Subject<Unit> _onBackToTitle = new Subject<Unit>();
 
-        private Subject<Unit> _onBackToTitleRequested = new Subject<Unit>();
-        public IObservable<Unit> OnBackToTitleRequested => _onBackToTitleRequested;
+        // Observables
+        public IObservable<Unit> OnRestart => _onRestart;
+        public IObservable<Unit> OnBackToTitle => _onBackToTitle;
 
 
         public void Initialize()
         {
+            _onRestart.AddTo(this);
+            _onBackToTitle.AddTo(this);
+
             DOTween.Init();
             GetUIPos();
             CreateNextSphereImages();
@@ -59,6 +63,8 @@ namespace WatermelonGameClone
                 GameObject instantiatedSphere = Instantiate(_nextSphereImage[i], _nextSpherePanel.transform);
                 instantiatedSphere.SetActive(false);
                 _instantiatedSpheres[i] = instantiatedSphere;
+
+                instantiatedSphere.transform.SetParent(_nextSpherePanel.transform, false);
                 instantiatedSphere.transform.SetAsLastSibling();
             }
         }
@@ -104,8 +110,8 @@ namespace WatermelonGameClone
             var buttons = _gameOverPopupInstance.GetComponentsInChildren<Button>(true);
             var buttonActions = new Dictionary<string, Action>
             {
-                { "Restart", () => _onRestartRequested.OnNext(Unit.Default) },
-                { "Back to title", () => _onBackToTitleRequested.OnNext(Unit.Default) }
+                { "Restart", () => _onRestart.OnNext(Unit.Default) },
+                { "Back to title", () => _onBackToTitle.OnNext(Unit.Default) }
             };
 
             foreach (var button in buttons)

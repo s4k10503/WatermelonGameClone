@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using UniRx;
+using Zenject;
 
 
 namespace WatermelonGameClone
@@ -11,6 +12,8 @@ namespace WatermelonGameClone
         [SerializeField] private float _minX = -2.7f;
         [SerializeField] private float _maxX = 2.7f;
         [SerializeField] private float _fixedY = 3.5f;
+
+        private IInputEventProvider _inputEventProvider;
 
         // Flag
         public bool _isMerge = false;
@@ -27,22 +30,28 @@ namespace WatermelonGameClone
         private int _maxSphereNo;
         private int _sphereNo;
 
+        // Subjects
+        private Subject<Unit> _onGameOver = new Subject<Unit>();
+        private Subject<Unit> _onDropping = new Subject<Unit>();
+        private Subject<Unit> _onMoving = new Subject<Unit>();
+        private Subject<MergeData> _onMerging = new Subject<MergeData>();
+
         // Observables
-        private Subject<Unit> _onGameOverRequest = new Subject<Unit>();
-        public IObservable<Unit> OnGameOverRequest => _onGameOverRequest;
-
-        private Subject<Unit> _onDroppingRequest = new Subject<Unit>();
-        public IObservable<Unit> OnDroppingRequest => _onDroppingRequest;
-
-        private Subject<Unit> _onMovingRequest = new Subject<Unit>();
-        public IObservable<Unit> OnMovingRequest => _onMovingRequest;
-
-        private Subject<MergeData> _onMergingRequest = new Subject<MergeData>();
-        public IObservable<MergeData> OnMergingRequest => _onMergingRequest;
+        public IObservable<Unit> OnGameOver => _onGameOver;
+        public IObservable<Unit> OnDropping => _onDropping;
+        public IObservable<Unit> OnMoving => _onMoving;
+        public IObservable<MergeData> OnMerging => _onMerging;
 
         // ReactiveProperty
         private ReactiveProperty<int> _nextSphereIndex = new ReactiveProperty<int>();
         public IReadOnlyReactiveProperty<int> NextSphereIndex => _nextSphereIndex.ToReadOnlyReactiveProperty();
+
+
+        [Inject]
+        public void Construct(IInputEventProvider inputEventProvider)
+        {
+            _inputEventProvider = inputEventProvider;
+        }
 
         private void Awake()
         {
@@ -50,25 +59,24 @@ namespace WatermelonGameClone
             _rb.simulated = false;
         }
 
-        private void Update()
+        private void Start()
         {
-            HandleUserInput();
-        }
+            _onGameOver.AddTo(this);
+            _onDropping.AddTo(this);
+            _onMoving.AddTo(this);
+            _onMerging.AddTo(this);
 
-        private void HandleUserInput()
-        {
-            if (_isDrop)
-            {
-                _rb.simulated = true;
-            }
-            else
-            {
-                UpdatePosition();
-                if (Input.GetMouseButton(0))
-                {
-                    StartDropping();
-                }
-            }
+            _inputEventProvider
+                .OnMouseMove
+                .Where(_ => !_isDrop)
+                .Subscribe(UpdatePosition)
+                .AddTo(this);
+
+            _inputEventProvider
+                .OnMouseClick
+                .Where(_ => !_isDrop)
+                .Subscribe(_ => StartDropping())
+                .AddTo(this);
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
@@ -84,7 +92,7 @@ namespace WatermelonGameClone
                 _ceilingContactTime += Time.deltaTime;
                 if (_ceilingContactTime > s_timeLimit)
                 {
-                    _onGameOverRequest.OnNext(Unit.Default);
+                    _onGameOver.OnNext(Unit.Default);
                 }
             }
         }
@@ -108,9 +116,8 @@ namespace WatermelonGameClone
             _isDrop = true;
         }
 
-        private void UpdatePosition()
+        private void UpdatePosition(Vector2 mousePos)
         {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             float currentDiameter = _minDiameter + _stepSize * (_sphereNo + 1);
             float offset = currentDiameter / 2 + 0.01f;
             float adjustedMinX = _minX + offset;
@@ -126,7 +133,7 @@ namespace WatermelonGameClone
             _rb.velocity = Vector2.zero;
             _rb.simulated = true;
 
-            _onDroppingRequest.OnNext(Unit.Default);
+            _onDropping.OnNext(Unit.Default);
         }
 
         private bool IsEligibleForMerge(Collision2D collision, out SphereView otherSphere)
@@ -148,9 +155,9 @@ namespace WatermelonGameClone
                 Destroy(gameObject);
                 Destroy(otherSphere.gameObject);
 
-                _onMergingRequest.OnNext(new MergeData(newPosition, _sphereNo, gameObject, otherSphere.gameObject));
+                _onMerging.OnNext(new MergeData(newPosition, _sphereNo, gameObject, otherSphere.gameObject));
             }
-            _onMovingRequest.OnNext(Unit.Default);
+            _onMoving.OnNext(Unit.Default);
         }
     }
 }

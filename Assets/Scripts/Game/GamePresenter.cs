@@ -3,53 +3,54 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using UniRx;
 using DG.Tweening;
+using Zenject;
 
 namespace WatermelonGameClone
 {
     public class GamePresenter : MonoBehaviour
     {
-        [Header("View Elements")]
-        [SerializeField] private GameView _gameView;
-        [SerializeField] private Transform _spherePosition;
-        [SerializeField] private SphereView[] _spherePrefab;
+        // Parameters
+        [Inject(Id = "AudioVolume")] private float _audioVolume;
 
-        [Header("Parameters")]
-        [SerializeField, Range(0, 1.0f)] private float _audioVolume;
+        // View Elements
+        [Inject] private IGameView _gameView;
+        [Inject(Id = "SpherePosition")] private Transform _spherePosition;
+        [Inject(Id = "SpherePrefabs")] private GameObject[] _spherePrefab;
+
+        // DI Container
+        [Inject] DiContainer container = null;
 
         // Model Elements
-        private SphereModel _sphereModel;
-        private GameModel _gameModel;
-        private ScoreModel _scoreModel;
-        private SoundModel _soundModel;
+        [Inject] private ISphereModel _sphereModel;
+        [Inject] private IGameModel _gameModel;
+        [Inject] private IScoreModel _scoreModel;
+        [Inject] private ISoundModel _soundModel;
 
         private bool _isNext;
         private AudioSource _audioSourceEffect;
 
         // ReactiveProperty
 
-        // Observables
+        // Subjects
         private Subject<SphereView> _onSphereCreated = new Subject<SphereView>();
 
         void Awake()
         {
-            _isNext = false;
+            _onSphereCreated.AddTo(this);
 
+            _isNext = false;
             _audioSourceEffect = gameObject.AddComponent<AudioSource>();
 
-            _soundModel = new SoundModel();
             _soundModel.SetSoundEffect();
             _soundModel.SetSoundVolume(_audioVolume);
 
-            _gameModel = new GameModel();
             _gameModel.SetGameState(GameState.Initializing);
 
-            _scoreModel = new ScoreModel();
             _scoreModel.SetBestScore();
 
             _gameView.Initialize();
             _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
 
-            _sphereModel = new SphereModel();
             _sphereModel.Initialize(_spherePrefab.Length);
             _sphereModel.UpdateNextSphereIndex();
         }
@@ -64,16 +65,14 @@ namespace WatermelonGameClone
             SubscribeToSphereView(_onSphereCreated);
             SubscribeToSphereModel(_sphereModel);
 
-            DOVirtual.DelayedCall(_gameModel.GetDelayedTime(), () =>
-            {
-                SphereView sphere = CreateSphere();
-                _onSphereCreated.OnNext(sphere);
-            });
+            SphereView sphere = CreateSphere(_sphereModel.NextSphereIndex.Value);
+            _onSphereCreated.OnNext(sphere);
 
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
                     _gameView.MoveUI();
+
                     if (_isNext)
                     {
                         _isNext = false;
@@ -81,7 +80,7 @@ namespace WatermelonGameClone
                         {
                             if (_gameModel.CurrentState.Value != GameState.GameOver)
                             {
-                                SphereView sphere = CreateSphere();
+                                SphereView sphere = CreateSphere(_sphereModel.NextSphereIndex.Value);
                                 _onSphereCreated.OnNext(sphere);
 
                                 _sphereModel.UpdateNextSphereIndex();
@@ -97,24 +96,29 @@ namespace WatermelonGameClone
 
         }
 
-        private void SubscribeToGameView(GameView gameView)
+        private void SubscribeToGameView(IGameView gameView)
         {
-            gameView.OnRestartRequested.Subscribe(_ =>
-            {
-                HandleRestart();
-            })
-            .AddTo(this);
+            gameView
+                .OnRestart
+                .Subscribe(_ =>
+                {
+                    HandleRestart();
+                })
+                .AddTo(this);
 
-            gameView.OnBackToTitleRequested.Subscribe(_ =>
-            {
-                HandleBackToTitle();
-            })
-            .AddTo(this);
+            gameView
+                .OnBackToTitle
+                .Subscribe(_ =>
+                {
+                    HandleBackToTitle();
+                })
+                .AddTo(this);
         }
 
-        private void SubscribeToGameModel(GameModel gameModel)
+        private void SubscribeToGameModel(IGameModel gameModel)
         {
-            gameModel.CurrentState
+            gameModel
+                .CurrentState
                 .Subscribe(state =>
                 {
                     switch (state)
@@ -141,9 +145,10 @@ namespace WatermelonGameClone
                 .AddTo(this);
         }
 
-        private void SubscribeToScoreModel(ScoreModel scoreModel)
+        private void SubscribeToScoreModel(IScoreModel scoreModel)
         {
-            scoreModel.CurrentScore
+            scoreModel
+                .CurrentScore
                 .Subscribe(score =>
                 {
                     _gameView.UpdateCurrentScore(score);
@@ -151,9 +156,10 @@ namespace WatermelonGameClone
                 .AddTo(this);
         }
 
-        private void SubscribeToSphereModel(SphereModel sphereModel)
+        private void SubscribeToSphereModel(ISphereModel sphereModel)
         {
-            sphereModel.NextSphereIndex
+            sphereModel
+                .NextSphereIndex
                 .Subscribe(index =>
                 {
                     _gameView.UpdateNextSphereImages(index);
@@ -163,40 +169,45 @@ namespace WatermelonGameClone
 
         private void SubscribeToSphereView(Subject<SphereView> onSphereCreated)
         {
-            onSphereCreated.Subscribe(sphere =>
-            {
-                sphere.OnMovingRequest
-                    .Subscribe(request =>
-                    {
-                        _gameModel.SetGameState(GameState.SphereMoving);
-                    })
-                    .AddTo(this);
+            onSphereCreated
+                .Subscribe(sphere =>
+                {
+                    sphere
+                        .OnMoving
+                        .Subscribe(request =>
+                        {
+                            _gameModel.SetGameState(GameState.SphereMoving);
+                        })
+                        .AddTo(this);
 
-                sphere.OnDroppingRequest
-                    .Subscribe(request =>
-                    {
-                        _isNext = true;
-                        _gameModel.SetGameState(GameState.SphereDropping);
-                    })
-                    .AddTo(this);
+                    sphere
+                        .OnDropping
+                        .Subscribe(request =>
+                        {
+                            _isNext = true;
+                            _gameModel.SetGameState(GameState.SphereDropping);
+                        })
+                        .AddTo(this);
 
-                sphere.OnMergingRequest
-                    .Subscribe(mergeData =>
-                    {
-                        MergeSphere(mergeData.Position, mergeData.SphereNo);
-                        _scoreModel.SetCurrentScore(mergeData.SphereNo);
-                        _gameModel.SetGameState(GameState.Merging);
-                    })
-                    .AddTo(this);
+                    sphere
+                        .OnMerging
+                        .Subscribe(mergeData =>
+                        {
+                            MergeSphere(mergeData.Position, mergeData.SphereNo);
+                            _scoreModel.SetCurrentScore(mergeData.SphereNo);
+                            _gameModel.SetGameState(GameState.Merging);
+                        })
+                        .AddTo(this);
 
-                sphere.OnGameOverRequest
-                    .Subscribe(request =>
-                    {
-                        _gameModel.SetGameState(GameState.GameOver);
-                    })
-                    .AddTo(this);
-            })
-            .AddTo(this);
+                    sphere
+                        .OnGameOver
+                        .Subscribe(request =>
+                        {
+                            _gameModel.SetGameState(GameState.GameOver);
+                        })
+                        .AddTo(this);
+                })
+                .AddTo(this);
         }
 
         private void HandleGameOver()
@@ -220,18 +231,21 @@ namespace WatermelonGameClone
             SceneManager.LoadScene("Title");
         }
 
-        public SphereView CreateSphere()
+        public SphereView CreateSphere(int sphereNo)
         {
-            int index = _sphereModel.NextSphereIndex.Value;
-            SphereView sphere = Instantiate(_spherePrefab[index], _spherePosition);
-            sphere.Initialize(_sphereModel.MaxSphereNo, index);
+            GameObject sphereObj = container.InstantiatePrefab(_spherePrefab[sphereNo], _spherePosition);
+            SphereView sphere = sphereObj.GetComponent<SphereView>();
+
+            sphere.Initialize(_sphereModel.MaxSphereNo, sphereNo);
             sphere.gameObject.SetActive(true);
             return sphere;
         }
 
         public void MergeSphere(Vector3 position, int sphereNo)
         {
-            SphereView sphere = Instantiate(_spherePrefab[sphereNo + 1], position, Quaternion.identity, _spherePosition);
+            GameObject sphereObj = container.InstantiatePrefab(_spherePrefab[sphereNo + 1], position, Quaternion.identity, _spherePosition);
+            SphereView sphere = sphereObj.GetComponent<SphereView>();
+
             sphere.InitializeAfterMerge(_sphereModel.MaxSphereNo, sphereNo + 1);
             sphere.GetComponent<Rigidbody2D>().simulated = true;
             sphere.gameObject.SetActive(true);

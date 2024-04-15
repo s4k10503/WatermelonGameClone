@@ -6,10 +6,10 @@ namespace WatermelonGameClone
 {
     public interface ISphereView
     {
-        IObservable<Unit> OnGameOverRequest { get; }
-        IObservable<Unit> OnDroppingRequest { get; }
-        IObservable<Unit> OnMovingRequest { get; }
-        IObservable<MergeData> OnMergingRequest { get; }
+        IObservable<Unit> OnGameOver { get; }
+        IObservable<Unit> OnDropping { get; }
+        IObservable<Unit> OnMoving { get; }
+        IObservable<MergeData> OnMerging { get; }
 
         IReadOnlyReactiveProperty<int> NextSphereIndex { get; }
 
