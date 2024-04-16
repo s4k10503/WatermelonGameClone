@@ -5,7 +5,7 @@ using Zenject;
 
 namespace WatermelonGameClone
 {
-    public class GameInstaller : MonoInstaller
+    public class GamePresenterInstaller : MonoInstaller
     {
         [SerializeField] private GameObject _inputEventProvider;
         [SerializeField] private Transform _spherePosition;

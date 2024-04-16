@@ -8,19 +8,20 @@ using UniRx;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Zenject;
 
 namespace WatermelonGameClone
 {
     public class GameView : MonoBehaviour, IGameView
     {
-        [Header("Objects")]
-        [SerializeField] GameObject _scorePanel;
-        [SerializeField] GameObject _nextSpherePanel;
-        [SerializeField] GameObject _rankingPanel;
-        [SerializeField] GameObject _evolutionCirclePanel;
-        [SerializeField] Transform _canvasTransform;
-        [SerializeField] GameObject _gameOverPopupPrefab;
-        [SerializeField] GameObject[] _nextSphereImage;
+        // Objects
+        [Inject(Id = "ScorePanel")] GameObject _scorePanel;
+        [Inject(Id = "NextSpherePanel")] GameObject _nextSpherePanel;
+        [Inject(Id = "NextSphereImages")] GameObject[] _nextSphereImages;
+        [Inject(Id = "RankingPanel")] GameObject _rankingPanel;
+        [Inject(Id = "EvolutionCirclePanel")] GameObject _evolutionCirclePanel;
+        [Inject(Id = "CanvasTransform")] Transform _canvasTransform;
+        [Inject(Id = "GameOverPopupPanel")] GameObject _gameOverPopupPanel;
 
         private GameObject _gameOverPopupInstance;
         private GameObject[] _instantiatedSpheres;
@@ -57,14 +58,13 @@ namespace WatermelonGameClone
 
         public void CreateNextSphereImages()
         {
-            _instantiatedSpheres = new GameObject[_nextSphereImage.Length];
-            for (int i = 0; i < _nextSphereImage.Length; i++)
+            _instantiatedSpheres = new GameObject[_nextSphereImages.Length];
+            for (int i = 0; i < _nextSphereImages.Length; i++)
             {
-                GameObject instantiatedSphere = Instantiate(_nextSphereImage[i], _nextSpherePanel.transform);
+                GameObject instantiatedSphere = Instantiate(_nextSphereImages[i], _nextSpherePanel.transform);
                 instantiatedSphere.SetActive(false);
                 _instantiatedSpheres[i] = instantiatedSphere;
 
-                instantiatedSphere.transform.SetParent(_nextSpherePanel.transform, false);
                 instantiatedSphere.transform.SetAsLastSibling();
             }
         }
@@ -103,7 +103,7 @@ namespace WatermelonGameClone
 
         public void ShowGameOverPopup(int score)
         {
-            _gameOverPopupInstance = Instantiate(_gameOverPopupPrefab, _canvasTransform);
+            _gameOverPopupInstance = Instantiate(_gameOverPopupPanel, _canvasTransform);
             _gameOverPopupInstance.transform.localScale = Vector3.zero;
             _gameOverPopupInstance.transform.DOScale(1, 0.5f).SetEase(Ease.OutBack).SetUpdate(true);
 
