@@ -99,12 +99,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e93b575c326f0f4c91d2b827bb2914d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isMergeFlag: 0
-  _isDrop: 0
-  _sphereNo: 0
   _minX: -2.7
   _maxX: 2.7
   _fixedY: 3.5
+  _isMerge: 0
+  _isDrop: 0
 --- !u!58 &3038725826931227313
 CircleCollider2D:
   m_ObjectHideFlags: 0

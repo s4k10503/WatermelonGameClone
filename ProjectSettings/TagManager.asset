@@ -8,6 +8,7 @@ TagManager:
   - ship
   - asteroid
   - Wall
+  - Ceiling
   layers:
   - Default
   - TransparentFX
@@ -51,6 +52,6 @@ TagManager:
   - name: New Layer 2
     uniqueID: 867232093
     locked: 0
-  - name: New Layer 3
+  - name: Stage
     uniqueID: 2383495881
     locked: 0
