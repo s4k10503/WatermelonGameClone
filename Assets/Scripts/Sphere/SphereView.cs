@@ -16,7 +16,6 @@ namespace WatermelonGameClone
         private IInputEventProvider _inputEventProvider;
 
         // Flag
-        public bool _isMerge = false;
         public bool _isDrop = false;
 
         // Physics
@@ -33,13 +32,11 @@ namespace WatermelonGameClone
         // Subjects
         private Subject<Unit> _onGameOver = new Subject<Unit>();
         private Subject<Unit> _onDropping = new Subject<Unit>();
-        private Subject<Unit> _onMoving = new Subject<Unit>();
         private Subject<MergeData> _onMerging = new Subject<MergeData>();
 
         // Observables
         public IObservable<Unit> OnGameOver => _onGameOver;
         public IObservable<Unit> OnDropping => _onDropping;
-        public IObservable<Unit> OnMoving => _onMoving;
         public IObservable<MergeData> OnMerging => _onMerging;
 
         // ReactiveProperty
@@ -63,7 +60,6 @@ namespace WatermelonGameClone
         {
             _onGameOver.AddTo(this);
             _onDropping.AddTo(this);
-            _onMoving.AddTo(this);
             _onMerging.AddTo(this);
             _nextSphereIndex.AddTo(this);
 
@@ -83,7 +79,9 @@ namespace WatermelonGameClone
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (IsEligibleForMerge(collision, out SphereView otherSphere))
-                PerformMerge(otherSphere);
+            {
+                RequestMerge(otherSphere);
+            }
         }
 
         private void OnTriggerStay2D(Collider2D collision)
@@ -130,11 +128,11 @@ namespace WatermelonGameClone
 
         private void StartDropping()
         {
+            _onDropping.OnNext(Unit.Default);
+
             _isDrop = true;
             _rb.velocity = Vector2.zero;
             _rb.simulated = true;
-
-            _onDropping.OnNext(Unit.Default);
         }
 
         private bool IsEligibleForMerge(Collision2D collision, out SphereView otherSphere)
@@ -148,17 +146,13 @@ namespace WatermelonGameClone
             return _sphereNo == otherSphere._sphereNo;
         }
 
-        private void PerformMerge(SphereView otherSphere)
+        private void RequestMerge(SphereView otherSphere)
         {
             if (gameObject.GetInstanceID() < otherSphere.gameObject.GetInstanceID() && _sphereNo < _maxSphereNo - 1)
             {
                 var newPosition = (transform.position + otherSphere.transform.position) / 2;
-                Destroy(gameObject);
-                Destroy(otherSphere.gameObject);
-
                 _onMerging.OnNext(new MergeData(newPosition, _sphereNo, gameObject, otherSphere.gameObject));
             }
-            _onMoving.OnNext(Unit.Default);
         }
     }
 }

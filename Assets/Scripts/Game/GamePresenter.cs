@@ -58,7 +58,6 @@ namespace WatermelonGameClone
         void Start()
         {
             SubscribeToGameView(_gameView);
-            SubscribeToGameModel(_gameModel);
 
             SubscribeToScoreModel(_scoreModel);
 
@@ -115,36 +114,6 @@ namespace WatermelonGameClone
                 .AddTo(this);
         }
 
-        private void SubscribeToGameModel(IGameModel gameModel)
-        {
-            gameModel
-                .CurrentState
-                .Subscribe(state =>
-                {
-                    switch (state)
-                    {
-                        case GameState.Initializing:
-                            break;
-
-                        case GameState.SphereMoving:
-                            break;
-
-                        case GameState.SphereDropping:
-                            _soundModel.PlaySoundEffect(SoundEffect.Drop, _audioSourceEffect);
-                            break;
-
-                        case GameState.Merging:
-                            _soundModel.PlaySoundEffect(SoundEffect.Merge, _audioSourceEffect);
-                            break;
-
-                        case GameState.GameOver:
-                            HandleGameOver();
-                            break;
-                    }
-                })
-                .AddTo(this);
-        }
-
         private void SubscribeToScoreModel(IScoreModel scoreModel)
         {
             scoreModel
@@ -173,19 +142,12 @@ namespace WatermelonGameClone
                 .Subscribe(sphere =>
                 {
                     sphere
-                        .OnMoving
-                        .Subscribe(request =>
-                        {
-                            _gameModel.SetGameState(GameState.SphereMoving);
-                        })
-                        .AddTo(this);
-
-                    sphere
                         .OnDropping
                         .Subscribe(request =>
                         {
-                            _isNext = true;
                             _gameModel.SetGameState(GameState.SphereDropping);
+                            _soundModel.PlaySoundEffect(SoundEffect.Drop, _audioSourceEffect);
+                            _isNext = true;
                         })
                         .AddTo(this);
 
@@ -193,9 +155,15 @@ namespace WatermelonGameClone
                         .OnMerging
                         .Subscribe(mergeData =>
                         {
-                            MergeSphere(mergeData.Position, mergeData.SphereNo);
-                            _scoreModel.SetCurrentScore(mergeData.SphereNo);
                             _gameModel.SetGameState(GameState.Merging);
+                            _soundModel.PlaySoundEffect(SoundEffect.Merge, _audioSourceEffect);
+                            _scoreModel.SetCurrentScore(mergeData.SphereNo);
+
+                            SphereView sphere = MergeSphere(mergeData.Position, mergeData.SphereNo);
+                            _onSphereCreated.OnNext(sphere);
+
+                            DestroySphere(mergeData.SphereA);
+                            DestroySphere(mergeData.SphereB);
                         })
                         .AddTo(this);
 
@@ -204,6 +172,7 @@ namespace WatermelonGameClone
                         .Subscribe(request =>
                         {
                             _gameModel.SetGameState(GameState.GameOver);
+                            HandleGameOver();
                         })
                         .AddTo(this);
                 })
@@ -241,7 +210,7 @@ namespace WatermelonGameClone
             return sphere;
         }
 
-        public void MergeSphere(Vector3 position, int sphereNo)
+        public SphereView MergeSphere(Vector3 position, int sphereNo)
         {
             GameObject sphereObj = container.InstantiatePrefab(_spherePrefab[sphereNo + 1], position, Quaternion.identity, _spherePosition);
             SphereView sphere = sphereObj.GetComponent<SphereView>();
@@ -249,6 +218,12 @@ namespace WatermelonGameClone
             sphere.InitializeAfterMerge(_sphereModel.MaxSphereNo, sphereNo + 1);
             sphere.GetComponent<Rigidbody2D>().simulated = true;
             sphere.gameObject.SetActive(true);
+            return sphere;
+        }
+
+        public void DestroySphere(GameObject sphere)
+        {
+            Destroy(sphere.gameObject);
         }
     }
 }

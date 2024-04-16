@@ -8,7 +8,6 @@ namespace WatermelonGameClone
     {
         IObservable<Unit> OnGameOver { get; }
         IObservable<Unit> OnDropping { get; }
-        IObservable<Unit> OnMoving { get; }
         IObservable<MergeData> OnMerging { get; }
 
         IReadOnlyReactiveProperty<int> NextSphereIndex { get; }
