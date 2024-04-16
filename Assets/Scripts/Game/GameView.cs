@@ -15,13 +15,13 @@ namespace WatermelonGameClone
     public class GameView : MonoBehaviour, IGameView
     {
         // Objects
-        [Inject(Id = "ScorePanel")] GameObject _scorePanel;
-        [Inject(Id = "NextSpherePanel")] GameObject _nextSpherePanel;
-        [Inject(Id = "NextSphereImages")] GameObject[] _nextSphereImages;
-        [Inject(Id = "RankingPanel")] GameObject _rankingPanel;
-        [Inject(Id = "EvolutionCirclePanel")] GameObject _evolutionCirclePanel;
-        [Inject(Id = "CanvasTransform")] Transform _canvasTransform;
-        [Inject(Id = "GameOverPopupPanel")] GameObject _gameOverPopupPanel;
+        GameObject _scorePanel;
+        GameObject _nextSpherePanel;
+        GameObject[] _nextSphereImages;
+        GameObject _rankingPanel;
+        GameObject _evolutionCirclePanel;
+        Transform _canvasTransform;
+        GameObject _gameOverPopupPanel;
 
         private GameObject _gameOverPopupInstance;
         private GameObject[] _instantiatedSpheres;
@@ -41,7 +41,28 @@ namespace WatermelonGameClone
         public IObservable<Unit> OnBackToTitle => _onBackToTitle;
 
 
-        public void Initialize()
+        [Inject]
+        public void Construct(
+            [Inject(Id = "ScorePanel")] GameObject scorePanel,
+            [Inject(Id = "NextSpherePanel")] GameObject nextSpherePanel,
+            [Inject(Id = "NextSphereImages")] GameObject[] nextSphereImages,
+            [Inject(Id = "RankingPanel")] GameObject rankingPanel,
+            [Inject(Id = "EvolutionCirclePanel")] GameObject evolutionCirclePanel,
+            [Inject(Id = "CanvasTransform")] Transform canvasTransform,
+            [Inject(Id = "GameOverPopupPanel")] GameObject gameOverPopupPanel)
+        {
+            _scorePanel = scorePanel;
+            _nextSpherePanel = nextSpherePanel;
+            _nextSphereImages = nextSphereImages;
+            _rankingPanel = rankingPanel;
+            _evolutionCirclePanel = evolutionCirclePanel;
+            _canvasTransform = canvasTransform;
+            _gameOverPopupPanel = gameOverPopupPanel;
+
+            Initialize();
+        }
+
+        private void Initialize()
         {
             _onRestart.AddTo(this);
             _onBackToTitle.AddTo(this);

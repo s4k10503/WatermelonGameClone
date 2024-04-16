@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UniRx;
+using Zenject;
 
 namespace WatermelonGameClone
 {
@@ -11,14 +12,16 @@ namespace WatermelonGameClone
 
         public int MaxSphereNo { get; private set; }
 
+        [Inject]
+        public SphereModel(
+            [Inject(Id = "MaxSphereNo")] int maxSphereNo)
+        {
+            MaxSphereNo = maxSphereNo;
+        }
+
         private void OnDestroy()
         {
             _nextSphereIndex.Dispose();
-        }
-
-        public void Initialize(int maxSphereNo)
-        {
-            MaxSphereNo = maxSphereNo;
         }
 
         public void UpdateNextSphereIndex()

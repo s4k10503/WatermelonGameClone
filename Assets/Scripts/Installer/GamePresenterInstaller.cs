@@ -10,7 +10,7 @@ namespace WatermelonGameClone
         [SerializeField] private GameObject _inputEventProvider;
         [SerializeField] private Transform _spherePosition;
         [SerializeField] private GameView _gameView;
-        [SerializeField] private GameObject[] _spherePrefab;
+        [SerializeField] private GameObject[] _spherePrefabs;
         [SerializeField, Range(0, 1.0f)] private float _audioVolume;
 
         public override void InstallBindings()
@@ -60,13 +60,19 @@ namespace WatermelonGameClone
             Container
                 .Bind<GameObject[]>()
                 .WithId("SpherePrefabs")
-                .FromInstance(_spherePrefab)
+                .FromInstance(_spherePrefabs)
                 .AsCached();
 
             Container
                 .Bind<float>()
                 .WithId("AudioVolume")
                 .FromInstance(_audioVolume);
+
+            Container
+                .Bind<int>()
+                .WithId("MaxSphereNo")
+                .FromInstance(_spherePrefabs.Length);
+
         }
 
     }

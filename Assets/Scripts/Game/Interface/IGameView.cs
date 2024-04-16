@@ -11,7 +11,6 @@ namespace WatermelonGameClone
         IObservable<Unit> OnBackToTitle { get; }
 
         // Methods related to game state and UI updates
-        void Initialize();
         void UpdateCurrentScore(int currentScore);
         void UpdateBestScore(int bestScore);
         void UpdateNextSphereImages(int nextSphereIndex);

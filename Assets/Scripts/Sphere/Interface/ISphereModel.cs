@@ -10,7 +10,6 @@ namespace WatermelonGameClone
         public int MaxSphereNo { get; }
 
         // Methods for sphere control
-        void Initialize(int maxSphereNo);
         void UpdateNextSphereIndex();
     }
 }

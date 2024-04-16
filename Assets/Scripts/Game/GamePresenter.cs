@@ -10,21 +10,21 @@ namespace WatermelonGameClone
     public class GamePresenter : MonoBehaviour
     {
         // Parameters
-        [Inject(Id = "AudioVolume")] private float _audioVolume;
+        private float _audioVolume;
 
         // View Elements
-        [Inject] private IGameView _gameView;
-        [Inject(Id = "SpherePosition")] private Transform _spherePosition;
-        [Inject(Id = "SpherePrefabs")] private GameObject[] _spherePrefab;
+        private IGameView _gameView;
+        private Transform _spherePosition;
+        private GameObject[] _spherePrefabs;
 
         // DI Container
-        [Inject] DiContainer container = null;
+        private DiContainer _container = null;
 
         // Model Elements
-        [Inject] private ISphereModel _sphereModel;
-        [Inject] private IGameModel _gameModel;
-        [Inject] private IScoreModel _scoreModel;
-        [Inject] private ISoundModel _soundModel;
+        private ISphereModel _sphereModel;
+        private IGameModel _gameModel;
+        private IScoreModel _scoreModel;
+        private ISoundModel _soundModel;
 
         private bool _isNext;
         private AudioSource _audioSourceEffect;
@@ -33,6 +33,29 @@ namespace WatermelonGameClone
 
         // Subjects
         private Subject<SphereView> _onSphereCreated = new Subject<SphereView>();
+
+        [Inject]
+        public void Construct(
+            IGameView gameView,
+            DiContainer container,
+            ISphereModel sphereModel,
+            IGameModel gameModel,
+            IScoreModel scoreModel,
+            ISoundModel soundModel,
+            [Inject(Id = "AudioVolume")] float audioVolume,
+            [Inject(Id = "SpherePosition")] Transform spherePosition,
+            [Inject(Id = "SpherePrefabs")] GameObject[] spherePrefabs)
+        {
+            _gameView = gameView;
+            _spherePosition = spherePosition;
+            _spherePrefabs = spherePrefabs;
+            _container = container;
+            _sphereModel = sphereModel;
+            _gameModel = gameModel;
+            _scoreModel = scoreModel;
+            _soundModel = soundModel;
+            _audioVolume = audioVolume;
+        }
 
         void Awake()
         {
@@ -44,12 +67,9 @@ namespace WatermelonGameClone
             _soundModel.SetSoundVolume(_audioVolume);
             _gameModel.SetGameState(GameState.Initializing);
             _scoreModel.SetBestScore();
-
-            _gameView.Initialize();
-            _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
-
-            _sphereModel.Initialize(_spherePrefab.Length);
             _sphereModel.UpdateNextSphereIndex();
+
+            _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
         }
 
         void Start()
@@ -199,7 +219,7 @@ namespace WatermelonGameClone
 
         public SphereView CreateSphere(int sphereNo)
         {
-            GameObject sphereObj = container.InstantiatePrefab(_spherePrefab[sphereNo], _spherePosition);
+            GameObject sphereObj = _container.InstantiatePrefab(_spherePrefabs[sphereNo], _spherePosition);
             SphereView sphere = sphereObj.GetComponent<SphereView>();
 
             sphere.Initialize(_sphereModel.MaxSphereNo, sphereNo);
@@ -209,7 +229,7 @@ namespace WatermelonGameClone
 
         public SphereView MergeSphere(Vector3 position, int sphereNo)
         {
-            GameObject sphereObj = container.InstantiatePrefab(_spherePrefab[sphereNo + 1], position, Quaternion.identity, _spherePosition);
+            GameObject sphereObj = _container.InstantiatePrefab(_spherePrefabs[sphereNo + 1], position, Quaternion.identity, _spherePosition);
             SphereView sphere = sphereObj.GetComponent<SphereView>();
 
             sphere.InitializeAfterMerge(_sphereModel.MaxSphereNo, sphereNo + 1);
