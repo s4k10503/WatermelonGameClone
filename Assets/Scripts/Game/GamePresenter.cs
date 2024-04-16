@@ -41,11 +41,8 @@ namespace WatermelonGameClone
             _isNext = false;
             _audioSourceEffect = gameObject.AddComponent<AudioSource>();
 
-            _soundModel.SetSoundEffect();
             _soundModel.SetSoundVolume(_audioVolume);
-
             _gameModel.SetGameState(GameState.Initializing);
-
             _scoreModel.SetBestScore();
 
             _gameView.Initialize();
