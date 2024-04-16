@@ -11,6 +11,10 @@ namespace WatermelonGameClone
 
         public int MaxSphereNo { get; private set; }
 
+        private void OnDestroy()
+        {
+            _nextSphereIndex.Dispose();
+        }
 
         public void Initialize(int maxSphereNo)
         {

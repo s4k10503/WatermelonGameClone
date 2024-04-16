@@ -65,6 +65,7 @@ namespace WatermelonGameClone
             _onDropping.AddTo(this);
             _onMoving.AddTo(this);
             _onMerging.AddTo(this);
+            _nextSphereIndex.AddTo(this);
 
             _inputEventProvider
                 .OnMouseMove

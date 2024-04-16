@@ -15,6 +15,12 @@ namespace WatermelonGameClone
         private static readonly int s_scoreCoefficient = 10;
 
 
+        private void OnDestroy()
+        {
+            _currentScore.Dispose();
+            _bestScore.Dispose();
+        }
+
         public void SetBestScore()
         {
             int pastBestScore = PlayerPrefs.GetInt("BestScore");
