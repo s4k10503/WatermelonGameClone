@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UniRx;
 
@@ -16,5 +17,6 @@ namespace WatermelonGameClone
         void UpdateNextSphereImages(int nextSphereIndex);
         void MoveUI();
         void ShowGameOverPopup(int score);
+        void DisplayTodayTopScores(List<int> scores);
     }
 }

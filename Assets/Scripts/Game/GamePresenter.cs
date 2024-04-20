@@ -29,7 +29,7 @@ namespace WatermelonGameClone
         private bool _isNext;
         private AudioSource _audioSourceEffect;
 
-        // ReactiveProperty
+        // ReactiveProperties
 
         // Subjects
         private Subject<SphereView> _onSphereCreated = new Subject<SphereView>();
@@ -66,18 +66,14 @@ namespace WatermelonGameClone
 
             _soundModel.SetSoundVolume(_audioVolume);
             _gameModel.SetGameState(GameState.Initializing);
-            _scoreModel.SetBestScore();
             _sphereModel.UpdateNextSphereIndex();
-
-            _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
+            UpdateScoreDisplays();
         }
 
         void Start()
         {
             SubscribeToGameView(_gameView);
-
             SubscribeToScoreModel(_scoreModel);
-
             SubscribeToSphereView(_onSphereCreated);
             SubscribeToSphereModel(_sphereModel);
 
@@ -140,6 +136,14 @@ namespace WatermelonGameClone
                     _gameView.UpdateCurrentScore(score);
                 })
                 .AddTo(this);
+
+            scoreModel
+                .BestScore
+                .Subscribe(score =>
+                {
+                    _gameView.UpdateBestScore(score);
+                })
+                .AddTo(this);
         }
 
         private void SubscribeToSphereModel(ISphereModel sphereModel)
@@ -174,7 +178,7 @@ namespace WatermelonGameClone
                         {
                             _gameModel.SetGameState(GameState.Merging);
                             _soundModel.PlaySoundEffect(SoundEffect.Merge, _audioSourceEffect);
-                            _scoreModel.SetCurrentScore(mergeData.SphereNo);
+                            _scoreModel.UpdateCurrentScore(mergeData.SphereNo);
 
                             SphereView sphere = MergeSphere(mergeData.Position, mergeData.SphereNo);
                             _onSphereCreated.OnNext(sphere);
@@ -198,8 +202,9 @@ namespace WatermelonGameClone
 
         private void HandleGameOver()
         {
-            _scoreModel.SetBestScore();
-            _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
+            _scoreModel.UpdateTodayTopScores(_scoreModel.CurrentScore.Value);
+            _scoreModel.SaveScoresToJson();
+            UpdateScoreDisplays();
 
             Time.timeScale = 0f;
             _gameView.ShowGameOverPopup(_scoreModel.CurrentScore.Value);
@@ -241,6 +246,12 @@ namespace WatermelonGameClone
         public void DestroySphere(GameObject sphere)
         {
             Destroy(sphere.gameObject);
+        }
+
+        private void UpdateScoreDisplays()
+        {
+            _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
+            _gameView.DisplayTodayTopScores(_scoreModel.TodayTopScores);
         }
     }
 }

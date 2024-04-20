@@ -6,12 +6,14 @@ namespace WatermelonGameClone
 {
     public interface IScoreModel
     {
+        List<int> TodayTopScores { get; }
         IReadOnlyReactiveProperty<int> CurrentScore { get; }
         IReadOnlyReactiveProperty<int> BestScore { get; }
 
-        public void SetBestScore();
-        public void SaveBestScore(int currentScore);
-        public void SetCurrentScore(int SphereNo);
+        void UpdateCurrentScore(int SphereNo);
+        void UpdateTodayTopScores(int newScore);
+        void SaveScoresToJson();
+        ScoreContainer LoadScoresFromJson();
 
     }
 }
