@@ -18,6 +18,7 @@ namespace WatermelonGameClone
         [SerializeField] GameObject _textScoreRank1;
         [SerializeField] GameObject _textScoreRank2;
         [SerializeField] GameObject _textScoreRank3;
+        [SerializeField] GameObject _textScoreCurrent;
 
         public override void InstallBindings()
         {
@@ -70,6 +71,11 @@ namespace WatermelonGameClone
                 .Bind<GameObject>()
                 .WithId("TextScoreRank3")
                 .FromInstance(_textScoreRank3);
+
+            Container
+                .Bind<GameObject>()
+                .WithId("TextScoreCurrent")
+                .FromInstance(_textScoreCurrent);
         }
 
     }
