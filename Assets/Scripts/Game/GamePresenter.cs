@@ -202,8 +202,7 @@ namespace WatermelonGameClone
 
         private void HandleGameOver()
         {
-            _scoreModel.UpdateTodayTopScores(_scoreModel.CurrentScore.Value);
-            _scoreModel.SaveScoresToJson();
+            _scoreModel.UpdateScoreRanking(_scoreModel.CurrentScore.Value);
             UpdateScoreDisplays();
 
             Time.timeScale = 0f;
