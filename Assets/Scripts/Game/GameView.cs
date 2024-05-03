@@ -20,16 +20,9 @@ namespace WatermelonGameClone
 
         // Objects
         private GameObject _scorePanel;
-
-        private GameObject _textScoreRank1;
-        private GameObject _textScoreRank2;
-        private GameObject _textScoreRank3;
-        private GameObject _textScoreCurrent;
-
         private Transform _canvasTransform;
         private GameObject _nextSpherePanel;
         private GameObject[] _nextSphereImages;
-        private GameObject _rankingPanel;
         private GameObject _evolutionCirclePanel;
         private GameObject _gameOverPopupPanel;
 
@@ -55,19 +48,8 @@ namespace WatermelonGameClone
             [Inject(Id = "RankingPanel")] GameObject rankingPanel,
             [Inject(Id = "EvolutionCirclePanel")] GameObject evolutionCirclePanel,
             [Inject(Id = "CanvasTransform")] Transform canvasTransform,
-            [Inject(Id = "GameOverPopupPanel")] GameObject gameOverPopupPanel,
-            [Inject(Id = "TextScoreRank1")] GameObject textScoreRank1,
-            [Inject(Id = "TextScoreRank2")] GameObject textScoreRank2,
-            [Inject(Id = "TextScoreRank3")] GameObject textScoreRank3,
-            [Inject(Id = "TextScoreCurrent")] GameObject textScoreCurrent)
+            [Inject(Id = "GameOverPopupPanel")] GameObject gameOverPopupPanel)
         {
-
-            _rankingPanel = rankingPanel;
-            _textScoreRank1 = textScoreRank1;
-            _textScoreRank2 = textScoreRank2;
-            _textScoreRank3 = textScoreRank3;
-            _textScoreCurrent = textScoreCurrent;
-
             _scorePanel = scorePanel;
             _nextSpherePanel = nextSpherePanel;
             _nextSphereImages = nextSphereImages;
@@ -110,10 +92,6 @@ namespace WatermelonGameClone
         {
             _scorePanel
                 .transform.GetChild(2)
-                .GetComponent<TextMeshProUGUI>()
-                .SetText(currentScore.ToString());
-
-            _textScoreCurrent
                 .GetComponent<TextMeshProUGUI>()
                 .SetText(currentScore.ToString());
         }
@@ -171,17 +149,5 @@ namespace WatermelonGameClone
                 }
             }
         }
-
-        public void DisplayTodayTopScores(List<int> scores)
-        {
-            GameObject[] rankTexts = { _textScoreRank1, _textScoreRank2, _textScoreRank3 };
-
-            for (int i = 0; i < rankTexts.Length; i++)
-            {
-                string scoreText = (scores.Count > i && rankTexts[i] != null) ? scores[i].ToString() : "--";
-                rankTexts[i].GetComponent<TextMeshProUGUI>().SetText(scoreText);
-            }
-        }
-
     }
 }
