@@ -8,7 +8,7 @@ namespace WatermelonGameClone
     public interface IScoreRankView
     {
         // Methods related to UI updates
-        void UpdateCurrentScore(int currentScore);
-        void DisplayTopScores(List<int> scores);
+        void DisplayCurrentScore(int currentScore);
+        void DisplayTopScores(List<int> dailyScores, List<int> monthlyScores, List<int> allTimeScores);
     }
 }

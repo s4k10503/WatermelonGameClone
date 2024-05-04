@@ -45,7 +45,6 @@ namespace WatermelonGameClone
             [Inject(Id = "ScorePanel")] GameObject scorePanel,
             [Inject(Id = "NextSpherePanel")] GameObject nextSpherePanel,
             [Inject(Id = "NextSphereImages")] GameObject[] nextSphereImages,
-            [Inject(Id = "RankingPanel")] GameObject rankingPanel,
             [Inject(Id = "EvolutionCirclePanel")] GameObject evolutionCirclePanel,
             [Inject(Id = "CanvasTransform")] Transform canvasTransform,
             [Inject(Id = "GameOverPopupPanel")] GameObject gameOverPopupPanel)

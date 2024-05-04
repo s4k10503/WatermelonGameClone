@@ -137,7 +137,7 @@ namespace WatermelonGameClone
                 .Subscribe(score =>
                 {
                     _gameView.UpdateCurrentScore(score);
-                    _scoreRankView.UpdateCurrentScore(score);
+                    _scoreRankView.DisplayCurrentScore(score);
                 })
                 .AddTo(this);
 
@@ -256,7 +256,9 @@ namespace WatermelonGameClone
             _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
 
             // Display of score rank for the day
-            _scoreRankView.DisplayTopScores(_scoreModel.TodayTopScores);
+            _scoreRankView.DisplayTopScores(_scoreModel.TodayTopScores,
+                                            _scoreModel.MonthlyTopScores,
+                                            _scoreModel.AllTimeTopScores);
         }
     }
 }

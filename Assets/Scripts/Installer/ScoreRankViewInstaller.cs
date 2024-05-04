@@ -7,40 +7,88 @@ namespace WatermelonGameClone
 {
     public class ScoreRankViewInstaller : MonoInstaller
     {
-        [SerializeField] GameObject _rankingPanel;
+        // Daily
+        [SerializeField] GameObject _panelDailyRanking;
+        [SerializeField] GameObject _textDailyScoreRank1;
+        [SerializeField] GameObject _textDailyScoreRank2;
+        [SerializeField] GameObject _textDailyScoreRank3;
 
-        [SerializeField] GameObject _textScoreRank1;
-        [SerializeField] GameObject _textScoreRank2;
-        [SerializeField] GameObject _textScoreRank3;
-        [SerializeField] GameObject _textScoreCurrent;
+        // Monthly
+        [SerializeField] GameObject _panelMonthlyRanking;
+        [SerializeField] GameObject _textMonthlyScoreRank1;
+        [SerializeField] GameObject _textMonthlyScoreRank2;
+        [SerializeField] GameObject _textMonthlyScoreRank3;
+
+        // AllTime
+        [SerializeField] GameObject _panelAllTimeRanking;
+        [SerializeField] GameObject _textAllTimeScoreRank1;
+        [SerializeField] GameObject _textAllTimeScoreRank2;
+        [SerializeField] GameObject _textAllTimeScoreRank3;
+
+        // Current
+        [SerializeField] GameObject _textCurrentScore;
 
         public override void InstallBindings()
         {
+            // Daily
             Container
                 .Bind<GameObject>()
-                .WithId("RankingPanel")
-                .FromInstance(_rankingPanel);
+                .WithId("PanelDailyRanking")
+                .FromInstance(_panelDailyRanking);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextDailyScoreRank1")
+                .FromInstance(_textDailyScoreRank1);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextDailyScoreRank2")
+                .FromInstance(_textDailyScoreRank2);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextDailyScoreRank3")
+                .FromInstance(_textDailyScoreRank3);
 
+            // Monthly
             Container
                 .Bind<GameObject>()
-                .WithId("TextScoreRank1")
-                .FromInstance(_textScoreRank1);
+                .WithId("PanelMonthlyRanking")
+                .FromInstance(_panelMonthlyRanking);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextMonthlyScoreRank1")
+                .FromInstance(_textMonthlyScoreRank1);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextMonthlyScoreRank2")
+                .FromInstance(_textMonthlyScoreRank2);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextMonthlyScoreRank3")
+                .FromInstance(_textMonthlyScoreRank3);
 
+            // AllTime
             Container
                 .Bind<GameObject>()
-                .WithId("TextScoreRank2")
-                .FromInstance(_textScoreRank2);
+                .WithId("PanelAllTimeRanking")
+                .FromInstance(_panelAllTimeRanking);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextAllTimeScoreRank1")
+                .FromInstance(_textAllTimeScoreRank1);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextAllTimeScoreRank2")
+                .FromInstance(_textAllTimeScoreRank2);
+            Container
+                .Bind<GameObject>()
+                .WithId("TextAllTimeScoreRank3")
+                .FromInstance(_textAllTimeScoreRank3);
 
+            // Current
             Container
                 .Bind<GameObject>()
-                .WithId("TextScoreRank3")
-                .FromInstance(_textScoreRank3);
-
-            Container
-                .Bind<GameObject>()
-                .WithId("TextScoreCurrent")
-                .FromInstance(_textScoreCurrent);
+                .WithId("TextCurrentScore")
+                .FromInstance(_textCurrentScore);
         }
-
     }
 }
