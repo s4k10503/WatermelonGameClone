@@ -14,6 +14,7 @@ namespace WatermelonGameClone
 
         // View Elements
         private IGameView _gameView;
+        private IScoreRankView _scoreRankView;
         private Transform _spherePosition;
         private GameObject[] _spherePrefabs;
 
@@ -37,6 +38,7 @@ namespace WatermelonGameClone
         [Inject]
         public void Construct(
             IGameView gameView,
+            IScoreRankView scoreRankView,
             DiContainer container,
             ISphereModel sphereModel,
             IGameModel gameModel,
@@ -47,6 +49,7 @@ namespace WatermelonGameClone
             [Inject(Id = "SpherePrefabs")] GameObject[] spherePrefabs)
         {
             _gameView = gameView;
+            _scoreRankView = scoreRankView;
             _spherePosition = spherePosition;
             _spherePrefabs = spherePrefabs;
             _container = container;
@@ -134,6 +137,7 @@ namespace WatermelonGameClone
                 .Subscribe(score =>
                 {
                     _gameView.UpdateCurrentScore(score);
+                    _scoreRankView.DisplayCurrentScore(score);
                 })
                 .AddTo(this);
 
@@ -202,8 +206,7 @@ namespace WatermelonGameClone
 
         private void HandleGameOver()
         {
-            _scoreModel.UpdateTodayTopScores(_scoreModel.CurrentScore.Value);
-            _scoreModel.SaveScoresToJson();
+            _scoreModel.UpdateScoreRanking(_scoreModel.CurrentScore.Value);
             UpdateScoreDisplays();
 
             Time.timeScale = 0f;
@@ -251,7 +254,11 @@ namespace WatermelonGameClone
         private void UpdateScoreDisplays()
         {
             _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
-            _gameView.DisplayTodayTopScores(_scoreModel.TodayTopScores);
+
+            // Display of score rank for the day
+            _scoreRankView.DisplayTopScores(_scoreModel.TodayTopScores,
+                                            _scoreModel.MonthlyTopScores,
+                                            _scoreModel.AllTimeTopScores);
         }
     }
 }

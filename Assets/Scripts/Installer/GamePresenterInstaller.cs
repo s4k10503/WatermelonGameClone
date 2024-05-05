@@ -10,6 +10,7 @@ namespace WatermelonGameClone
         [SerializeField] private GameObject _inputEventProvider;
         [SerializeField] private Transform _spherePosition;
         [SerializeField] private GameView _gameView;
+        [SerializeField] private ScoreRankView _scoreRankView;
         [SerializeField] private GameObject[] _spherePrefabs;
         [SerializeField, Range(0, 1.0f)] private float _audioVolume;
 
@@ -55,6 +56,12 @@ namespace WatermelonGameClone
                 .Bind<IGameView>()
                 .To<GameView>()
                 .FromComponentInNewPrefab(_gameView)
+                .AsCached();
+
+            Container
+                .Bind<IScoreRankView>()
+                .To<ScoreRankView>()
+                .FromComponentInNewPrefab(_scoreRankView)
                 .AsCached();
 
             Container

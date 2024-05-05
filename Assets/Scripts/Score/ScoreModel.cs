@@ -10,10 +10,12 @@ namespace WatermelonGameClone
     public class ScoreModel : IScoreModel
     {
         public List<int> TodayTopScores { get; private set; }
+        public List<int> MonthlyTopScores { get; private set; }
+        public List<int> AllTimeTopScores { get; private set; }
 
         private DateTime _lastPlayedDate;
         private static readonly int s_scoreCoefficient = 10;
-
+        private static readonly string s_scoresFilePath = Path.Combine(Application.persistentDataPath, "score.json");
 
         // ReactiveProperties
         private readonly ReactiveProperty<int> _currentScore = new ReactiveProperty<int>(0);
@@ -26,6 +28,9 @@ namespace WatermelonGameClone
         public ScoreModel()
         {
             TodayTopScores = new List<int>();
+            MonthlyTopScores = new List<int>();
+            AllTimeTopScores = new List<int>();
+
             LoadScoresFromJson();
             CheckDateAndResetIfNecessary();
         }
@@ -42,32 +47,57 @@ namespace WatermelonGameClone
             _currentScore.Value += scoreToAdd;
         }
 
-        public void UpdateTodayTopScores(int newScore)
+        public void UpdateScoreRanking(int newScore)
+        {
+            UpdateTodayTopScores(newScore);
+            UpdateMonthlyTopScores(newScore);
+            UpdateAllTimeTopScores(newScore);
+            SaveScoresToJson();
+        }
+
+        private void UpdateTodayTopScores(int newScore)
         {
             TodayTopScores.Add(newScore);
             TodayTopScores = TodayTopScores.OrderByDescending(x => x).Take(3).ToList();
-            UpdateBestScore(newScore);
         }
 
-        private void UpdateBestScore(int newScore)
+        private void UpdateMonthlyTopScores(int newScore)
         {
+            MonthlyTopScores.Add(newScore);
+            MonthlyTopScores = MonthlyTopScores.OrderByDescending(x => x).Take(3).ToList();
+        }
+
+        private void UpdateAllTimeTopScores(int newScore)
+        {
+            AllTimeTopScores.Add(newScore);
+            AllTimeTopScores = AllTimeTopScores.OrderByDescending(x => x).Take(3).ToList();
+
             if (newScore > _bestScore.Value)
             {
                 _bestScore.Value = newScore;
             }
         }
 
-        public void ResetTodayScores()
+        private void ResetScores(List<int> scores)
         {
-            TodayTopScores.Clear();
+            scores.Clear();
             SaveScoresToJson();
         }
 
         private void CheckDateAndResetIfNecessary()
         {
-            if (_lastPlayedDate.Date != DateTime.Today)
+            DateTime currentDate = DateTime.Today;
+            if (_lastPlayedDate.Date != currentDate)
             {
-                ResetTodayScores(); // Reset today's scores if date has changed
+                // Reset today's scores if date has changed
+                ResetScores(TodayTopScores);
+            }
+
+            if (_lastPlayedDate.Month != currentDate.Month ||
+                _lastPlayedDate.Year != currentDate.Year)
+            {
+                // Reset monthly scores if month has changed
+                ResetScores(MonthlyTopScores);
             }
         }
 
@@ -79,15 +109,13 @@ namespace WatermelonGameClone
                 {
                     CurrentScore = _currentScore.Value,
                     TodayTopScores = TodayTopScores.ToArray(),
-                    BestScore = _bestScore.Value,
+                    MonthlyTopScores = MonthlyTopScores.ToArray(),
+                    AllTimeTopScores = AllTimeTopScores.ToArray(),
                     LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd")
                 };
 
-                string json = JsonUtility.ToJson(scoreContainer);
-
                 // Save files in the application's persistent data folder
-                string path = Path.Combine(Application.persistentDataPath, "score.json");
-                File.WriteAllText(path, json);
+                File.WriteAllText(s_scoresFilePath, JsonUtility.ToJson(scoreContainer));
                 _lastPlayedDate = DateTime.Today;
             }
             catch (Exception e)
@@ -100,18 +128,17 @@ namespace WatermelonGameClone
         {
             try
             {
-                // Path of the file where the score data was saved
-                string path = Path.Combine(Application.persistentDataPath, "score.json");
-
-                if (File.Exists(path))
+                if (File.Exists(s_scoresFilePath))
                 {
-                    string json = File.ReadAllText(path);
+                    string json = File.ReadAllText(s_scoresFilePath);
 
                     // Deserialize ScoreContainer object from JSON string
                     ScoreContainer loadedScoreContainer = JsonUtility.FromJson<ScoreContainer>(json);
 
                     TodayTopScores = new List<int>(loadedScoreContainer.TodayTopScores);
-                    _bestScore.Value = loadedScoreContainer.BestScore;
+                    MonthlyTopScores = new List<int>(loadedScoreContainer.MonthlyTopScores);
+                    AllTimeTopScores = new List<int>(loadedScoreContainer.AllTimeTopScores);
+                    _bestScore.Value = AllTimeTopScores[0];
                     _lastPlayedDate = DateTime.Parse(loadedScoreContainer.LastPlayedDate);
 
                     return loadedScoreContainer;
@@ -123,7 +150,8 @@ namespace WatermelonGameClone
                     {
                         CurrentScore = 0,
                         TodayTopScores = new int[0],
-                        BestScore = _bestScore.Value,
+                        MonthlyTopScores = new int[0],
+                        AllTimeTopScores = new int[0],
                         LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd")
                     };
                 }
@@ -135,11 +163,11 @@ namespace WatermelonGameClone
                 {
                     CurrentScore = 0,
                     TodayTopScores = new int[0],
-                    BestScore = 0,
+                    MonthlyTopScores = new int[0],
+                    AllTimeTopScores = new int[0],
                     LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd")
                 };
             }
         }
-
     }
 }

@@ -8,9 +8,13 @@ namespace WatermelonGameClone
     {
         private readonly Subject<Vector2> _onMouseMove = new Subject<Vector2>();
         private readonly Subject<Unit> _onMouseClick = new Subject<Unit>();
+        private readonly Subject<Unit> _onLeftKey = new Subject<Unit>();
+        private readonly Subject<Unit> _onRightKey = new Subject<Unit>();
 
         public IObservable<Vector2> OnMouseMove => _onMouseMove;
         public IObservable<Unit> OnMouseClick => _onMouseClick;
+        public IObservable<Unit> OnLeftKey => _onLeftKey;
+        public IObservable<Unit> OnRightKey => _onRightKey;
 
         void Start()
         {
@@ -25,6 +29,16 @@ namespace WatermelonGameClone
             if (Input.GetMouseButtonDown(0))
             {
                 _onMouseClick.OnNext(Unit.Default);
+            }
+
+            if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
+            {
+                _onLeftKey.OnNext(Unit.Default);
+            }
+
+            if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
+            {
+                _onRightKey.OnNext(Unit.Default);
             }
         }
     }

@@ -7,8 +7,10 @@ namespace WatermelonGameClone
     public class ScoreContainer
     {
         public int CurrentScore;
-        public int[] TodayTopScores;
         public int BestScore;
+        public int[] TodayTopScores;
+        public int[] MonthlyTopScores;
+        public int[] AllTimeTopScores;
         public string LastPlayedDate;
     }
 }

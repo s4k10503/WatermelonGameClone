@@ -35,7 +35,7 @@ This repository aims to clone that game in Unity.
 - [x] Display your highest score so far
 - [x] Play sound effects
 - [x] Display the next operable sphere
-- [x] Display today's score ranking
+- [x] Display local score ranking (Daily, Monthly, All-Time)
 - [ ] Display the circle of evolution
 
 #### Out Game
