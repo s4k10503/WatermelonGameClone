@@ -220,6 +220,7 @@ GameObject:
   - component: {fileID: 2237511638606749630}
   - component: {fileID: 4731053369323246730}
   - component: {fileID: 6156797689996426014}
+  - component: {fileID: 3020461687971865787}
   m_Layer: 5
   m_Name: Panel_Score
   m_TagString: Untagged
@@ -289,6 +290,20 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3020461687971865787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703830474044082366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb8495ce5688eac4db1fa8ce87d50909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _currentScoreText: {fileID: 1041389704304229294}
+  _bestScoreText: {fileID: 8542786580267107232}
 --- !u!1 &3409938056448983901
 GameObject:
   m_ObjectHideFlags: 0

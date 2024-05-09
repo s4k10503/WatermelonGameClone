@@ -7,9 +7,7 @@ namespace WatermelonGameClone
 {
     public class GameViewInstaller : MonoInstaller
     {
-        [SerializeField] GameObject _scorePanel;
-        [SerializeField] GameObject _nextSpherePanel;
-        [SerializeField] GameObject _evolutionCirclePanel;
+        [SerializeField] ScoreRankView _scoreRankView;
         [SerializeField] Transform _canvasTransform;
         [SerializeField] GameObject _gameOverPopupPanel;
         [SerializeField] GameObject[] _nextSphereImages;
@@ -17,19 +15,10 @@ namespace WatermelonGameClone
         public override void InstallBindings()
         {
             Container
-                .Bind<GameObject>()
-                .WithId("ScorePanel")
-                .FromInstance(_scorePanel);
-
-            Container
-                .Bind<GameObject>()
-                .WithId("NextSpherePanel")
-                .FromInstance(_nextSpherePanel);
-
-            Container
-                .Bind<GameObject>()
-                .WithId("EvolutionCirclePanel")
-                .FromInstance(_evolutionCirclePanel);
+                .Bind<IScoreRankView>()
+                .To<ScoreRankView>()
+                .FromComponentInNewPrefab(_scoreRankView)
+                .AsCached();
 
             Container
                 .Bind<Transform>()
@@ -37,14 +26,32 @@ namespace WatermelonGameClone
                 .FromInstance(_canvasTransform);
 
             Container
-                .Bind<GameObject>()
-                .WithId("GameOverPopupPanel")
-                .FromInstance(_gameOverPopupPanel);
-
-            Container
                 .Bind<GameObject[]>()
                 .WithId("NextSphereImages")
                 .FromInstance(_nextSphereImages);
+
+            Container.Bind<IGameOverPanelView>()
+                .To<GameOverPanelView>()
+                .FromComponentInNewPrefab(_gameOverPopupPanel)
+                .AsCached();
+
+            Container
+                .Bind<IScorePanelView>()
+                .To<ScorePanelView>()
+                .FromComponentInHierarchy()
+                .AsCached();
+
+            Container
+                .Bind<INextSpherePanelView>()
+                .To<NextSpherePanelView>()
+                .FromComponentInHierarchy()
+                .AsCached();
+
+            Container
+                .Bind<IUIAnimator>()
+                .To<UIAnimator>()
+                .FromNew()
+                .AsTransient();
         }
     }
 }
