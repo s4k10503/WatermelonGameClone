@@ -152,9 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccc52f218f88f2a4fa879b62496d0f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _scorePanel: {fileID: 227404080}
-  _nextSpherePanel: {fileID: 437191406}
-  _evolutionCirclePanel: {fileID: 932711865}
+  _scoreRankView: {fileID: 2643988889998606030, guid: a122df95b2f7d5f4399c7a6be69c60c1, type: 3}
   _canvasTransform: {fileID: 343431076}
   _gameOverPopupPanel: {fileID: 6920113508760262703, guid: 364a42c5cdca1da44be54e28d843f7c8, type: 3}
   _nextSphereImages:
@@ -218,11 +216,6 @@ Transform:
   - {fileID: 1053191164}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &227404080 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5231413713838683618, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
-  m_PrefabInstance: {fileID: 2711849972267409091}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &234646188
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,11 +388,6 @@ Transform:
 --- !u!224 &343431076 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8316913323384018162, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
-  m_PrefabInstance: {fileID: 2711849972267409091}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &437191406 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 363427045658104398, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
   m_PrefabInstance: {fileID: 2711849972267409091}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &519420028
@@ -575,7 +563,6 @@ MonoBehaviour:
   _inputEventProvider: {fileID: 3863202740212497730, guid: 5f297baa046175b46957f413626f71d2, type: 3}
   _spherePosition: {fileID: 1280835132}
   _gameView: {fileID: 2323306782817472913, guid: 37bb5397afd041b4b97e0b840f80f163, type: 3}
-  _scoreRankView: {fileID: 5685641091970107343, guid: 7179bea59a749574ab3451fcd6218d3a, type: 3}
   _spherePrefabs:
   - {fileID: 1874832893391241787, guid: 3e3a9601bc8a6f142b95ee048e87035c, type: 3}
   - {fileID: 1874832893391241787, guid: 76ad17511959cb445a3cc9cde760e558, type: 3}
@@ -604,11 +591,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 198969883}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &932711865 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4589538031647653001, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
-  m_PrefabInstance: {fileID: 2711849972267409091}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &942200552
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -859,6 +841,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1313634014967573618, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: _moveSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1313634014967573618, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: _moveHeight
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1313634014967573618, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: _animationType
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1898726318088344473, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Name
       value: Current_Score_TMP
@@ -890,6 +884,14 @@ PrefabInstance:
     - target: {fileID: 7111883541251190969, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Name
       value: Rank3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7890827854923874360, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: _moveSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7890827854923874360, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: _moveHeight
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8316913323384018162, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Pivot.x

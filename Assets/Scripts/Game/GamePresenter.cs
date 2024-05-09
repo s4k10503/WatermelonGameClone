@@ -14,7 +14,6 @@ namespace WatermelonGameClone
 
         // View Elements
         private IGameView _gameView;
-        private IScoreRankView _scoreRankView;
         private Transform _spherePosition;
         private GameObject[] _spherePrefabs;
 
@@ -38,7 +37,6 @@ namespace WatermelonGameClone
         [Inject]
         public void Construct(
             IGameView gameView,
-            IScoreRankView scoreRankView,
             DiContainer container,
             ISphereModel sphereModel,
             IGameModel gameModel,
@@ -49,7 +47,6 @@ namespace WatermelonGameClone
             [Inject(Id = "SpherePrefabs")] GameObject[] spherePrefabs)
         {
             _gameView = gameView;
-            _scoreRankView = scoreRankView;
             _spherePosition = spherePosition;
             _spherePrefabs = spherePrefabs;
             _container = container;
@@ -86,8 +83,6 @@ namespace WatermelonGameClone
             Observable.EveryUpdate()
                 .Subscribe(_ =>
                 {
-                    _gameView.MoveUI();
-
                     if (_isNext)
                     {
                         _isNext = false;
@@ -114,7 +109,7 @@ namespace WatermelonGameClone
         private void SubscribeToGameView(IGameView gameView)
         {
             gameView
-                .OnRestart
+                .RestartRequested
                 .Subscribe(_ =>
                 {
                     HandleRestart();
@@ -122,7 +117,7 @@ namespace WatermelonGameClone
                 .AddTo(this);
 
             gameView
-                .OnBackToTitle
+                .BackToTitleRequested
                 .Subscribe(_ =>
                 {
                     HandleBackToTitle();
@@ -136,8 +131,8 @@ namespace WatermelonGameClone
                 .CurrentScore
                 .Subscribe(score =>
                 {
-                    _gameView.UpdateCurrentScore(score);
-                    _scoreRankView.DisplayCurrentScore(score);
+                    _gameView.ScorePanelView.UpdateCurrentScore(score);
+                    _gameView.ScoreRankView.DisplayCurrentScore(score);
                 })
                 .AddTo(this);
 
@@ -145,7 +140,7 @@ namespace WatermelonGameClone
                 .BestScore
                 .Subscribe(score =>
                 {
-                    _gameView.UpdateBestScore(score);
+                    _gameView.ScorePanelView.UpdateBestScore(score);
                 })
                 .AddTo(this);
         }
@@ -156,7 +151,7 @@ namespace WatermelonGameClone
                 .NextSphereIndex
                 .Subscribe(index =>
                 {
-                    _gameView.UpdateNextSphereImages(index);
+                    _gameView.NextSpherePanelView.UpdateNextSphereImages(index);
                 })
                 .AddTo(this);
         }
@@ -210,7 +205,7 @@ namespace WatermelonGameClone
             UpdateScoreDisplays();
 
             Time.timeScale = 0f;
-            _gameView.ShowGameOverPopup(_scoreModel.CurrentScore.Value);
+            _gameView.GameOverPanelView.ShowGameOverPopup(_scoreModel.CurrentScore.Value);
         }
 
         private void HandleRestart()
@@ -253,12 +248,12 @@ namespace WatermelonGameClone
 
         private void UpdateScoreDisplays()
         {
-            _gameView.UpdateBestScore(_scoreModel.BestScore.Value);
+            _gameView.ScorePanelView.UpdateBestScore(_scoreModel.BestScore.Value);
 
             // Display of score rank for the day
-            _scoreRankView.DisplayTopScores(_scoreModel.TodayTopScores,
-                                            _scoreModel.MonthlyTopScores,
-                                            _scoreModel.AllTimeTopScores);
+            _gameView.ScoreRankView.DisplayTopScores(_scoreModel.TodayTopScores,
+                                                    _scoreModel.MonthlyTopScores,
+                                                    _scoreModel.AllTimeTopScores);
         }
     }
 }
