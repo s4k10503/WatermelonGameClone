@@ -21,10 +21,7 @@ namespace WatermelonGameClone
         private DiContainer _container = null;
 
         // Model Elements
-        private ISphereModel _sphereModel;
         private IGameModel _gameModel;
-        private IScoreModel _scoreModel;
-        private ISoundModel _soundModel;
 
         private bool _isNext;
         private AudioSource _audioSourceEffect;
@@ -34,14 +31,12 @@ namespace WatermelonGameClone
         // Subjects
         private Subject<SphereView> _onSphereCreated = new Subject<SphereView>();
 
+
         [Inject]
         public void Construct(
             IGameView gameView,
             DiContainer container,
-            ISphereModel sphereModel,
             IGameModel gameModel,
-            IScoreModel scoreModel,
-            ISoundModel soundModel,
             [Inject(Id = "AudioVolume")] float audioVolume,
             [Inject(Id = "SpherePosition")] Transform spherePosition,
             [Inject(Id = "SpherePrefabs")] GameObject[] spherePrefabs)
@@ -50,10 +45,7 @@ namespace WatermelonGameClone
             _spherePosition = spherePosition;
             _spherePrefabs = spherePrefabs;
             _container = container;
-            _sphereModel = sphereModel;
             _gameModel = gameModel;
-            _scoreModel = scoreModel;
-            _soundModel = soundModel;
             _audioVolume = audioVolume;
         }
 
@@ -64,21 +56,19 @@ namespace WatermelonGameClone
             _isNext = false;
             _audioSourceEffect = gameObject.AddComponent<AudioSource>();
 
-            _soundModel.SetSoundVolume(_audioVolume);
+            _gameModel.SoundModel.SetSoundVolume(_audioVolume);
             _gameModel.SetGameState(GameState.Initializing);
-            _sphereModel.UpdateNextSphereIndex();
+            _gameModel.SphereModel.UpdateNextSphereIndex();
             UpdateScoreDisplays();
         }
 
         void Start()
         {
             SubscribeToGameView(_gameView);
-            SubscribeToScoreModel(_scoreModel);
             SubscribeToSphereView(_onSphereCreated);
-            SubscribeToSphereModel(_sphereModel);
+            SubscribeToGameModel(_gameModel);
 
-            SphereView sphere = CreateSphere(_sphereModel.NextSphereIndex.Value);
-            _onSphereCreated.OnNext(sphere);
+            SphereView sphere = CreateSphere(_gameModel.SphereModel.NextSphereIndex.Value);
 
             Observable.EveryUpdate()
                 .Subscribe(_ =>
@@ -90,10 +80,8 @@ namespace WatermelonGameClone
                         {
                             if (_gameModel.CurrentState.Value != GameState.GameOver)
                             {
-                                SphereView sphere = CreateSphere(_sphereModel.NextSphereIndex.Value);
-                                _onSphereCreated.OnNext(sphere);
-
-                                _sphereModel.UpdateNextSphereIndex();
+                                SphereView sphere = CreateSphere(_gameModel.SphereModel.NextSphereIndex.Value);
+                                _gameModel.SphereModel.UpdateNextSphereIndex();
                             }
                         });
                     }
@@ -125,37 +113,6 @@ namespace WatermelonGameClone
                 .AddTo(this);
         }
 
-        private void SubscribeToScoreModel(IScoreModel scoreModel)
-        {
-            scoreModel
-                .CurrentScore
-                .Subscribe(score =>
-                {
-                    _gameView.ScorePanelView.UpdateCurrentScore(score);
-                    _gameView.ScoreRankView.DisplayCurrentScore(score);
-                })
-                .AddTo(this);
-
-            scoreModel
-                .BestScore
-                .Subscribe(score =>
-                {
-                    _gameView.ScorePanelView.UpdateBestScore(score);
-                })
-                .AddTo(this);
-        }
-
-        private void SubscribeToSphereModel(ISphereModel sphereModel)
-        {
-            sphereModel
-                .NextSphereIndex
-                .Subscribe(index =>
-                {
-                    _gameView.NextSpherePanelView.UpdateNextSphereImages(index);
-                })
-                .AddTo(this);
-        }
-
         private void SubscribeToSphereView(Subject<SphereView> onSphereCreated)
         {
             onSphereCreated
@@ -166,7 +123,7 @@ namespace WatermelonGameClone
                         .Subscribe(request =>
                         {
                             _gameModel.SetGameState(GameState.SphereDropping);
-                            _soundModel.PlaySoundEffect(SoundEffect.Drop, _audioSourceEffect);
+                            _gameModel.SoundModel.PlaySoundEffect(SoundEffect.Drop, _audioSourceEffect);
                             _isNext = true;
                         })
                         .AddTo(this);
@@ -176,8 +133,8 @@ namespace WatermelonGameClone
                         .Subscribe(mergeData =>
                         {
                             _gameModel.SetGameState(GameState.Merging);
-                            _soundModel.PlaySoundEffect(SoundEffect.Merge, _audioSourceEffect);
-                            _scoreModel.UpdateCurrentScore(mergeData.SphereNo);
+                            _gameModel.SoundModel.PlaySoundEffect(SoundEffect.Merge, _audioSourceEffect);
+                            _gameModel.ScoreModel.UpdateCurrentScore(mergeData.SphereNo);
 
                             SphereView sphere = MergeSphere(mergeData.Position, mergeData.SphereNo);
                             _onSphereCreated.OnNext(sphere);
@@ -199,24 +156,52 @@ namespace WatermelonGameClone
                 .AddTo(this);
         }
 
+        private void SubscribeToGameModel(IGameModel gameModel)
+        {
+            gameModel.SphereModel
+                .NextSphereIndex
+                .Subscribe(index =>
+                {
+                    _gameView.NextSpherePanelView.UpdateNextSphereImages(index);
+                })
+                .AddTo(this);
+
+            gameModel.ScoreModel
+                .CurrentScore
+                .Subscribe(score =>
+                {
+                    _gameView.ScorePanelView.UpdateCurrentScore(score);
+                    _gameView.ScoreRankView.DisplayCurrentScore(score);
+                })
+                .AddTo(this);
+
+            gameModel.ScoreModel
+                .BestScore
+                .Subscribe(score =>
+                {
+                    _gameView.ScorePanelView.UpdateBestScore(score);
+                })
+                .AddTo(this);
+        }
+
         private void HandleGameOver()
         {
-            _scoreModel.UpdateScoreRanking(_scoreModel.CurrentScore.Value);
+            _gameModel.ScoreModel.UpdateScoreRanking(_gameModel.ScoreModel.CurrentScore.Value);
             UpdateScoreDisplays();
 
-            Time.timeScale = 0f;
-            _gameView.GameOverPanelView.ShowGameOverPopup(_scoreModel.CurrentScore.Value);
+            Time.timeScale = _gameModel.GetTimeScaleGameOver();
+            _gameView.GameOverPanelView.ShowGameOverPopup(_gameModel.ScoreModel.CurrentScore.Value);
         }
 
         private void HandleRestart()
         {
-            Time.timeScale = 1f;
+            Time.timeScale = _gameModel.GetTimeScaleGameStart();
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
         private void HandleBackToTitle()
         {
-            Time.timeScale = 1f;
+            Time.timeScale = _gameModel.GetTimeScaleGameStart();
             SceneManager.LoadScene("Title");
         }
 
@@ -225,8 +210,10 @@ namespace WatermelonGameClone
             GameObject sphereObj = _container.InstantiatePrefab(_spherePrefabs[sphereNo], _spherePosition);
             SphereView sphere = sphereObj.GetComponent<SphereView>();
 
-            sphere.Initialize(_sphereModel.MaxSphereNo, sphereNo);
+            sphere.Initialize(_gameModel.SphereModel.MaxSphereNo, sphereNo);
             sphere.gameObject.SetActive(true);
+            _onSphereCreated.OnNext(sphere);
+
             return sphere;
         }
 
@@ -235,7 +222,7 @@ namespace WatermelonGameClone
             GameObject sphereObj = _container.InstantiatePrefab(_spherePrefabs[sphereNo + 1], position, Quaternion.identity, _spherePosition);
             SphereView sphere = sphereObj.GetComponent<SphereView>();
 
-            sphere.InitializeAfterMerge(_sphereModel.MaxSphereNo, sphereNo + 1);
+            sphere.InitializeAfterMerge(_gameModel.SphereModel.MaxSphereNo, sphereNo + 1);
             sphere.GetComponent<Rigidbody2D>().simulated = true;
             sphere.gameObject.SetActive(true);
             return sphere;
@@ -248,12 +235,12 @@ namespace WatermelonGameClone
 
         private void UpdateScoreDisplays()
         {
-            _gameView.ScorePanelView.UpdateBestScore(_scoreModel.BestScore.Value);
+            _gameView.ScorePanelView.UpdateBestScore(_gameModel.ScoreModel.BestScore.Value);
 
             // Display of score rank for the day
-            _gameView.ScoreRankView.DisplayTopScores(_scoreModel.TodayTopScores,
-                                                    _scoreModel.MonthlyTopScores,
-                                                    _scoreModel.AllTimeTopScores);
+            _gameView.ScoreRankView.DisplayTopScores(_gameModel.ScoreModel.TodayTopScores,
+                                                    _gameModel.ScoreModel.MonthlyTopScores,
+                                                    _gameModel.ScoreModel.AllTimeTopScores);
         }
     }
 }
