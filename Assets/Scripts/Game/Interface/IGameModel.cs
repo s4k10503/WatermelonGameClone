@@ -1,15 +1,21 @@
 using UnityEngine;
 using UniRx;
 
+
 namespace WatermelonGameClone
 {
     public interface IGameModel
     {
-        // Property to access the current game state in a read-only manner
+        ISphereModel SphereModel { get; }
+        IScoreModel ScoreModel { get; }
+        ISoundModel SoundModel { get; }
+
         IReadOnlyReactiveProperty<GameState> CurrentState { get; }
 
         // Methods related to game state management
         void SetGameState(GameState newState);
         float GetDelayedTime();
+        float GetTimeScaleGameStart();
+        float GetTimeScaleGameOver();
     }
 }
