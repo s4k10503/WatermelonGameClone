@@ -11,5 +11,6 @@ namespace WatermelonGameClone
         IObservable<Unit> OnMouseClick { get; }
         IObservable<Unit> OnLeftKey { get; }
         IObservable<Unit> OnRightKey { get; }
+        IObservable<Unit> OnEscapeKey { get; }
     }
 }

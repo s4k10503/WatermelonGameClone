@@ -10,16 +10,22 @@ namespace WatermelonGameClone
         private readonly Subject<Unit> _onMouseClick = new Subject<Unit>();
         private readonly Subject<Unit> _onLeftKey = new Subject<Unit>();
         private readonly Subject<Unit> _onRightKey = new Subject<Unit>();
+        private readonly Subject<Unit> _onEscapeKey = new Subject<Unit>();
 
         public IObservable<Vector2> OnMouseMove => _onMouseMove;
         public IObservable<Unit> OnMouseClick => _onMouseClick;
         public IObservable<Unit> OnLeftKey => _onLeftKey;
         public IObservable<Unit> OnRightKey => _onRightKey;
+        public IObservable<Unit> OnEscapeKey => _onEscapeKey;
+
 
         void Start()
         {
             _onMouseMove.AddTo(this);
             _onMouseClick.AddTo(this);
+            _onRightKey.AddTo(this);
+            _onLeftKey.AddTo(this);
+            _onEscapeKey.AddTo(this);
         }
 
         void Update()
@@ -39,6 +45,11 @@ namespace WatermelonGameClone
             if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
             {
                 _onRightKey.OnNext(Unit.Default);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                _onEscapeKey.OnNext(Unit.Default);
             }
         }
     }

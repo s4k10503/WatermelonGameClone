@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8212264241831288615}
-  - component: {fileID: 924507587563170139}
+  - component: {fileID: 8788060844829369805}
   m_Layer: 5
   m_Name: Panel_Pause
   m_TagString: Untagged
@@ -34,10 +34,10 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -272, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &924507587563170139
+--- !u!114 &8788060844829369805
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,9 +46,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1372222866417989012}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e4ac6e5d32eaf84690fd4c53e145e4a, type: 3}
+  m_Script: {fileID: 11500000, guid: a0ab0f61631121946aa4d2dea85d8ba3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _buttonBackToTitle: {fileID: 8141191495116023631}
+  _buttonRestart: {fileID: 253074341760343557}
+  _buttonBackToGame: {fileID: 656814234606821475}
 --- !u!1 &6586048713474435223
 GameObject:
   m_ObjectHideFlags: 0
@@ -239,7 +242,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 275, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 370, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5351982786333284755
@@ -524,13 +527,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7604824527842791571, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
-      value: panel
+      value: Button
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+--- !u!114 &656814234606821475 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_PrefabInstance: {fileID: 3580628962881335898}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &1774892957350602851 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
@@ -646,13 +660,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7604824527842791571, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
-      value: panel
+      value: Button
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+--- !u!114 &253074341760343557 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_PrefabInstance: {fileID: 4264508380045413436}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &1314997667410302469 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
@@ -668,7 +693,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1164718939915022956, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_text
-      value: Restart
+      value: Retun to Title
       objectReference: {fileID: 0}
     - target: {fileID: 1164718939915022956, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_fontStyle
@@ -768,7 +793,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7604824527842791571, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
-      value: panel
+      value: Button
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -780,3 +805,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
   m_PrefabInstance: {fileID: 5212591684319114614}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8141191495116023631 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_PrefabInstance: {fileID: 5212591684319114614}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

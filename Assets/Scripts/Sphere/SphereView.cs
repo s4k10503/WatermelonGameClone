@@ -65,13 +65,13 @@ namespace WatermelonGameClone
 
             _inputEventProvider
                 .OnMouseMove
-                .Where(_ => !_isDrop)
+                .Where(_ => !_isDrop && Time.timeScale != 0f)
                 .Subscribe(UpdatePosition)
                 .AddTo(this);
 
             _inputEventProvider
                 .OnMouseClick
-                .Where(_ => !_isDrop)
+                .Where(_ => !_isDrop && Time.timeScale != 0f)
                 .Subscribe(_ => StartDropping())
                 .AddTo(this);
         }

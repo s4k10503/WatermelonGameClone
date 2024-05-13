@@ -7,13 +7,21 @@ namespace WatermelonGameClone
 {
     public class GameViewInstaller : MonoInstaller
     {
+        [SerializeField] GameObject _inputEventProvider;
         [SerializeField] ScoreRankView _scoreRankView;
         [SerializeField] Transform _canvasTransform;
         [SerializeField] GameObject _gameOverPopupPanel;
+        [SerializeField] GameObject _pausePanel;
         [SerializeField] GameObject[] _nextSphereImages;
 
         public override void InstallBindings()
         {
+            Container
+                .Bind<IInputEventProvider>()
+                .To<InputEventProvider>()
+                .FromComponentInNewPrefab(_inputEventProvider)
+                .AsCached();
+
             Container
                 .Bind<IScoreRankView>()
                 .To<ScoreRankView>()
@@ -32,7 +40,13 @@ namespace WatermelonGameClone
 
             Container.Bind<IGameOverPanelView>()
                 .To<GameOverPanelView>()
-                .FromComponentInNewPrefab(_gameOverPopupPanel)
+                //.FromComponentInNewPrefab(_gameOverPopupPanel)
+                .FromComponentInHierarchy()
+                .AsCached();
+
+            Container.Bind<IPausePanelView>()
+                .To<PausePanelView>()
+                .FromComponentInHierarchy()
                 .AsCached();
 
             Container

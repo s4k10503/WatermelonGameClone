@@ -7,7 +7,6 @@ namespace WatermelonGameClone
 {
     public class GamePresenterInstaller : MonoInstaller
     {
-        [SerializeField] private GameObject _inputEventProvider;
         [SerializeField] private Transform _spherePosition;
         [SerializeField] private GameView _gameView;
         [SerializeField] private GameObject[] _spherePrefabs;
@@ -15,12 +14,6 @@ namespace WatermelonGameClone
 
         public override void InstallBindings()
         {
-            Container
-                .Bind<IInputEventProvider>()
-                .To<InputEventProvider>()
-                .FromComponentInNewPrefab(_inputEventProvider)
-                .AsCached();
-
             Container
                 .Bind<IGameModel>()
                 .To<GameModel>()

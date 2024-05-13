@@ -111,6 +111,23 @@ namespace WatermelonGameClone
                     HandleBackToTitle();
                 })
                 .AddTo(this);
+
+            gameView
+                .BackToGameRequested
+                .Subscribe(_ =>
+                {
+                    HandleBackToGame();
+                })
+                .AddTo(this);
+
+            gameView
+                .PauseRequested
+                .Where(_ => _gameModel.CurrentState.Value != GameState.GameOver)
+                .Subscribe(_ =>
+                {
+                    HandlePause();
+                })
+                .AddTo(this);
         }
 
         private void SubscribeToSphereView(Subject<SphereView> onSphereCreated)
@@ -203,6 +220,18 @@ namespace WatermelonGameClone
         {
             Time.timeScale = _gameModel.GetTimeScaleGameStart();
             SceneManager.LoadScene("Title");
+        }
+
+        private void HandleBackToGame()
+        {
+            Time.timeScale = _gameModel.GetTimeScaleGameStart();
+            _gameView.PausePanelView.HidePausePanel();
+        }
+
+        private void HandlePause()
+        {
+            Time.timeScale = _gameModel.GetTimeScaleGameOver();
+            _gameView.PausePanelView.ShowPausePanel();
         }
 
         public SphereView CreateSphere(int sphereNo)
