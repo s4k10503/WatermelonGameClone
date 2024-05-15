@@ -6,6 +6,7 @@ namespace WatermelonGameClone
         SphereMoving,
         SphereDropping,
         Merging,
-        GameOver
+        GameOver,
+        Paused
     }
 }

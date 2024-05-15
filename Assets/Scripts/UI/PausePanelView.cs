@@ -31,7 +31,6 @@ namespace WatermelonGameClone
         public IObservable<Unit> OnBackToGame => _buttonBackToGame.OnClickAsObservable();
 
         private IUIAnimator _uiAnimator;
-        public bool IsVisible { get; private set; }
 
 
         [Inject]
@@ -56,7 +55,6 @@ namespace WatermelonGameClone
 
         public void ShowPausePanel()
         {
-            IsVisible = true;
             transform.SetAsLastSibling();
             gameObject.SetActive(true);
             _uiAnimator.AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
@@ -64,7 +62,6 @@ namespace WatermelonGameClone
 
         public void HidePausePanel()
         {
-            IsVisible = false;
             gameObject.SetActive(false);
         }
     }
