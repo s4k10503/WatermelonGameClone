@@ -231,6 +231,7 @@ namespace WatermelonGameClone
         {
             Time.timeScale = _gameModel.GetTimeScaleGameStart();
             _gameModel.SetGameState(_previousGameState);
+            _gameView.BackgroundPanelView.HidePanel();
             _gameView.PausePanelView.HidePausePanel();
         }
 
@@ -239,6 +240,7 @@ namespace WatermelonGameClone
             _previousGameState = _gameModel.CurrentState.Value;
             _gameModel.SetGameState(GameState.Paused);
             Time.timeScale = _gameModel.GetTimeScaleGameOver();
+            _gameView.BackgroundPanelView.ShowPanel();
             _gameView.PausePanelView.ShowPausePanel();
         }
 

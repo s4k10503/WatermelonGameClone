@@ -10,8 +10,6 @@ namespace WatermelonGameClone
         [SerializeField] GameObject _inputEventProvider;
         [SerializeField] ScoreRankView _scoreRankView;
         [SerializeField] Transform _canvasTransform;
-        [SerializeField] GameObject _gameOverPopupPanel;
-        [SerializeField] GameObject _pausePanel;
         [SerializeField] GameObject[] _nextSphereImages;
 
         public override void InstallBindings()
@@ -40,12 +38,16 @@ namespace WatermelonGameClone
 
             Container.Bind<IGameOverPanelView>()
                 .To<GameOverPanelView>()
-                //.FromComponentInNewPrefab(_gameOverPopupPanel)
                 .FromComponentInHierarchy()
                 .AsCached();
 
             Container.Bind<IPausePanelView>()
                 .To<PausePanelView>()
+                .FromComponentInHierarchy()
+                .AsCached();
+
+            Container.Bind<IBackgroundPanelView>()
+                .To<BackgroundPanelView>()
                 .FromComponentInHierarchy()
                 .AsCached();
 

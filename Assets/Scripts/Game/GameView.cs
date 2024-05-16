@@ -17,6 +17,7 @@ namespace WatermelonGameClone
         [Inject] public INextSpherePanelView NextSpherePanelView { get; private set; }
         [Inject] public IGameOverPanelView GameOverPanelView { get; private set; }
         [Inject] public IPausePanelView PausePanelView { get; private set; }
+        [Inject] public IBackgroundPanelView BackgroundPanelView { get; private set; }
 
         [Inject] private IInputEventProvider _inputEventProvider;
 
