@@ -64,11 +64,13 @@ namespace WatermelonGameClone
         {
             _inputEventProvider
                 .OnLeftKey
+                .Where(_ => Time.timeScale != 0f)
                 .Subscribe(_ => ChangePanelDisplay(-1))
                 .AddTo(this);
 
             _inputEventProvider
                 .OnRightKey
+                .Where(_ => Time.timeScale != 0f)
                 .Subscribe(_ => ChangePanelDisplay(1))
                 .AddTo(this);
         }

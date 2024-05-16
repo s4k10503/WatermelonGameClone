@@ -152,9 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccc52f218f88f2a4fa879b62496d0f5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _inputEventProvider: {fileID: 3863202740212497730, guid: 5f297baa046175b46957f413626f71d2, type: 3}
   _scoreRankView: {fileID: 2643988889998606030, guid: a122df95b2f7d5f4399c7a6be69c60c1, type: 3}
   _canvasTransform: {fileID: 343431076}
-  _gameOverPopupPanel: {fileID: 6920113508760262703, guid: 364a42c5cdca1da44be54e28d843f7c8, type: 3}
   _nextSphereImages:
   - {fileID: 1896000490732014204, guid: c4462ef735dc63e4aab84e2001491579, type: 3}
   - {fileID: 1896000490732014204, guid: d90c34e482383324ab0a0e1c9b17c6b9, type: 3}
@@ -560,7 +560,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e94ea41faaf04bd4f8b7cd073a078ecd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _inputEventProvider: {fileID: 3863202740212497730, guid: 5f297baa046175b46957f413626f71d2, type: 3}
   _spherePosition: {fileID: 1280835132}
   _gameView: {fileID: 2323306782817472913, guid: 37bb5397afd041b4b97e0b840f80f163, type: 3}
   _spherePrefabs:
@@ -853,6 +852,10 @@ PrefabInstance:
       propertyPath: _animationType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1650406037834829928, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1898726318088344473, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Name
       value: Current_Score_TMP
@@ -861,6 +864,14 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 519420031}
+    - target: {fileID: 2474463878619052545, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1280
+      objectReference: {fileID: 0}
+    - target: {fileID: 2474463878619052545, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2647257471420255834, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Name
       value: Rank1
@@ -868,6 +879,10 @@ PrefabInstance:
     - target: {fileID: 3364007358740351440, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Name
       value: Rank3_Score_TMP
+      objectReference: {fileID: 0}
+    - target: {fileID: 3460975480459921118, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5088154234617917366, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Name
@@ -892,6 +907,10 @@ PrefabInstance:
     - target: {fileID: 7890827854923874360, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: _moveHeight
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8271469760705821943, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8316913323384018162, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Pivot.x
@@ -972,6 +991,10 @@ PrefabInstance:
     - target: {fileID: 8316913323384018162, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8362291097175366399, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 12.979248
       objectReference: {fileID: 0}
     - target: {fileID: 9009157926138397598, guid: f11c843d34efac04bbec681f9d91c16b, type: 3}
       propertyPath: m_Name

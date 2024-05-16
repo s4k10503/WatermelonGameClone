@@ -1,8 +1,11 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 using System.Collections.Generic;
 using UniRx;
-using DG.Tweening;
+using UniRx.Triggers;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Zenject;
 
 namespace WatermelonGameClone
@@ -11,6 +14,8 @@ namespace WatermelonGameClone
     {
         // Parameters
         private float _audioVolume;
+        private GameState _previousGameState;
+
 
         // View Elements
         private IGameView _gameView;
@@ -30,6 +35,9 @@ namespace WatermelonGameClone
 
         // Subjects
         private Subject<SphereView> _onSphereCreated = new Subject<SphereView>();
+
+        // CancellationToken
+        private CancellationTokenSource _ctSource;
 
 
         [Inject]
@@ -51,6 +59,8 @@ namespace WatermelonGameClone
 
         void Awake()
         {
+            _ctSource = new CancellationTokenSource();
+
             _onSphereCreated.AddTo(this);
 
             _isNext = false;
@@ -59,6 +69,7 @@ namespace WatermelonGameClone
             _gameModel.SoundModel.SetSoundVolume(_audioVolume);
             _gameModel.SetGameState(GameState.Initializing);
             _gameModel.SphereModel.UpdateNextSphereIndex();
+
             UpdateScoreDisplays();
         }
 
@@ -68,30 +79,23 @@ namespace WatermelonGameClone
             SubscribeToSphereView(_onSphereCreated);
             SubscribeToGameModel(_gameModel);
 
-            SphereView sphere = CreateSphere(_gameModel.SphereModel.NextSphereIndex.Value);
-
-            Observable.EveryUpdate()
+            this.UpdateAsObservable()
+                .Where(_ => _isNext != false &&
+                            _gameModel.CurrentState.Value != GameState.GameOver)
                 .Subscribe(_ =>
                 {
-                    if (_isNext)
-                    {
-                        _isNext = false;
-                        DOVirtual.DelayedCall(_gameModel.GetDelayedTime(), () =>
-                        {
-                            if (_gameModel.CurrentState.Value != GameState.GameOver)
-                            {
-                                SphereView sphere = CreateSphere(_gameModel.SphereModel.NextSphereIndex.Value);
-                                _gameModel.SphereModel.UpdateNextSphereIndex();
-                            }
-                        });
-                    }
+                    _isNext = false;
+                    DelayedCreateSphere(_ctSource.Token).Forget();
                 })
                 .AddTo(this);
+
+            SphereView sphere = CreateSphere(_gameModel.SphereModel.NextSphereIndex.Value);
         }
 
         private void OnDestroy()
         {
-
+            _ctSource.Cancel();
+            _ctSource.Dispose();
         }
 
         private void SubscribeToGameView(IGameView gameView)
@@ -109,6 +113,24 @@ namespace WatermelonGameClone
                 .Subscribe(_ =>
                 {
                     HandleBackToTitle();
+                })
+                .AddTo(this);
+
+            gameView
+                .BackToGameRequested
+                .Subscribe(_ =>
+                {
+                    HandleBackToGame();
+                })
+                .AddTo(this);
+
+            gameView
+                .PauseRequested
+                .Where(_ => _gameModel.CurrentState.Value != GameState.GameOver &&
+                            _gameModel.CurrentState.Value != GameState.Paused)
+                .Subscribe(_ =>
+                {
+                    HandlePause();
                 })
                 .AddTo(this);
         }
@@ -148,7 +170,6 @@ namespace WatermelonGameClone
                         .OnGameOver
                         .Subscribe(request =>
                         {
-                            _gameModel.SetGameState(GameState.GameOver);
                             HandleGameOver();
                         })
                         .AddTo(this);
@@ -186,9 +207,9 @@ namespace WatermelonGameClone
 
         private void HandleGameOver()
         {
+            _gameModel.SetGameState(GameState.GameOver);
             _gameModel.ScoreModel.UpdateScoreRanking(_gameModel.ScoreModel.CurrentScore.Value);
             UpdateScoreDisplays();
-
             Time.timeScale = _gameModel.GetTimeScaleGameOver();
             _gameView.GameOverPanelView.ShowGameOverPopup(_gameModel.ScoreModel.CurrentScore.Value);
         }
@@ -202,7 +223,25 @@ namespace WatermelonGameClone
         private void HandleBackToTitle()
         {
             Time.timeScale = _gameModel.GetTimeScaleGameStart();
+            _gameModel.SetGameState(GameState.Initializing);
             SceneManager.LoadScene("Title");
+        }
+
+        private void HandleBackToGame()
+        {
+            Time.timeScale = _gameModel.GetTimeScaleGameStart();
+            _gameModel.SetGameState(_previousGameState);
+            _gameView.BackgroundPanelView.HidePanel();
+            _gameView.PausePanelView.HidePanel();
+        }
+
+        private void HandlePause()
+        {
+            _previousGameState = _gameModel.CurrentState.Value;
+            _gameModel.SetGameState(GameState.Paused);
+            Time.timeScale = _gameModel.GetTimeScaleGameOver();
+            _gameView.BackgroundPanelView.ShowPanel();
+            _gameView.PausePanelView.ShowPanel();
         }
 
         public SphereView CreateSphere(int sphereNo)
@@ -215,6 +254,16 @@ namespace WatermelonGameClone
             _onSphereCreated.OnNext(sphere);
 
             return sphere;
+        }
+
+        private async UniTaskVoid DelayedCreateSphere(CancellationToken ct)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(_gameModel.GetDelayedTime()));
+
+            ct.ThrowIfCancellationRequested();
+
+            SphereView sphere = CreateSphere(_gameModel.SphereModel.NextSphereIndex.Value);
+            _gameModel.SphereModel.UpdateNextSphereIndex();
         }
 
         public SphereView MergeSphere(Vector3 position, int sphereNo)

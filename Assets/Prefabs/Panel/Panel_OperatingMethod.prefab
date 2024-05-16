@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -0.0000038147, y: 8.563812}
+  m_AnchoredPosition: {x: 0, y: 8.563812}
   m_SizeDelta: {x: 884.99, y: 17.127594}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1715192022330001199
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Mouse: Move    Click: Drop'
+  m_text: 'Mouse: Move    Click: Drop    ESC: Pause'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}

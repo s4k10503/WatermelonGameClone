@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UniRx;
 using DG.Tweening;
+using UniRx;
 using Zenject;
 
 namespace WatermelonGameClone
 {
-    public class GameOverPanelView : MonoBehaviour, IGameOverPanelView
+    public class PausePanelView : MonoBehaviour, IPausePanelView
     {
         // Button
         [SerializeField] Button _buttonBackToTitle;
         [SerializeField] Button _buttonRestart;
-        [SerializeField] Button _buttonScore;
+        [SerializeField] Button _buttonBackToGame;
 
         // Objects
         private Transform _canvasTransform;
@@ -21,10 +21,12 @@ namespace WatermelonGameClone
         // Subjects
         private Subject<Unit> _onRestart = new Subject<Unit>();
         private Subject<Unit> _onBackToTitle = new Subject<Unit>();
+        private Subject<Unit> _onBackToGame = new Subject<Unit>();
 
         // Observables
-        public IObservable<Unit> OnRestart => _onRestart;
-        public IObservable<Unit> OnBackToTitle => _onBackToTitle;
+        public IObservable<Unit> OnRestart => _buttonRestart.OnClickAsObservable();
+        public IObservable<Unit> OnBackToTitle => _buttonBackToTitle.OnClickAsObservable();
+        public IObservable<Unit> OnBackToGame => _buttonBackToGame.OnClickAsObservable();
 
         private IUIAnimator _uiAnimator;
 
@@ -32,7 +34,6 @@ namespace WatermelonGameClone
         [Inject]
         public void Construct(
             IUIAnimator uiAnimator,
-
             [Inject(Id = "CanvasTransform")] Transform canvasTransform)
         {
             _uiAnimator = uiAnimator;
@@ -40,27 +41,9 @@ namespace WatermelonGameClone
 
             _onRestart.AddTo(this);
             _onBackToTitle.AddTo(this);
+            _onBackToGame.AddTo(this);
 
             gameObject.SetActive(false);
-        }
-
-        void Start()
-        {
-            _buttonBackToTitle
-                .OnClickAsObservable()
-                .Subscribe(_ =>
-                {
-                    _onBackToTitle.OnNext(Unit.Default);
-                })
-                .AddTo(this);
-
-            _buttonRestart
-                .OnClickAsObservable()
-                .Subscribe(_ =>
-                {
-                    _onRestart.OnNext(Unit.Default);
-                })
-                .AddTo(this);
         }
 
         private void OnDestroy()
@@ -68,10 +51,16 @@ namespace WatermelonGameClone
 
         }
 
-        public void ShowGameOverPopup(int score)
+        public void ShowPanel()
         {
+            transform.SetAsLastSibling();
             gameObject.SetActive(true);
             _uiAnimator.AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
+        }
+
+        public void HidePanel()
+        {
+            gameObject.SetActive(false);
         }
     }
 }

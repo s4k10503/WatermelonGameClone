@@ -11,8 +11,12 @@ namespace WatermelonGameClone
         IScoreRankView ScoreRankView { get; }
         INextSpherePanelView NextSpherePanelView { get; }
         IGameOverPanelView GameOverPanelView { get; }
+        IPausePanelView PausePanelView { get; }
+        IBackgroundPanelView BackgroundPanelView { get; }
 
         IObservable<Unit> RestartRequested { get; }
         IObservable<Unit> BackToTitleRequested { get; }
+        IObservable<Unit> BackToGameRequested { get; }
+        IObservable<Unit> PauseRequested { get; }
     }
 }
