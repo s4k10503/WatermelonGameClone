@@ -10,7 +10,7 @@ namespace WatermelonGameClone
         IObservable<Unit> OnBackToTitle { get; }
         IObservable<Unit> OnBackToGame { get; }
 
-        void ShowPausePanel();
-        void HidePausePanel();
+        void ShowPanel();
+        void HidePanel();
     }
 }

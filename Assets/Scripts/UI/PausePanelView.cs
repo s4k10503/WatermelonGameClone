@@ -17,8 +17,6 @@ namespace WatermelonGameClone
 
         // Objects
         private Transform _canvasTransform;
-        private GameObject _pausePanel;
-        private GameObject _pausePanelInstance;
 
         // Subjects
         private Subject<Unit> _onRestart = new Subject<Unit>();
@@ -53,14 +51,14 @@ namespace WatermelonGameClone
 
         }
 
-        public void ShowPausePanel()
+        public void ShowPanel()
         {
             transform.SetAsLastSibling();
             gameObject.SetActive(true);
             _uiAnimator.AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
         }
 
-        public void HidePausePanel()
+        public void HidePanel()
         {
             gameObject.SetActive(false);
         }
