@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using UniRx;
 using DG.Tweening;
 using Zenject;
@@ -14,6 +15,7 @@ namespace WatermelonGameClone
         [SerializeField] Button _buttonBackToTitle;
         [SerializeField] Button _buttonRestart;
         [SerializeField] Button _buttonScore;
+        [SerializeField] TextMeshProUGUI _scoreText;
 
         // Objects
         private Transform _canvasTransform;
@@ -70,8 +72,15 @@ namespace WatermelonGameClone
 
         public void ShowGameOverPopup(int score)
         {
+            UpdateScoreText(_scoreText, score);
+
             gameObject.SetActive(true);
             _uiAnimator.AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
+        }
+
+        private void UpdateScoreText(TextMeshProUGUI textMesh, int score)
+        {
+            textMesh.SetText(score.ToString());
         }
     }
 }
