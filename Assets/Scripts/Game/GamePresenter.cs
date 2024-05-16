@@ -211,6 +211,7 @@ namespace WatermelonGameClone
             _gameModel.ScoreModel.UpdateScoreRanking(_gameModel.ScoreModel.CurrentScore.Value);
             UpdateScoreDisplays();
             Time.timeScale = _gameModel.GetTimeScaleGameOver();
+            _gameView.BackgroundPanelView.ShowPanel();
             _gameView.GameOverPanelView.ShowGameOverPopup(_gameModel.ScoreModel.CurrentScore.Value);
         }
 
