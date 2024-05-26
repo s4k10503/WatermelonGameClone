@@ -12,6 +12,6 @@ namespace WatermelonGameClone
         IObservable<Unit> OnBackToTitle { get; }
 
         // Methods related to game state and UI updates
-        void ShowGameOverPopup(int score);
+        void ShowPanel(int score, RenderTexture screenshot);
     }
 }
