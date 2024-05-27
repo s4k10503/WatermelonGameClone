@@ -16,7 +16,6 @@ namespace WatermelonGameClone
         private float _audioVolume;
         private GameState _previousGameState;
 
-
         // View Elements
         private IGameView _gameView;
         private Transform _spherePosition;
@@ -28,6 +27,8 @@ namespace WatermelonGameClone
         // Model Elements
         private IGameModel _gameModel;
 
+        // Others
+        private IScreenshotHandler _screenshotHandler;
         private bool _isNext;
         private AudioSource _audioSourceEffect;
 
@@ -45,6 +46,7 @@ namespace WatermelonGameClone
             IGameView gameView,
             DiContainer container,
             IGameModel gameModel,
+            IScreenshotHandler screenshotHandler,
             [Inject(Id = "AudioVolume")] float audioVolume,
             [Inject(Id = "SpherePosition")] Transform spherePosition,
             [Inject(Id = "SpherePrefabs")] GameObject[] spherePrefabs)
@@ -55,6 +57,7 @@ namespace WatermelonGameClone
             _container = container;
             _gameModel = gameModel;
             _audioVolume = audioVolume;
+            _screenshotHandler = screenshotHandler;
         }
 
         void Awake()
@@ -170,7 +173,7 @@ namespace WatermelonGameClone
                         .OnGameOver
                         .Subscribe(request =>
                         {
-                            HandleGameOver();
+                            HandleGameOver().Forget();
                         })
                         .AddTo(this);
                 })
@@ -205,14 +208,15 @@ namespace WatermelonGameClone
                 .AddTo(this);
         }
 
-        private void HandleGameOver()
+        private async UniTaskVoid HandleGameOver()
         {
             _gameModel.SetGameState(GameState.GameOver);
             _gameModel.ScoreModel.UpdateScoreRanking(_gameModel.ScoreModel.CurrentScore.Value);
             UpdateScoreDisplays();
             Time.timeScale = _gameModel.GetTimeScaleGameOver();
+            RenderTexture screenshot = await _screenshotHandler.CaptureScreenshotAsync(_ctSource.Token);
             _gameView.BackgroundPanelView.ShowPanel();
-            _gameView.GameOverPanelView.ShowGameOverPopup(_gameModel.ScoreModel.CurrentScore.Value);
+            _gameView.GameOverPanelView.ShowPanel(_gameModel.ScoreModel.CurrentScore.Value, screenshot);
         }
 
         private void HandleRestart()

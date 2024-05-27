@@ -11,6 +11,9 @@ namespace WatermelonGameClone
         [SerializeField] private GameView _gameView;
         [SerializeField] private GameObject[] _spherePrefabs;
         [SerializeField, Range(0, 1.0f)] private float _audioVolume;
+        [SerializeField] private GameObject _screenshotHandler;
+        [SerializeField] private Camera _mainCamera;
+        [SerializeField] private Camera _uiCamera;
 
         public override void InstallBindings()
         {
@@ -65,6 +68,22 @@ namespace WatermelonGameClone
                 .Bind<int>()
                 .WithId("MaxSphereNo")
                 .FromInstance(_spherePrefabs.Length);
+
+            Container
+                .Bind<IScreenshotHandler>()
+                .To<ScreenshotHandler>()
+                .FromComponentInNewPrefab(_screenshotHandler)
+                .AsCached();
+
+            Container
+                .Bind<Camera>()
+                .WithId("Main Camera")
+                .FromInstance(_mainCamera);
+
+            Container
+                .Bind<Camera>()
+                .WithId("UI Camera")
+                .FromInstance(_uiCamera);
         }
 
     }
