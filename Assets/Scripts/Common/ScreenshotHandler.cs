@@ -2,15 +2,22 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Zenject;
 
 public class ScreenshotHandler : MonoBehaviour, IScreenshotHandler
 {
-    private Camera _camera;
+    private Camera _mainCamera;
+    private Camera _uiCamera;
     private RenderTexture _currentRenderTexture;
 
-    void Awake()
+
+    [Inject]
+    public void Construct(
+            [Inject(Id = "Main Camera")] Camera mainCamera,
+            [Inject(Id = "UI Camera")] Camera uiCamera)
     {
-        _camera = Camera.main;
+        _mainCamera = mainCamera;
+        _uiCamera = uiCamera;
     }
 
     void OnDestroy()
@@ -30,11 +37,23 @@ public class ScreenshotHandler : MonoBehaviour, IScreenshotHandler
         int height = Screen.height;
 
         _currentRenderTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
-        var oldTarget = _camera.targetTexture;
+        var oldTargetCamera = _mainCamera.targetTexture;
+        var oldTargetUICamera = _uiCamera.targetTexture;
 
-        _camera.targetTexture = _currentRenderTexture;
-        _camera.Render();
-        _camera.targetTexture = oldTarget;
+        _mainCamera.targetTexture = _currentRenderTexture;
+        _mainCamera.Render();
+
+        // Because if you don't restore the target texture, it may affect the next render
+        _mainCamera.targetTexture = oldTargetCamera;
+
+        // Avoid clearing the RenderTexture contents before the UI camera starts rendering.
+        // Keep the RenderTexture containing the output of the main camera as is, 
+        // and add the contents of the UI camera without overwriting it.
+        _uiCamera.clearFlags = CameraClearFlags.Nothing;
+
+        _uiCamera.targetTexture = _currentRenderTexture;
+        _uiCamera.Render();
+        _uiCamera.targetTexture = oldTargetUICamera;
 
         var request = AsyncGPUReadback.Request(_currentRenderTexture);
         await UniTask.WaitUntil(() => request.done, cancellationToken: ct);
