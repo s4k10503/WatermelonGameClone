@@ -8,7 +8,6 @@ namespace WatermelonGameClone
     public class GameViewInstaller : MonoInstaller
     {
         [SerializeField] GameObject _inputEventProvider;
-        [SerializeField] ScoreRankView _scoreRankView;
         [SerializeField] Transform _canvasTransform;
         [SerializeField] GameObject[] _nextSphereImages;
 
@@ -21,12 +20,6 @@ namespace WatermelonGameClone
                 .AsCached();
 
             Container
-                .Bind<IScoreRankView>()
-                .To<ScoreRankView>()
-                .FromComponentInNewPrefab(_scoreRankView)
-                .AsCached();
-
-            Container
                 .Bind<Transform>()
                 .WithId("CanvasTransform")
                 .FromInstance(_canvasTransform);
@@ -36,17 +29,26 @@ namespace WatermelonGameClone
                 .WithId("NextSphereImages")
                 .FromInstance(_nextSphereImages);
 
-            Container.Bind<IGameOverPanelView>()
+            Container
+                .Bind<IScoreRankView>()
+                .To<ScoreRankView>()
+                .FromComponentInHierarchy()
+                .AsCached();
+
+            Container
+                .Bind<IGameOverPanelView>()
                 .To<GameOverPanelView>()
                 .FromComponentInHierarchy()
                 .AsCached();
 
-            Container.Bind<IPausePanelView>()
+            Container
+                .Bind<IPausePanelView>()
                 .To<PausePanelView>()
                 .FromComponentInHierarchy()
                 .AsCached();
 
-            Container.Bind<IBackgroundPanelView>()
+            Container
+                .Bind<IBackgroundPanelView>()
                 .To<BackgroundPanelView>()
                 .FromComponentInHierarchy()
                 .AsCached();
