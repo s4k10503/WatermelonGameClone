@@ -48,7 +48,7 @@ Canvas:
   m_GameObject: {fileID: 1089094550677627820}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -60,7 +60,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!114 &213460208710097672
 MonoBehaviour:
@@ -74,11 +74,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
-  m_ScreenMatchMode: 0
+  m_ReferenceResolution: {x: 1280, y: 720}
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -113,6 +113,10 @@ PrefabInstance:
     - target: {fileID: 365617734045279100, guid: 4d0fe32d065c72843bcf7053bbd61566, type: 3}
       propertyPath: m_Name
       value: Panel_Title
+      objectReference: {fileID: 0}
+    - target: {fileID: 365617734045279100, guid: 4d0fe32d065c72843bcf7053bbd61566, type: 3}
+      propertyPath: m_Layer
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 5830775196318528177, guid: 4d0fe32d065c72843bcf7053bbd61566, type: 3}
       propertyPath: m_LocalPosition.x
