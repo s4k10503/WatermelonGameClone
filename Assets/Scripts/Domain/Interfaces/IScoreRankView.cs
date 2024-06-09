@@ -9,6 +9,6 @@ namespace WatermelonGameClone
     {
         // Methods related to UI updates
         void DisplayCurrentScore(int currentScore);
-        void DisplayTopScores(List<int> dailyScores, List<int> monthlyScores, List<int> allTimeScores);
+        void DisplayTopScores(ScoreContainer scoreContainer);
     }
 }

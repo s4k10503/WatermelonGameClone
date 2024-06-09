@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -21,17 +22,20 @@ namespace WatermelonGameClone
         private IInputEventProvider _inputEventProvider;
         private GameObject[] _textsScoreRanks;
 
+        // UIHelper
+        private IUIHelper _uiHelper;
+
         // 0 = Daily, 1 = Monthly, 2 = AllTime
         private int _currentPanelIndex = 0;
-
         private List<int> _dailyScores;
         private List<int> _monthlyScores;
         private List<int> _allTimeScores;
 
         [Inject]
-        public void Construct(IInputEventProvider inputEventProvider)
+        public void Construct(IInputEventProvider inputEventProvider, IUIHelper uiHelper)
         {
             _inputEventProvider = inputEventProvider;
+            _uiHelper = uiHelper;
             _textsScoreRanks = new[] { _textScoreRank1, _textScoreRank2, _textScoreRank3 };
         }
 
@@ -52,36 +56,17 @@ namespace WatermelonGameClone
 
         public void DisplayCurrentScore(int currentScore)
         {
-            _textCurrentScore
-                .GetComponent<TextMeshProUGUI>()
-                .SetText(currentScore.ToString());
+            _uiHelper
+                .UpdateCurrentScoreText(_textCurrentScore.GetComponent<TextMeshProUGUI>(), currentScore);
         }
 
-        public void DisplayTopScores(List<int> dailyScores, List<int> monthlyScores, List<int> allTimeScores)
+        public void DisplayTopScores(ScoreContainer scoreContainer)
         {
-            _dailyScores = dailyScores;
-            _monthlyScores = monthlyScores;
-            _allTimeScores = allTimeScores;
+            _dailyScores = scoreContainer.TodayTopScores.ToList();
+            _monthlyScores = scoreContainer.MonthlyTopScores.ToList();
+            _allTimeScores = scoreContainer.AllTimeTopScores.ToList();
 
             UpdatePanelDisplay();
-        }
-
-        private void SetScoreTexts(GameObject[] rankTexts, List<int> scores)
-        {
-            for (int i = 0; i < rankTexts.Length; i++)
-            {
-                string scoreText = (scores.Count > i && rankTexts[i] != null) ? scores[i].ToString() : "--";
-                rankTexts[i]
-                    .GetComponent<TextMeshProUGUI>()
-                    .SetText(scoreText);
-            }
-        }
-
-        private void SetTitleText(GameObject textPanelTitle, string titleText)
-        {
-            textPanelTitle
-                .GetComponent<TextMeshProUGUI>()
-                .SetText(titleText);
         }
 
         private void ChangePanelDisplay(int direction)
@@ -92,27 +77,21 @@ namespace WatermelonGameClone
 
         private void UpdatePanelDisplay()
         {
-            List<int> scoresToDisplay = null;
-            string titleText = "";
+            var (scores, title) = GetScoresAndTitleByIndex(_currentPanelIndex);
 
-            switch (_currentPanelIndex)
+            _uiHelper.UpdateTitlePanelText(_textPanelTitle, title);
+            _uiHelper.UpdateScoreRankPanelTexts(_textsScoreRanks, scores);
+        }
+
+        private (List<int> scores, string title) GetScoresAndTitleByIndex(int index)
+        {
+            return index switch
             {
-                case 0:
-                    scoresToDisplay = _dailyScores;
-                    titleText = _textConfig.dailyRankingTitle;
-                    break;
-                case 1:
-                    scoresToDisplay = _monthlyScores;
-                    titleText = _textConfig.monthlyRankingTitle;
-                    break;
-                case 2:
-                    scoresToDisplay = _allTimeScores;
-                    titleText = _textConfig.allTimeRankingTitle;
-                    break;
-            }
-
-            SetTitleText(_textPanelTitle, titleText);
-            SetScoreTexts(_textsScoreRanks, scoresToDisplay);
+                0 => (_dailyScores, _textConfig.dailyRankingTitle),
+                1 => (_monthlyScores, _textConfig.monthlyRankingTitle),
+                2 => (_allTimeScores, _textConfig.allTimeRankingTitle),
+                _ => (new List<int>(), "Invalid Index"),
+            };
         }
     }
 }
