@@ -216,7 +216,7 @@ namespace WatermelonGameClone
             Time.timeScale = _gameModel.GetTimeScaleGameOver();
             RenderTexture screenshot = await _screenshotHandler.CaptureScreenshotAsync(_ctSource.Token);
             _gameView.BackgroundPanelView.ShowPanel();
-            _gameView.GameOverPanelView.ShowPanel(_gameModel.ScoreModel.CurrentScore.Value, screenshot);
+            _gameView.GameOverPanelView.ShowPanel(_gameModel.ScoreModel.CurrentScore.Value, screenshot, _gameModel.ScoreModel.ScoreData);
         }
 
         private void HandleRestart()
@@ -292,9 +292,7 @@ namespace WatermelonGameClone
             _gameView.ScorePanelView.UpdateBestScore(_gameModel.ScoreModel.BestScore.Value);
 
             // Display of score rank for the day
-            _gameView.ScoreRankView.DisplayTopScores(_gameModel.ScoreModel.TodayTopScores,
-                                                    _gameModel.ScoreModel.MonthlyTopScores,
-                                                    _gameModel.ScoreModel.AllTimeTopScores);
+            _gameView.ScoreRankView.DisplayTopScores(_gameModel.ScoreModel.ScoreData);
         }
     }
 }

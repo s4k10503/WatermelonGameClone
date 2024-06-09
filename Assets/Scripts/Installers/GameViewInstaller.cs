@@ -70,6 +70,13 @@ namespace WatermelonGameClone
                 .To<UIAnimator>()
                 .FromNew()
                 .AsTransient();
+
+            Container
+                .Bind<IUIHelper>()
+                .To<UIHelper>()
+                .FromNew()
+                .AsTransient();
+
         }
     }
 }
