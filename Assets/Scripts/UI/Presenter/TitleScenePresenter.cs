@@ -25,7 +25,7 @@ namespace WatermelonGameClone
             SubscribeToGameView(_titleSceneView);
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             _disposables.Dispose();
         }

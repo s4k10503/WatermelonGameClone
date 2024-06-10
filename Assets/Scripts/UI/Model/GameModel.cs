@@ -2,18 +2,21 @@ using UnityEngine;
 using System.Collections.Generic;
 using UniRx;
 using Zenject;
+using System;
 
 
 namespace WatermelonGameClone
 {
-    public class GameModel : IGameModel
+    public class GameModel : IGameModel, IDisposable
     {
         public ISphereModel SphereModel { get; private set; }
         public IScoreModel ScoreModel { get; private set; }
         public ISoundModel SoundModel { get; private set; }
 
         private ReactiveProperty<GameState> _currentState = new ReactiveProperty<GameState>(GameState.Initializing);
-        public IReadOnlyReactiveProperty<GameState> CurrentState => _currentState.ToReadOnlyReactiveProperty();
+        public IReadOnlyReactiveProperty<GameState> CurrentState => _currentState;
+
+        private CompositeDisposable _disposables;
 
         public static readonly float s_delayedTime = 1.0f;
         public static readonly float s_timeScaleGameStart = 1.0f;
@@ -25,14 +28,20 @@ namespace WatermelonGameClone
             IScoreModel scoreModel,
             ISoundModel soundModel)
         {
-            this.SphereModel = sphereModel;
-            this.ScoreModel = scoreModel;
-            this.SoundModel = soundModel;
+            SphereModel = sphereModel;
+            ScoreModel = scoreModel;
+            SoundModel = soundModel;
+
+            _disposables = new CompositeDisposable();
+
+            // Adding ReactiveProperties to _disposables ensures it gets disposed
+            // when ScoreModel is disposed, preventing memory leaks.
+            _currentState.AddTo(_disposables);
         }
 
-        private void OnDestroy()
+        public void Dispose()
         {
-            _currentState.Dispose();
+            _disposables.Dispose();
         }
 
         public void SetGameState(GameState newState)
