@@ -9,10 +9,6 @@ namespace WatermelonGameClone
 {
     public class ScoreModel : IScoreModel, IDisposable
     {
-        public List<int> TodayTopScores { get; private set; }
-        public List<int> MonthlyTopScores { get; private set; }
-        public List<int> AllTimeTopScores { get; private set; }
-
         private DateTime _lastPlayedDate;
         private static readonly int s_scoreCoefficient = 10;
         private static readonly string s_scoresFilePath = Path.Combine(Application.persistentDataPath, "score.json");
@@ -25,13 +21,18 @@ namespace WatermelonGameClone
         public IReadOnlyReactiveProperty<int> BestScore => _bestScore.ToReadOnlyReactiveProperty();
 
         private CompositeDisposable _disposables;
-
+        
+        public ScoreContainer ScoreData { get; private set; }
 
         public ScoreModel()
         {
-            TodayTopScores = new List<int>();
-            MonthlyTopScores = new List<int>();
-            AllTimeTopScores = new List<int>();
+            ScoreData = new ScoreContainer
+            {
+                TodayTopScores = new int[0],
+                MonthlyTopScores = new int[0],
+                AllTimeTopScores = new int[0],
+                LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd")
+            };
 
             _disposables = new CompositeDisposable();
 
@@ -65,20 +66,23 @@ namespace WatermelonGameClone
 
         private void UpdateTodayTopScores(int newScore)
         {
-            TodayTopScores.Add(newScore);
-            TodayTopScores = TodayTopScores.OrderByDescending(x => x).Take(3).ToList();
+            var todayTopScores = ScoreData.TodayTopScores.ToList();
+            todayTopScores.Add(newScore);
+            ScoreData.TodayTopScores = todayTopScores.OrderByDescending(x => x).Take(3).ToArray();
         }
 
         private void UpdateMonthlyTopScores(int newScore)
         {
-            MonthlyTopScores.Add(newScore);
-            MonthlyTopScores = MonthlyTopScores.OrderByDescending(x => x).Take(3).ToList();
+            var monthlyTopScores = ScoreData.MonthlyTopScores.ToList();
+            monthlyTopScores.Add(newScore);
+            ScoreData.MonthlyTopScores = monthlyTopScores.OrderByDescending(x => x).Take(3).ToArray();
         }
 
         private void UpdateAllTimeTopScores(int newScore)
         {
-            AllTimeTopScores.Add(newScore);
-            AllTimeTopScores = AllTimeTopScores.OrderByDescending(x => x).Take(3).ToList();
+            var allTimeTopScores = ScoreData.AllTimeTopScores.ToList();
+            allTimeTopScores.Add(newScore);
+            ScoreData.AllTimeTopScores = allTimeTopScores.OrderByDescending(x => x).Take(3).ToArray();
 
             if (newScore > _bestScore.Value)
             {
@@ -86,9 +90,9 @@ namespace WatermelonGameClone
             }
         }
 
-        private void ResetScores(List<int> scores)
+        private void ResetScores(ref int[] scores)
         {
-            scores.Clear();
+            scores = new int[0];
             SaveScoresToJson();
         }
 
@@ -98,14 +102,14 @@ namespace WatermelonGameClone
             if (_lastPlayedDate.Date != currentDate)
             {
                 // Reset today's scores if date has changed
-                ResetScores(TodayTopScores);
+                ResetScores(ref ScoreData.TodayTopScores);
             }
 
             if (_lastPlayedDate.Month != currentDate.Month ||
                 _lastPlayedDate.Year != currentDate.Year)
             {
                 // Reset monthly scores if month has changed
-                ResetScores(MonthlyTopScores);
+                ResetScores(ref ScoreData.MonthlyTopScores);
             }
         }
 
@@ -113,17 +117,11 @@ namespace WatermelonGameClone
         {
             try
             {
-                ScoreContainer scoreContainer = new ScoreContainer
-                {
-                    CurrentScore = _currentScore.Value,
-                    TodayTopScores = TodayTopScores.ToArray(),
-                    MonthlyTopScores = MonthlyTopScores.ToArray(),
-                    AllTimeTopScores = AllTimeTopScores.ToArray(),
-                    LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd")
-                };
+                ScoreData.CurrentScore = _currentScore.Value;
+                ScoreData.LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd");
 
                 // Save files in the application's persistent data folder
-                File.WriteAllText(s_scoresFilePath, JsonUtility.ToJson(scoreContainer));
+                File.WriteAllText(s_scoresFilePath, JsonUtility.ToJson(ScoreData));
                 _lastPlayedDate = DateTime.Today;
             }
             catch (Exception e)
@@ -132,7 +130,7 @@ namespace WatermelonGameClone
             }
         }
 
-        public ScoreContainer LoadScoresFromJson()
+        public void LoadScoresFromJson()
         {
             try
             {
@@ -141,20 +139,15 @@ namespace WatermelonGameClone
                     string json = File.ReadAllText(s_scoresFilePath);
 
                     // Deserialize ScoreContainer object from JSON string
-                    ScoreContainer loadedScoreContainer = JsonUtility.FromJson<ScoreContainer>(json);
+                    ScoreData = JsonUtility.FromJson<ScoreContainer>(json);
 
-                    TodayTopScores = new List<int>(loadedScoreContainer.TodayTopScores);
-                    MonthlyTopScores = new List<int>(loadedScoreContainer.MonthlyTopScores);
-                    AllTimeTopScores = new List<int>(loadedScoreContainer.AllTimeTopScores);
-                    _bestScore.Value = AllTimeTopScores[0];
-                    _lastPlayedDate = DateTime.Parse(loadedScoreContainer.LastPlayedDate);
-
-                    return loadedScoreContainer;
+                    _bestScore.Value = ScoreData.AllTimeTopScores.FirstOrDefault();
+                    _lastPlayedDate = DateTime.Parse(ScoreData.LastPlayedDate);
                 }
                 else
                 {
-                    // If the file does not exist, return ScoreContainer with default values
-                    return new ScoreContainer
+                    // If the file does not exist, initialize ScoreContainer with default values
+                    ScoreData = new ScoreContainer
                     {
                         CurrentScore = 0,
                         TodayTopScores = new int[0],
@@ -167,7 +160,7 @@ namespace WatermelonGameClone
             catch (Exception e)
             {
                 Debug.LogError($"Failed to load score from JSON: {e.Message}");
-                return new ScoreContainer
+                ScoreData = new ScoreContainer
                 {
                     CurrentScore = 0,
                     TodayTopScores = new int[0],

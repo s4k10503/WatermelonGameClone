@@ -8,14 +8,12 @@ namespace WatermelonGameClone
     {
         IReadOnlyReactiveProperty<int> CurrentScore { get; }
         IReadOnlyReactiveProperty<int> BestScore { get; }
-        List<int> TodayTopScores { get; }
-        List<int> MonthlyTopScores { get; }
-        List<int> AllTimeTopScores { get; }
+
+        ScoreContainer ScoreData { get; }
 
         void UpdateCurrentScore(int SphereNo);
         void UpdateScoreRanking(int newScore);
         void SaveScoresToJson();
-        ScoreContainer LoadScoresFromJson();
-
+        void LoadScoresFromJson();
     }
 }
