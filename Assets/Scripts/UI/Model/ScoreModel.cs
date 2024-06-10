@@ -7,7 +7,7 @@ using UniRx;
 
 namespace WatermelonGameClone
 {
-    public class ScoreModel : IScoreModel
+    public class ScoreModel : IScoreModel, IDisposable
     {
         public List<int> TodayTopScores { get; private set; }
         public List<int> MonthlyTopScores { get; private set; }
@@ -24,6 +24,8 @@ namespace WatermelonGameClone
         public IReadOnlyReactiveProperty<int> CurrentScore => _currentScore.ToReadOnlyReactiveProperty();
         public IReadOnlyReactiveProperty<int> BestScore => _bestScore.ToReadOnlyReactiveProperty();
 
+        private CompositeDisposable _disposables;
+
 
         public ScoreModel()
         {
@@ -31,14 +33,20 @@ namespace WatermelonGameClone
             MonthlyTopScores = new List<int>();
             AllTimeTopScores = new List<int>();
 
+            _disposables = new CompositeDisposable();
+
+            // Adding ReactiveProperties to _disposables ensures it gets disposed
+            // when ScoreModel is disposed, preventing memory leaks.
+            _currentScore.AddTo(_disposables);
+            _bestScore.AddTo(_disposables);
+
             LoadScoresFromJson();
             CheckDateAndResetIfNecessary();
         }
 
-        private void OnDestroy()
+        public void Dispose()
         {
-            _currentScore.Dispose();
-            _bestScore.Dispose();
+            _disposables.Dispose();
         }
 
         public void UpdateCurrentScore(int SphereNo)
