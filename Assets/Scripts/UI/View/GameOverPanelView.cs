@@ -109,9 +109,9 @@ namespace WatermelonGameClone
 
         public void ShowPanel(int score, RenderTexture screenShot, ScoreContainer scoreContainer)
         {
-            _dailyScores = scoreContainer.TodayTopScores.ToList();
-            _monthlyScores = scoreContainer.MonthlyTopScores.ToList();
-            _allTimeScores = scoreContainer.AllTimeTopScores.ToList();
+            _dailyScores = scoreContainer.Data.Rankings.Daily.Scores.Take(3).ToList();
+            _monthlyScores = scoreContainer.Data.Rankings.Monthly.Scores.Take(3).ToList();
+            _allTimeScores = scoreContainer.Data.Rankings.AllTime.Scores.Take(3).ToList();
 
             _uiHelper.UpdateCurrentScoreText(_scoreText, score);
             UpdatePanelElements();

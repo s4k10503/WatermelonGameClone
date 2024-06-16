@@ -6,11 +6,36 @@ namespace WatermelonGameClone
     [Serializable]
     public class ScoreContainer
     {
-        public int CurrentScore;
-        public int BestScore;
-        public int[] TodayTopScores;
-        public int[] MonthlyTopScores;
-        public int[] AllTimeTopScores;
+        public ScoreData Data;
+    }
+
+    [Serializable]
+    public class ScoreData
+    {
+        public ScoreDetail Score;
+        public Rankings Rankings;
+    }
+
+    [Serializable]
+    public class ScoreDetail
+    {
+        public int Current;
+        public int Best;
         public string LastPlayedDate;
     }
+
+    [Serializable]
+    public class Rankings
+    {
+        public ScoreList Daily;
+        public ScoreList Monthly;
+        public ScoreList AllTime;
+    }
+
+    [Serializable]
+    public class ScoreList
+    {
+        public int[] Scores;
+    }
+
 }
