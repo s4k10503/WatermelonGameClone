@@ -22,7 +22,7 @@ namespace WatermelonGameClone.UseCase
                 .ObserveEveryValueChanged(x => x.volume)
                 .ToReactiveProperty();
         public IReadOnlyReactiveProperty<float> VolumeSe
-            => _audioSourceBgm
+            => _audioSourceSe
                 .ObserveEveryValueChanged(x => x.volume)
                 .ToReactiveProperty();
 
