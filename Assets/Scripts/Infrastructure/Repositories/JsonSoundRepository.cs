@@ -25,7 +25,9 @@ namespace WatermelonGameClone.Infrastructure
             }
             catch (Exception e)
             {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
                 Debug.LogError($"Failed to save sound settings to JSON: {e.Message}");
+#endif
             }
         }
 
@@ -42,7 +44,9 @@ namespace WatermelonGameClone.Infrastructure
             }
             catch (Exception e)
             {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
                 Debug.LogError($"Failed to load sound settings from JSON: {e.Message}");
+#endif
             }
 
             return (1.0f, 1.0f);

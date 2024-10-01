@@ -54,7 +54,9 @@ namespace WatermelonGameClone.Presentation
         {
             if (_instantiatedItems == null)
             {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
                 Debug.LogError("someObject is null");
+#endif
                 return;
             }
 

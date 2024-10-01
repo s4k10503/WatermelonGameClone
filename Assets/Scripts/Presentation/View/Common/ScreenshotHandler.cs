@@ -61,7 +61,10 @@ namespace WatermelonGameClone.Presentation
 
             if (request.hasError)
             {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
                 Debug.LogError("An error occurred in AsyncGPUReadback.");
+#endif
+
                 RenderTexture.ReleaseTemporary(_currentRenderTexture);
                 _currentRenderTexture = null;
                 return null;

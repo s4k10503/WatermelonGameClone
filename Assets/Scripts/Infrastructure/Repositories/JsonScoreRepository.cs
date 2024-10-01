@@ -20,7 +20,9 @@ namespace WatermelonGameClone.Infrastructure
             }
             catch (Exception e)
             {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
                 Debug.LogError($"Failed to save score to JSON: {e.Message}");
+#endif
             }
         }
 
@@ -36,7 +38,9 @@ namespace WatermelonGameClone.Infrastructure
             }
             catch (Exception e)
             {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
                 Debug.LogError($"Failed to load score from JSON: {e.Message}");
+#endif
             }
 
             return new ScoreContainer
