@@ -26,7 +26,9 @@ namespace WatermelonGameClone.Presentation
         {
             if (textPanelTitle == null)
             {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
                 Debug.LogWarning("textPanelTitle is null or has been destroyed.");
+#endif
                 return;
             }
 
@@ -37,7 +39,9 @@ namespace WatermelonGameClone.Presentation
             }
             else
             {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
                 Debug.LogWarning("TextMeshProUGUI component is missing.");
+#endif
             }
         }
     }
