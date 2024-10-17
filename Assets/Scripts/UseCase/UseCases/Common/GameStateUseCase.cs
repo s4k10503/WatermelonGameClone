@@ -45,7 +45,7 @@ namespace WatermelonGameClone.UseCase
         {
             if (!Enum.IsDefined(typeof(GlobalGameState), newState))
             {
-                throw new ArgumentException("無効な GlobalGameState 値が指定されました", nameof(newState));
+                throw new ArgumentException("The invalid globalgamestate value is specified", nameof(newState));
             }
 
             _globalState.Value = newState;
