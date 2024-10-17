@@ -42,7 +42,14 @@ namespace WatermelonGameClone.UseCase
 
         // set global game state
         public void SetGlobalGameState(GlobalGameState newState)
-            => _globalState.Value = newState;
+        {
+            if (!Enum.IsDefined(typeof(GlobalGameState), newState))
+            {
+                throw new ArgumentException("The invalid globalgamestate value is specified", nameof(newState));
+            }
+
+            _globalState.Value = newState;
+        }
 
         //Set scene-specific state
         public void SetSceneSpecificState(SceneSpecificState newState)

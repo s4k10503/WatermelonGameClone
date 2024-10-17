@@ -70,6 +70,9 @@ namespace WatermelonGameClone.UseCase
 
         public async UniTask UpdateScoreRankingAsync(int newScore, CancellationToken ct)
         {
+            if (_scoreData == null || _scoreData.Data?.Rankings?.Daily?.Scores == null)
+                throw new NullReferenceException("_scoreData or its nested properties are null");
+
             _scoreData.Data.Rankings.Daily.Scores = _scoreRankingService.UpdateTopScores(_scoreData.Data.Rankings.Daily.Scores, newScore, 7);
             _scoreData.Data.Rankings.Monthly.Scores = _scoreRankingService.UpdateTopScores(_scoreData.Data.Rankings.Monthly.Scores, newScore, 7);
             _scoreData.Data.Rankings.AllTime.Scores = _scoreRankingService.UpdateTopScores(_scoreData.Data.Rankings.AllTime.Scores, newScore, 7);
