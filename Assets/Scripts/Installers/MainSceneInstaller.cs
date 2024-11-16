@@ -20,13 +20,7 @@ namespace WatermelonGameClone.Installers
 
         public override void InstallBindings()
         {
-            // Presenter
-            Container
-                .BindInterfacesTo<MainScenePresenter>()
-                .AsSingle()
-                .NonLazy();
-
-            //Model
+            // Services
             Container
                 .Bind<IMergeItemIndexService>()
                 .To<MergeItemIndexService>()
@@ -34,8 +28,7 @@ namespace WatermelonGameClone.Installers
                 .AsSingle();
 
             Container
-                .Bind<IMergeItemUseCase>()
-                .To<MergeItemUseCase>()
+                .BindInterfacesTo<MergeItemUseCase>()
                 .FromNew()
                 .AsSingle();
 
@@ -140,6 +133,12 @@ namespace WatermelonGameClone.Installers
                 .To<ScreenshotHandler>()
                 .FromComponentInNewPrefab(_screenshotHandler)
                 .AsSingle();
+
+            // Presenter
+            Container
+                .BindInterfacesTo<MainScenePresenter>()
+                .AsSingle()
+                .NonLazy();
         }
     }
 }

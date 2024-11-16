@@ -18,7 +18,20 @@ namespace WatermelonGameClone.Installers
 
         public override void InstallBindings()
         {
-            // Common Model
+            // Commom Services
+            Container
+                .Bind<IScoreRankingService>()
+                .To<ScoreRankingService>()
+                .FromNew()
+                .AsSingle();
+
+            Container
+                .Bind<IScoreResetService>()
+                .To<ScoreResetService>()
+                .FromNew()
+                .AsSingle();
+            
+            // Common Repositories
             Container
                 .Bind<TimeSettings>()
                 .FromInstance(_timeSettings)
@@ -53,36 +66,6 @@ namespace WatermelonGameClone.Installers
                 .AsSingle();
 
             Container
-                .Bind<IGameStateUseCase>()
-                .To<GameStateUseCase>()
-                .FromNew()
-                .AsSingle();
-
-            Container
-                .Bind<IScoreUseCase>()
-                .To<ScoreUseCase>()
-                .FromNew()
-                .AsSingle();
-
-            Container
-                .Bind<ISoundUseCase>()
-                .To<SoundUseCase>()
-                .FromNew()
-                .AsSingle();
-
-            Container
-                .Bind<IScoreRankingService>()
-                .To<ScoreRankingService>()
-                .FromNew()
-                .AsSingle();
-
-            Container
-                .Bind<IScoreResetService>()
-                .To<ScoreResetService>()
-                .FromNew()
-                .AsSingle();
-
-            Container
                 .Bind<IScoreRepository>()
                 .To<JsonScoreRepository>()
                 .FromNew()
@@ -91,6 +74,22 @@ namespace WatermelonGameClone.Installers
             Container
                 .Bind<ISoundVolumeRepository>()
                 .To<JsonSoundVolumeRepository>()
+                .FromNew()
+                .AsSingle();
+
+            // Common UseCases
+            Container
+                .BindInterfacesTo<GameStateUseCase>()
+                .FromNew()
+                .AsSingle();
+
+            Container
+                .BindInterfacesTo<ScoreUseCase>()
+                .FromNew()
+                .AsSingle();
+
+            Container
+                .BindInterfacesTo<SoundUseCase>()
                 .FromNew()
                 .AsSingle();
 
