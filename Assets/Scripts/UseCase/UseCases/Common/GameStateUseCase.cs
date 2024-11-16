@@ -24,7 +24,7 @@ namespace WatermelonGameClone.UseCase
         public float TimeScaleGameStart { get; private set; }
         public float TimeScaleGameOver { get; private set; }
 
-        private ITimeSettingsRepository _timeSettingsRepository;
+        private readonly ITimeSettingsRepository _timeSettingsRepository;
         private CompositeDisposable _disposables;
 
         [Inject]

@@ -7,7 +7,7 @@ namespace WatermelonGameClone.UseCase
 {
     public sealed class MergeItemUseCase : IMergeItemUseCase, IDisposable
     {
-        private ReactiveProperty<int> _nextItemIndex;
+        private readonly ReactiveProperty<int> _nextItemIndex;
         public IReadOnlyReactiveProperty<int> NextItemIndex
             => _nextItemIndex.ToReadOnlyReactiveProperty();
 

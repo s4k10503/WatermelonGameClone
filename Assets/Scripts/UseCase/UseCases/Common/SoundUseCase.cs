@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Threading;
 using System.Collections.Generic;
@@ -8,11 +9,11 @@ using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.UseCase
 {
-    public sealed class SoundUseCase : ISoundUseCase
+    public sealed class SoundUseCase : ISoundUseCase, IDisposable
     {
         private Dictionary<SoundEffect, AudioClip> _soundEffects;
-        private ISoundEffectsRepository _soundEffectsRepository;
-        private ISoundVolumeRepository _soundVolumeRepository;
+        private readonly ISoundEffectsRepository _soundEffectsRepository;
+        private readonly ISoundVolumeRepository _soundVolumeRepository;
         private AudioSource _audioSourceBgm;
         private AudioSource _audioSourceSe;
 
@@ -43,6 +44,13 @@ namespace WatermelonGameClone.UseCase
         public async UniTask InitializeAsync(CancellationToken ct)
         {
             await LoadSoundSettingsAsync(ct);
+        }
+
+        public void Dispose()
+        {
+            _audioSourceSe = null;
+            _audioSourceBgm = null;
+            _soundEffects = null;
         }
 
         private async UniTask LoadSoundSettingsAsync(CancellationToken ct)
