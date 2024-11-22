@@ -20,8 +20,6 @@ namespace WatermelonGameClone.Presentation
         private readonly TitleSceneView _titleSceneView;
 
         private readonly CompositeDisposable _disposables;
-        private readonly CancellationTokenSource _cts;
-
 
         [Inject]
         public TitleScenePresenter(
@@ -38,7 +36,6 @@ namespace WatermelonGameClone.Presentation
             _gameStateUseCase = gameStateUseCase;
 
             _disposables = new CompositeDisposable();
-            _cts = new CancellationTokenSource();
 
             _titleSceneView.HideLoadingPage();
         }
@@ -55,22 +52,23 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask InitializeAsync()
         {
-            await _scoreUseCase
-                .InitializeAsync(_cts.Token);
+            using (var cts = new CancellationTokenSource())
+            {
+                await _scoreUseCase.InitializeAsync(cts.Token);
 
-            _titleSceneView.SettingsPanelView
-                .SetBgmSliderValue(_soundUseCase.VolumeBgm.Value);
-            _titleSceneView.SettingsPanelView
-                .SetSeSliderValue(_soundUseCase.VolumeSe.Value);
+                _titleSceneView.SettingsPanelView
+                    .SetBgmSliderValue(_soundUseCase.VolumeBgm.Value);
+                _titleSceneView.SettingsPanelView
+                    .SetSeSliderValue(_soundUseCase.VolumeSe.Value);
 
-            UpdateScoreDisplay();
+                UpdateScoreDisplay();
+                cts.Cancel();
+            }
         }
 
         public void Dispose()
         {
             _disposables.Dispose();
-            _cts.Cancel();
-            _cts.Dispose();
         }
 
         private void SubscribeToGameView()
@@ -111,15 +109,19 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask HandleGameStart()
         {
-            _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
-            _titleSceneView.HideTitlePage();
-            _titleSceneView.ShowLoadingPage();
-            await _sceneLoaderUseCase.LoadSceneAsync("MainScene", _cts.Token);
+            using (var cts = new CancellationTokenSource())
+            {
+                _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
+                _titleSceneView.HideTitlePage();
+                _titleSceneView.ShowLoadingPage();
+                await _sceneLoaderUseCase.LoadSceneAsync("MainScene", cts.Token);
+                cts.Cancel();
+            }
         }
 
         private void HandleBackToTitlePanel()
         {
-            HandleSaveVolume();
+            HandleSaveVolume().Forget();
             _titleSceneView.DetailedScoreRankView.HidePanel();
             _titleSceneView.SettingsPanelView.HidePanel();
             _titleSceneView.ShowTitlePageMainElements();
@@ -145,8 +147,14 @@ namespace WatermelonGameClone.Presentation
         private void HandleSetSeVolume(float value)
             => _soundUseCase.SetSEVolume(value);
 
-        private void HandleSaveVolume()
-            => _soundUseCase.SaveVolume(_cts.Token).Forget();
+        private async UniTask HandleSaveVolume()
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                await _soundUseCase.SaveVolume(cts.Token);
+                cts.Cancel();
+            }
+        }
 
         private void UpdateScoreDisplay()
         {

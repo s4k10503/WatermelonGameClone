@@ -28,19 +28,18 @@ namespace WatermelonGameClone.Presentation
         private RenderTexture _screenshotCache;
 
         private readonly CompositeDisposable _disposables;
-        private readonly CancellationTokenSource _cts;
 
         [Inject]
         public MainScenePresenter(
             MainSceneView mainSceneView,
-            IMergeItemUseCase megeItemUseCase,
+            IMergeItemUseCase mergeItemUseCase,
             IScoreUseCase scoreUseCase,
             ISoundUseCase soundUseCase,
             IGameStateUseCase gameStateUseCase,
             ISceneLoaderUseCase sceneLoaderUseCase)
         {
             _mainSceneView = mainSceneView;
-            _mergeItemUseCase = megeItemUseCase;
+            _mergeItemUseCase = mergeItemUseCase;
             _scoreUseCase = scoreUseCase;
             _soundUseCase = soundUseCase;
             _gameStateUseCase = gameStateUseCase;
@@ -49,7 +48,6 @@ namespace WatermelonGameClone.Presentation
             _isNext = true;
             _mergeItemCreateDelayTime = 0f;
 
-            _cts = new CancellationTokenSource();
             _disposables = new CompositeDisposable();
 
             _mainSceneView.HideLoadingPage();
@@ -57,8 +55,8 @@ namespace WatermelonGameClone.Presentation
 
         public void Initialize()
         {
-            InitializeAsync(_cts.Token).Forget();
-            SetupSubscriptions(_cts.Token);
+            InitializeAsync().Forget();
+            SetupSubscriptions();
         }
 
         public void Tick()
@@ -78,23 +76,25 @@ namespace WatermelonGameClone.Presentation
             }
 
             _disposables.Dispose();
-            _cts.Cancel();
-            _cts.Dispose();
         }
 
-        private async UniTask InitializeAsync(CancellationToken ct)
+        private async UniTask InitializeAsync()
         {
-            await _scoreUseCase.InitializeAsync(ct);
-            _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
-            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Initializing);
-            _mergeItemUseCase.UpdateNextItemIndex();
-            UpdateScoreDisplays();
+            using (var cts = new CancellationTokenSource())
+            {
+                await _scoreUseCase.InitializeAsync(cts.Token);
+                _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
+                _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Initializing);
+                _mergeItemUseCase.UpdateNextItemIndex();
+                UpdateScoreDisplays();
+                cts.Cancel();
+            }
         }
 
-        private void SetupSubscriptions(CancellationToken ct)
+        private void SetupSubscriptions()
         {
             SubscribeToModelUpdates();
-            SubscribeToViewEvents(ct);
+            SubscribeToViewEvents();
         }
 
         private void SubscribeToModelUpdates()
@@ -112,14 +112,14 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
         }
 
-        private void SubscribeToViewEvents(CancellationToken ct)
+        private void SubscribeToViewEvents()
         {
             _mainSceneView.RestartRequested
-                .Subscribe(_ => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct).Forget())
+                .Subscribe(_ => HandleSceneChangeAsync(SceneManager.GetActiveScene().name).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToTitleRequested
-                .Subscribe(_ => HandleSceneChangeAsync("TitleScene", ct).Forget())
+                .Subscribe(_ => HandleSceneChangeAsync("TitleScene").Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToGameRequested
@@ -141,17 +141,17 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _mainSceneView.MergeItemManager.OnItemCreated
-                .Subscribe(megeItem =>
+                .Subscribe(mergeItem =>
                 {
-                    megeItem.OnDropping
+                    mergeItem.OnDropping
                         .Subscribe(_ => HandleItemDropping())
                         .AddTo(_disposables);
 
-                    megeItem.OnMerging
+                    mergeItem.OnMerging
                         .Subscribe(HandleItemMerging)
                         .AddTo(_disposables);
 
-                    megeItem.OnGameOver
+                    mergeItem.OnGameOver
                         .Subscribe(_ => HandleGameOverAsync().Forget())
                         .AddTo(_disposables);
                 }).AddTo(_disposables);
@@ -170,11 +170,15 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask CreateNextItemAsync()
         {
-            _isNext = false;
-            await _mainSceneView.MergeItemManager.CreateItem(
-                _mergeItemUseCase.NextItemIndex.Value, _mergeItemCreateDelayTime, _cts.Token);
-            _mergeItemUseCase.UpdateNextItemIndex();
-            _mergeItemCreateDelayTime = 1.0f;
+            using (var cts = new CancellationTokenSource())
+            {
+                _isNext = false;
+                await _mainSceneView.MergeItemManager.CreateItem(
+                    _mergeItemUseCase.NextItemIndex.Value, _mergeItemCreateDelayTime, cts.Token);
+                _mergeItemUseCase.UpdateNextItemIndex();
+                _mergeItemCreateDelayTime = 1.0f;
+                cts.Cancel();
+            }
         }
 
         private void HandleItemDropping()
@@ -196,19 +200,27 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask HandleGameOverAsync()
         {
-            _gameStateUseCase.SetGlobalGameState(GlobalGameState.GameOver);
-            await _scoreUseCase.UpdateScoreRankingAsync(_scoreUseCase.CurrentScore.Value, _cts.Token);
-            UpdateScoreDisplays();
-            AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
-            _screenshotCache = await _mainSceneView.ScreenshotHandler.CaptureScreenshotAsync(_cts.Token);
-            ShowGameOverUI();
+            using (var cts = new CancellationTokenSource())
+            {
+                _gameStateUseCase.SetGlobalGameState(GlobalGameState.GameOver);
+                await _scoreUseCase.UpdateScoreRankingAsync(_scoreUseCase.CurrentScore.Value, cts.Token);
+                UpdateScoreDisplays();
+                AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
+                _screenshotCache = await _mainSceneView.ScreenshotHandler.CaptureScreenshotAsync(cts.Token);
+                ShowGameOverUI();
+                cts.Cancel();
+            }
         }
 
-        private async UniTask HandleSceneChangeAsync(string sceneName, CancellationToken ct)
+        private async UniTask HandleSceneChangeAsync(string sceneName)
         {
-            ShowLoadingScreen();
-            AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
-            await _sceneLoaderUseCase.LoadSceneAsync(sceneName, ct);
+            using (var cts = new CancellationTokenSource())
+            {
+                ShowLoadingScreen();
+                AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
+                await _sceneLoaderUseCase.LoadSceneAsync(sceneName, cts.Token);
+                cts.Cancel();
+            }
         }
 
         private void ResumeGame()
