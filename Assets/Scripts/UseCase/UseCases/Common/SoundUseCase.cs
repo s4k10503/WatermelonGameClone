@@ -11,9 +11,9 @@ namespace WatermelonGameClone.UseCase
 {
     public sealed class SoundUseCase : ISoundUseCase, IDisposable
     {
-        private Dictionary<SoundEffect, AudioClip> _soundEffects;
         private readonly ISoundEffectsRepository _soundEffectsRepository;
         private readonly ISoundVolumeRepository _soundVolumeRepository;
+        private Dictionary<SoundEffect, AudioClip> _soundEffects;
         private AudioSource _audioSourceBgm;
         private AudioSource _audioSourceSe;
 

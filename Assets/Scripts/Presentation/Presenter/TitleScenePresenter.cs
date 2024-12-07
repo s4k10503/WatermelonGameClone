@@ -68,9 +68,9 @@ namespace WatermelonGameClone.Presentation
 
         public void Dispose()
         {
-            _disposables.Dispose();
-            _cts.Cancel();
-            _cts.Dispose();
+            _disposables?.Dispose();
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         private void SubscribeToGameView()
@@ -81,31 +81,31 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _titleSceneView.MyScoreRequested
-                .Subscribe(_ => HandleDisplayScores())
+                .Subscribe(HandleDisplayScores)
                 .AddTo(_disposables);
 
             _titleSceneView.TitlePanellView.OnSettings
-                .Subscribe(_ => HandleDisplaySettings())
+                .Subscribe(HandleDisplaySettings)
                 .AddTo(_disposables);
 
             // DetailedScoreRankPanel
             _titleSceneView.DetailedScoreRankView.OnBack
-                .Subscribe(_ => HandleBackToTitlePanel())
+                .Subscribe(HandleBackToTitlePanel)
                 .AddTo(_disposables);
 
             // SettingsPanel
             _titleSceneView.SettingsPanelView.ValueBgm
                 .SkipLatestValueOnSubscribe()
-                .Subscribe(value => HandleSetBgmVolume(value))
+                .Subscribe(HandleSetBgmVolume)
                 .AddTo(_disposables);
 
             _titleSceneView.SettingsPanelView.ValueSe
                 .SkipLatestValueOnSubscribe()
-                .Subscribe(value => HandleSetSeVolume(value))
+                .Subscribe(HandleSetSeVolume)
                 .AddTo(_disposables);
 
             _titleSceneView.SettingsPanelView.OnBack
-                .Subscribe(_ => HandleBackToTitlePanel())
+                .Subscribe(HandleBackToTitlePanel)
                 .AddTo(_disposables);
         }
 
@@ -117,7 +117,7 @@ namespace WatermelonGameClone.Presentation
             await _sceneLoaderUseCase.LoadSceneAsync("MainScene", _cts.Token);
         }
 
-        private void HandleBackToTitlePanel()
+        private void HandleBackToTitlePanel(Unit _)
         {
             HandleSaveVolume();
             _titleSceneView.DetailedScoreRankView.HidePanel();
@@ -126,14 +126,14 @@ namespace WatermelonGameClone.Presentation
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Idle);
         }
 
-        private void HandleDisplayScores()
+        private void HandleDisplayScores(Unit _)
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.DisplayingScores);
             _titleSceneView.HideTitlePageMainElements();
             _titleSceneView.DetailedScoreRankView.ShowPanel();
         }
 
-        private void HandleDisplaySettings()
+        private void HandleDisplaySettings(Unit _)
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Settings);
             _titleSceneView.SettingsPanelView.ShowPanel();

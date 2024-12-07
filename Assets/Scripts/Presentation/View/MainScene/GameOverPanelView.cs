@@ -14,19 +14,19 @@ namespace WatermelonGameClone.Presentation
 {
     public sealed class GameOverPanelView : MonoBehaviour, IGameOverPanelView
     {
-        [SerializeField] Button _buttonBackToTitle;
-        [SerializeField] Button _buttonRestart;
-        [SerializeField] Button _buttonDisplayScore;
-        [SerializeField] TextMeshProUGUI _scoreText;
-        [SerializeField] RawImage _screenshot;
+        [SerializeField] private Button _buttonBackToTitle;
+        [SerializeField] private Button _buttonRestart;
+        [SerializeField] private Button _buttonDisplayScore;
+        [SerializeField] private TextMeshProUGUI _scoreText;
+        [SerializeField] private RawImage _screenshot;
 
-        [SerializeField] GameObject _textPanelTitle;
-        [SerializeField] GameObject _textScoreRank1;
-        [SerializeField] GameObject _textScoreRank2;
-        [SerializeField] GameObject _textScoreRank3;
-        [SerializeField] ScoreRankTextConfig _textConfig;
+        [SerializeField] private GameObject _textPanelTitle;
+        [SerializeField] private GameObject _textScoreRank1;
+        [SerializeField] private GameObject _textScoreRank2;
+        [SerializeField] private GameObject _textScoreRank3;
+        [SerializeField] private ScoreRankTextConfig _textConfig;
 
-        [SerializeField] Canvas _canvas;
+        [SerializeField] private Canvas _canvas;
         private IInputEventProvider _inputEventProvider;
         private GameObject[] _textsScoreRanks;
 
@@ -82,6 +82,28 @@ namespace WatermelonGameClone.Presentation
             SetupButtonAnimations(_buttonBackToTitle);
             SetupButtonAnimations(_buttonRestart);
             SetupButtonAnimations(_buttonDisplayScore);
+        }
+
+        private void OnDestroy()
+        {
+            _dailyScores = null;
+            _monthlyScores = null;
+            _allTimeScores = null;
+            _screenshot.texture = null;
+            _textsScoreRanks = null;
+
+            _buttonBackToTitle = null;
+            _buttonRestart = null;
+            _buttonDisplayScore = null;
+            _scoreText = null;
+            _screenshot = null;
+
+            _textPanelTitle = null;
+            _textScoreRank1 = null;
+            _textScoreRank2 = null;
+            _textScoreRank3 = null;
+            _textConfig = null;
+            _canvas = null;
         }
 
         public void ShowPanel(int score, RenderTexture screenShot, ScoreContainer scoreContainer)

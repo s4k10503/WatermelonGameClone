@@ -10,10 +10,10 @@ namespace WatermelonGameClone.Presentation
 {
     public class SettingsPanelView : MonoBehaviour, ISettingsPanelView
     {
-        [SerializeField] Slider _sliderBGM;
-        [SerializeField] Slider _sliderSE;
-        [SerializeField] Button _buttonBack;
-        [SerializeField] Canvas _canvas;
+        [SerializeField] private Slider _sliderBGM;
+        [SerializeField] private Slider _sliderSE;
+        [SerializeField] private Button _buttonBack;
+        [SerializeField] private Canvas _canvas;
 
         private IUIAnimator _uiAnimator;
         private Vector3 _originalScale;
@@ -44,6 +44,15 @@ namespace WatermelonGameClone.Presentation
         {
             HidePanel();
             SetupButtonAnimations(_buttonBack);
+        }
+
+        private void OnDestroy()
+        {
+            _sliderBGM = null;
+            _sliderSE = null;
+            _buttonBack = null;
+            _canvas = null;
+            _uiAnimator = null;
         }
 
         public void SetBgmSliderValue(float value)

@@ -10,12 +10,12 @@ namespace WatermelonGameClone.Presentation
 {
     public sealed class ScoreRankView : MonoBehaviour, IScoreRankView
     {
-        [SerializeField] GameObject _textPanelTitle;
-        [SerializeField] GameObject _textScoreRank1;
-        [SerializeField] GameObject _textScoreRank2;
-        [SerializeField] GameObject _textScoreRank3;
-        [SerializeField] GameObject _textCurrentScore;
-        [SerializeField] ScoreRankTextConfig _textConfig;
+        [SerializeField] private GameObject _textPanelTitle;
+        [SerializeField] private GameObject _textScoreRank1;
+        [SerializeField] private GameObject _textScoreRank2;
+        [SerializeField] private GameObject _textScoreRank3;
+        [SerializeField] private GameObject _textCurrentScore;
+        [SerializeField] private ScoreRankTextConfig _textConfig;
 
         private IInputEventProvider _inputEventProvider;
         private GameObject[] _textsScoreRanks;
@@ -49,6 +49,22 @@ namespace WatermelonGameClone.Presentation
                 .Where(_ => Time.timeScale != 0f)
                 .Subscribe(_ => ChangePanelDisplay(1))
                 .AddTo(this);
+        }
+
+        private void OnDestroy()
+        {
+            _textPanelTitle = null;
+            _textScoreRank1 = null;
+            _textScoreRank2 = null;
+            _textScoreRank3 = null;
+            _textCurrentScore = null;
+            _textConfig = null;
+
+            _inputEventProvider = null;
+            _textsScoreRanks = null;
+            _dailyScores = null;
+            _monthlyScores = null;
+            _allTimeScores = null;
         }
 
         public void DisplayCurrentScore(int currentScore)

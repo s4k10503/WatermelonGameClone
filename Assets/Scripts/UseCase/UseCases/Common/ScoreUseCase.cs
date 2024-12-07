@@ -15,11 +15,16 @@ namespace WatermelonGameClone.UseCase
         private readonly IScoreTableRepository _scoreTableRepository;
         private ScoreContainer _scoreData;
 
-        private readonly ReactiveProperty<int> _currentScore = new ReactiveProperty<int>(0);
-        public IReadOnlyReactiveProperty<int> CurrentScore => _currentScore.ToReadOnlyReactiveProperty();
-        private readonly ReactiveProperty<int> _bestScore = new ReactiveProperty<int>(0);
-        public IReadOnlyReactiveProperty<int> BestScore => _bestScore.ToReadOnlyReactiveProperty();
-        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly ReactiveProperty<int> _currentScore
+            = new ReactiveProperty<int>(0);
+        public IReadOnlyReactiveProperty<int> CurrentScore
+            => _currentScore.ToReadOnlyReactiveProperty();
+        private readonly ReactiveProperty<int> _bestScore
+            = new ReactiveProperty<int>(0);
+        public IReadOnlyReactiveProperty<int> BestScore
+            => _bestScore.ToReadOnlyReactiveProperty();
+        private readonly CompositeDisposable _disposables
+            = new CompositeDisposable();
 
         [Inject]
         public ScoreUseCase(
@@ -51,6 +56,12 @@ namespace WatermelonGameClone.UseCase
 
             _currentScore.Value = 0;
             _bestScore.Value = _scoreData.Data.Score.Best;
+        }
+
+        public void Dispose()
+        {
+            _disposables?.Dispose();
+            _scoreData = null;
         }
 
         public void UpdateCurrentScore(int sphereNo)
@@ -95,9 +106,5 @@ namespace WatermelonGameClone.UseCase
         public ScoreContainer GetScoreData()
             => _scoreData;
 
-        public void Dispose()
-        {
-            _disposables.Dispose();
-        }
     }
 }

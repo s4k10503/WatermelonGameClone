@@ -10,10 +10,10 @@ namespace WatermelonGameClone.Presentation
 {
     public sealed class PausePanelView : MonoBehaviour, IPausePanelView
     {
-        [SerializeField] Button _buttonBackToTitle;
-        [SerializeField] Button _buttonRestart;
-        [SerializeField] Button _buttonBackToGame;
-        [SerializeField] Canvas _canvas;
+        [SerializeField] private Button _buttonBackToTitle;
+        [SerializeField] private Button _buttonRestart;
+        [SerializeField] private Button _buttonBackToGame;
+        [SerializeField] private Canvas _canvas;
 
         public IObservable<Unit> OnRestart
             => _buttonRestart.OnClickAsObservable();
@@ -42,6 +42,16 @@ namespace WatermelonGameClone.Presentation
             SetupButtonAnimations(_buttonRestart);
         }
 
+        private void OnDestroy()
+        {
+            _buttonBackToTitle = null;
+            _buttonRestart = null;
+            _buttonBackToGame = null;
+            _canvas = null;
+
+            _uiAnimator = null;
+        }
+
         public void ShowPanel()
         {
             _canvas.enabled = true;
@@ -51,7 +61,8 @@ namespace WatermelonGameClone.Presentation
                 .AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
         }
 
-        public void HidePanel() => _canvas.enabled = false;
+        public void HidePanel()
+            => _canvas.enabled = false;
 
         private void SetupButtonAnimations(Button button)
         {

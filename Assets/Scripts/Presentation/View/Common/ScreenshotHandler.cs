@@ -14,15 +14,18 @@ namespace WatermelonGameClone.Presentation
 
         [Inject]
         public void Construct(
-                [Inject(Id = "Main Camera")] Camera mainCamera,
-                [Inject(Id = "UI Camera")] Camera uiCamera)
+            [Inject(Id = "Main Camera")] Camera mainCamera,
+            [Inject(Id = "UI Camera")] Camera uiCamera)
         {
             _mainCamera = mainCamera;
             _uiCamera = uiCamera;
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
+            _mainCamera = null;
+            _uiCamera = null;
+
             if (_currentRenderTexture != null)
             {
                 RenderTexture.ReleaseTemporary(_currentRenderTexture);

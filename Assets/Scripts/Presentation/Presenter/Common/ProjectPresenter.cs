@@ -34,8 +34,10 @@ namespace WatermelonGameClone.Presentation
 
         public void Dispose()
         {
-            _cts.Cancel();
-            _cts.Dispose();
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _soundUseCase = null;
+
         }
     }
 }
