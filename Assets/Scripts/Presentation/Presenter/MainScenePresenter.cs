@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using Zenject;
 using WatermelonGameClone.Domain;
 using WatermelonGameClone.UseCase;
+using System.Collections.Generic;
 
 namespace WatermelonGameClone.Presentation
 {
@@ -21,11 +22,15 @@ namespace WatermelonGameClone.Presentation
 
         // View
         private readonly MainSceneView _mainSceneView;
+        private readonly ReactiveProperty<ViewState> _currentViewState
+            = new ReactiveProperty<ViewState>(ViewState.Loading);
+        private readonly Dictionary<ViewState, IMainSceneViewStateHandler> _viewStateHandlers;
 
         private bool _isNext;
         private float _mergeItemCreateDelayTime;
         private GlobalGameState _previousGlobalState;
         private RenderTexture _screenshotCache;
+        private const string TitleSceneName = "TitleScene";
 
         private readonly CompositeDisposable _disposables;
         private readonly CancellationTokenSource _cts;
@@ -49,10 +54,17 @@ namespace WatermelonGameClone.Presentation
             _isNext = true;
             _mergeItemCreateDelayTime = 0f;
 
+            _viewStateHandlers = new Dictionary<ViewState, IMainSceneViewStateHandler>
+            {
+                { ViewState.Loading, new MainSceneLoadingViewStateHandler() },
+                { ViewState.Playing, new PlayingViewStateHandler() },
+                { ViewState.Paused, new PausedViewStateHandler() },
+                { ViewState.GameOver, new GameOverViewStateHandler() },
+                { ViewState.DetailedScore, new MainSceneDetailedScoreViewStateHandler() },
+            };
+
             _cts = new CancellationTokenSource();
             _disposables = new CompositeDisposable();
-
-            _mainSceneView.HideLoadingPage();
         }
 
         public void Initialize()
@@ -89,6 +101,8 @@ namespace WatermelonGameClone.Presentation
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Initializing);
             _mergeItemUseCase.UpdateNextItemIndex();
             UpdateScoreDisplays();
+
+            _currentViewState.Value = ViewState.Playing;
         }
 
         private void SetupSubscriptions(CancellationToken ct)
@@ -114,12 +128,17 @@ namespace WatermelonGameClone.Presentation
 
         private void SubscribeToViewEvents(CancellationToken ct)
         {
+            _currentViewState
+                .DistinctUntilChanged()
+                .Subscribe(UpdateViewStateUI)
+                .AddTo(_disposables);
+
             _mainSceneView.RestartRequested
                 .Subscribe(_ => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToTitleRequested
-                .Subscribe(_ => HandleSceneChangeAsync("TitleScene", ct).Forget())
+                .Subscribe(_ => HandleSceneChangeAsync(TitleSceneName, ct).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToGameRequested
@@ -155,6 +174,21 @@ namespace WatermelonGameClone.Presentation
                         .Subscribe(_ => HandleGameOverAsync().Forget())
                         .AddTo(_disposables);
                 }).AddTo(_disposables);
+        }
+
+        private void UpdateViewStateUI(ViewState state)
+        {
+            var data = new MainSceneViewStateData(
+                _scoreUseCase.CurrentScore.Value,
+                _scoreUseCase.BestScore.Value,
+                _scoreUseCase.GetScoreData(),
+                _screenshotCache
+            );
+
+            if (_viewStateHandlers.TryGetValue(state, out var handler))
+            {
+                handler.Apply(_mainSceneView, data);
+            }
         }
 
         private void UpdateCurrentScoreDisplays(int score)
@@ -201,45 +235,42 @@ namespace WatermelonGameClone.Presentation
             UpdateScoreDisplays();
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
             _screenshotCache = await _mainSceneView.ScreenshotHandler.CaptureScreenshotAsync(_cts.Token);
-            ShowGameOverUI();
+
+            _currentViewState.Value = ViewState.GameOver;
         }
 
         private async UniTask HandleSceneChangeAsync(string sceneName, CancellationToken ct)
         {
-            ShowLoadingScreen();
+            _currentViewState.Value = ViewState.Loading;
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
             await _sceneLoaderUseCase.LoadSceneAsync(sceneName, ct);
         }
 
         private void ResumeGame(Unit _)
         {
-            HidePauseScreen();
             _gameStateUseCase.SetGlobalGameState(_previousGlobalState);
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
+
+            _currentViewState.Value = ViewState.Playing;
         }
 
         private void PauseGame(Unit _)
         {
             _previousGlobalState = _gameStateUseCase.GlobalState.Value;
             _gameStateUseCase.SetGlobalGameState(GlobalGameState.Paused);
-            ShowPauseScreen();
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
+
+            _currentViewState.Value = ViewState.Paused;
         }
 
         private void ShowDetailedScore(Unit _)
         {
-            _mainSceneView.Stageview.HideStage();
-            _mainSceneView.HideMainPageMainElements();
-            _mainSceneView.GameOverPanelView.HidePanel();
-            _mainSceneView.DetailedScoreRankView.ShowPanel();
+            _currentViewState.Value = ViewState.DetailedScore;
         }
 
         private void ReturnToGameOverScreen(Unit _)
         {
-            _mainSceneView.DetailedScoreRankView.HidePanel();
-            _mainSceneView.Stageview.ShowStage();
-            _mainSceneView.ShowMainPageMainElements();
-            _mainSceneView.GameOverPanelView.ShowPanelWihtoutData();
+            _currentViewState.Value = ViewState.GameOver;
         }
 
         private void UpdateScoreDisplays()
@@ -253,32 +284,6 @@ namespace WatermelonGameClone.Presentation
         private void AdjustTimeScale(float timeScale)
         {
             Time.timeScale = timeScale;
-        }
-
-        private void ShowLoadingScreen()
-        {
-            _mainSceneView.ShowLoadingPage();
-            _mainSceneView.BackgroundPanelView.HidePanel();
-            _mainSceneView.PausePanelView.HidePanel();
-        }
-
-        private void ShowPauseScreen()
-        {
-            _mainSceneView.BackgroundPanelView.ShowPanel();
-            _mainSceneView.PausePanelView.ShowPanel();
-        }
-
-        private void HidePauseScreen()
-        {
-            _mainSceneView.BackgroundPanelView.HidePanel();
-            _mainSceneView.PausePanelView.HidePanel();
-        }
-
-        private void ShowGameOverUI()
-        {
-            _mainSceneView.BackgroundPanelView.ShowPanel();
-            _mainSceneView.GameOverPanelView.ShowPanel(
-            _scoreUseCase.CurrentScore.Value, _screenshotCache, _scoreUseCase.GetScoreData());
         }
     }
 }
