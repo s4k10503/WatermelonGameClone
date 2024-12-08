@@ -28,6 +28,14 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(this);
         }
 
+        private void OnDestroy()
+        {
+            _currentScoreText = null;
+            _bestScoreText = null;
+
+            _uiAnimator = null;
+        }
+
         public void UpdateCurrentScore(int score)
         {
             UpdateScoreText(_currentScoreText, score);

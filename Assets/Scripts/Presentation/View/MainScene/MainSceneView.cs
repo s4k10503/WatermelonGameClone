@@ -52,6 +52,26 @@ namespace WatermelonGameClone.Presentation
             Stageview = stageview;
         }
 
+        private void OnDestroy()
+        {
+            _mainPageRoot = null;
+            _mainPageMainElements = null;
+            _loadingPageRoot = null;
+
+            ScorePanelView = null;
+            ScoreRankView = null;
+            DetailedScoreRankView = null;
+            NextItemPanelView = null;
+            GameOverPanelView = null;
+            PausePanelView = null;
+            BackgroundPanelView = null;
+            ScreenshotHandler = null;
+            MergeItemManager = null;
+            Stageview = null;
+
+            _inputEventProvider = null;
+        }
+
         public IObservable<Unit> RestartRequested =>
             Observable.Merge
             (

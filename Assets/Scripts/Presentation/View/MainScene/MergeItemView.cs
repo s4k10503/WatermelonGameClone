@@ -13,10 +13,6 @@ namespace WatermelonGameClone.Presentation
         [SerializeField] private float _maxX = 2.7f;
         [SerializeField] private float _fixedY = 3.5f;
 
-        private IInputEventProvider _inputEventProvider;
-        private IDisposable _mouseMoveSubscription;
-        private IDisposable _mouseClickSubscription;
-
         public bool _isDrop { get; private set; }
         private bool _isGameOver = false;
 
@@ -31,6 +27,10 @@ namespace WatermelonGameClone.Presentation
             => this.gameObject;
         public int SphereNo { get; private set; }
         private int _maxSphereNo;
+
+        private IInputEventProvider _inputEventProvider;
+        private IDisposable _mouseMoveSubscription;
+        private IDisposable _mouseClickSubscription;
 
         private readonly Subject<Unit> _onGameOver
             = new Subject<Unit>();
@@ -85,6 +85,12 @@ namespace WatermelonGameClone.Presentation
                 .Where(_ => !_isDrop && Time.timeScale != 0f)
                 .Subscribe(_ => StartDropping())
                 .AddTo(this);
+        }
+
+        private void OnDestroy()
+        {
+            _inputEventProvider = null;
+            _rb = null;
         }
 
         private void OnCollisionEnter2D(Collision2D collision)

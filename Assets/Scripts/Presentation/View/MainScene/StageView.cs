@@ -6,6 +6,11 @@ namespace WatermelonGameClone.Presentation
     {
         [SerializeField] private GameObject[] childObjects;
 
+        private void OnDestroy()
+        {
+            childObjects = null;
+        }
+
         public void HideStage()
             => SetChildrenActive(false);
 

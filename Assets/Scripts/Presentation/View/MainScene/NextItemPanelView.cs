@@ -36,7 +36,10 @@ namespace WatermelonGameClone.Presentation
 
         private void OnDestroy()
         {
+            _nextItemImages = null;
+            _instantiatedItems = null;
 
+            _uiAnimator = null;
         }
 
         public void CreateNextItemImages()

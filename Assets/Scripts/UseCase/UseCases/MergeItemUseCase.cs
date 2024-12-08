@@ -13,7 +13,7 @@ namespace WatermelonGameClone.UseCase
 
         private readonly IMergeItemIndexService _mergeItemIndexService;
 
-        private CompositeDisposable _disposables;
+        private readonly CompositeDisposable _disposables;
 
         public int MaxItemNo { get; private set; }
 
@@ -31,7 +31,7 @@ namespace WatermelonGameClone.UseCase
 
         public void Dispose()
         {
-            _disposables.Dispose();
+            _disposables?.Dispose();
         }
 
         public void UpdateNextItemIndex()

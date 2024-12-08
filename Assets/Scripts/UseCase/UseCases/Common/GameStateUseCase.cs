@@ -25,7 +25,6 @@ namespace WatermelonGameClone.UseCase
         public float TimeScaleGameOver { get; private set; }
 
         private readonly ITimeSettingsRepository _timeSettingsRepository;
-        private CompositeDisposable _disposables;
 
         [Inject]
         public GameStateUseCase(ITimeSettingsRepository timeSettingsRepository)
@@ -36,8 +35,12 @@ namespace WatermelonGameClone.UseCase
             DelayedTime = _timeSettingsRepository.GetDelayedTime();
             TimeScaleGameStart = _timeSettingsRepository.GetTimeScaleGameStart();
             TimeScaleGameOver = _timeSettingsRepository.GetTimeScaleGameOver();
+        }
 
-            _disposables = new CompositeDisposable();
+        public void Dispose()
+        {
+            _globalState?.Dispose();
+            _sceneState?.Dispose();
         }
 
         // set global game state
@@ -54,10 +57,5 @@ namespace WatermelonGameClone.UseCase
         //Set scene-specific state
         public void SetSceneSpecificState(SceneSpecificState newState)
             => _sceneState.Value = newState;
-
-        public void Dispose()
-        {
-            _disposables.Dispose();
-        }
     }
 }

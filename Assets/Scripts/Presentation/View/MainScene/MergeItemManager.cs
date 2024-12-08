@@ -9,8 +9,8 @@ namespace WatermelonGameClone.Presentation
 {
     public sealed class MergeItemManager : MonoBehaviour, IMergeItemManager
     {
-        private Transform _ItemPosition;
-        private GameObject[] _ItemPrefabs;
+        private Transform _itemPosition;
+        private GameObject[] _itemPrefabs;
 
         private DiContainer _container;
 
@@ -19,57 +19,56 @@ namespace WatermelonGameClone.Presentation
         public IObservable<IMergeItemView> OnItemCreated
             => _onItemCreated;
 
-        private CancellationTokenSource _cts;
-
         [Inject]
         public void Construct(
             DiContainer container,
-            [Inject(Id = "ItemPosition")] Transform ItemPosition,
-            [Inject(Id = "ItemPrefabs")] GameObject[] ItemPrefabs)
+            [Inject(Id = "ItemPosition")] Transform itemPosition,
+            [Inject(Id = "ItemPrefabs")] GameObject[] itemPrefabs)
         {
-            _ItemPosition = ItemPosition;
-            _ItemPrefabs = ItemPrefabs;
+            _itemPosition = itemPosition;
+            _itemPrefabs = itemPrefabs;
             _container = container;
         }
 
         void Awake()
         {
-            _cts = new CancellationTokenSource();
             _onItemCreated.AddTo(this);
         }
 
         void OnDestroy()
         {
-            _cts.Cancel();
-            _cts.Dispose();
+            _itemPosition = null;
+            _itemPrefabs = null;
+            _container = null;
         }
 
-        public async UniTask CreateItem(int ItemNo, float delaySeconds, CancellationToken ct)
+        public async UniTask CreateItem(int itemNo, float delaySeconds, CancellationToken ct)
         {
             await UniTask.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken: ct);
-            GameObject ItemObj = _container.InstantiatePrefab(_ItemPrefabs[ItemNo], _ItemPosition);
-            IMergeItemView ItemView = ItemObj.GetComponent<IMergeItemView>();
+            GameObject itemObj = _container.InstantiatePrefab(_itemPrefabs[itemNo], _itemPosition);
+            IMergeItemView itemView = itemObj.GetComponent<IMergeItemView>();
 
-            ItemView.Initialize(ItemNo);
-            ItemView.GameObject.SetActive(true);
-            _onItemCreated.OnNext(ItemView);
+            itemView.Initialize(itemNo);
+            itemView.GameObject.SetActive(true);
+            _onItemCreated.OnNext(itemView);
         }
 
-        public void MergeItem(Vector3 position, int ItemNo)
+        public void MergeItem(Vector3 position, int itemNo)
         {
-            GameObject ItemObj = _container.InstantiatePrefab(
-                _ItemPrefabs[ItemNo + 1], position, Quaternion.identity, _ItemPosition);
+            GameObject itemObj = _container.InstantiatePrefab(
+                _itemPrefabs[itemNo + 1], position, Quaternion.identity, _itemPosition);
 
-            var ItemView = ItemObj.GetComponent<IMergeItemView>();
-            ItemView.InitializeAfterMerge(ItemNo + 1);
-            ((MonoBehaviour)ItemView).GetComponent<Rigidbody2D>().simulated = true;
-            ItemView.GameObject.SetActive(true);
-            _onItemCreated.OnNext(ItemView);
+            var itemView = itemObj.GetComponent<IMergeItemView>();
+            itemView.InitializeAfterMerge(itemNo + 1);
+            ((MonoBehaviour)itemView).GetComponent<Rigidbody2D>().simulated = true;
+            itemView.GameObject.SetActive(true);
+            _onItemCreated.OnNext(itemView);
         }
 
-        public void DestroyItem(GameObject ItemView)
+        public void DestroyItem(GameObject itemView)
         {
-            Destroy(ItemView.gameObject);
+            Destroy(itemView);
+            itemView = null;
         }
     }
 }

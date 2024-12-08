@@ -13,12 +13,12 @@ namespace WatermelonGameClone.Presentation
 {
     public sealed class DetailedScoreRankView : MonoBehaviour, IDetailedScoreRankView
     {
-        [SerializeField] GameObject[] _textsScoreRankDaily = new GameObject[7];
-        [SerializeField] GameObject[] _textsScoreRankMonthly = new GameObject[7];
-        [SerializeField] GameObject[] _textsScoreRankAllTime = new GameObject[7];
-        [SerializeField] Canvas _canvas;
+        [SerializeField] private GameObject[] _textsScoreRankDaily = new GameObject[7];
+        [SerializeField] private GameObject[] _textsScoreRankMonthly = new GameObject[7];
+        [SerializeField] private GameObject[] _textsScoreRankAllTime = new GameObject[7];
+        [SerializeField] private Canvas _canvas;
 
-        [SerializeField] Button _buttonBack;
+        [SerializeField] private Button _buttonBack;
 
         private IUIHelper _uiHelper;
         private IUIAnimator _uiAnimator;
@@ -45,6 +45,23 @@ namespace WatermelonGameClone.Presentation
         {
             HidePanel();
             SetupButtonAnimations(_buttonBack);
+        }
+
+        private void OnDestroy()
+        {
+            _textsScoreRankDaily = null;
+            _textsScoreRankMonthly = null;
+            _textsScoreRankAllTime = null;
+
+            _canvas = null;
+            _buttonBack = null;
+
+            _dailyScores = null;
+            _monthlyScores = null;
+            _allTimeScores = null;
+
+            _uiHelper = null;
+            _uiAnimator = null;
         }
 
         public void DisplayTopScores(ScoreContainer scoreContainer)
