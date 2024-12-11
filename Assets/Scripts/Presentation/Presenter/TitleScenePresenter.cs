@@ -38,12 +38,12 @@ namespace WatermelonGameClone.Presentation
             IGameStateUseCase gameStateUseCase,
             IExceptionHandlingUseCase exceptionHandlingUseCase)
         {
-            _titleSceneView = gameView;
-            _scoreUseCase = scoreUseCase;
-            _soundUseCase = soundUseCase;
-            _sceneLoaderUseCase = sceneLoaderUseCase;
-            _gameStateUseCase = gameStateUseCase;
-            _exceptionHandlingUseCase = exceptionHandlingUseCase;
+            _titleSceneView = gameView ?? throw new ArgumentNullException(nameof(gameView));
+            _scoreUseCase = scoreUseCase ?? throw new ArgumentNullException(nameof(scoreUseCase));
+            _soundUseCase = soundUseCase ?? throw new ArgumentNullException(nameof(soundUseCase));
+            _sceneLoaderUseCase = sceneLoaderUseCase ?? throw new ArgumentNullException(nameof(sceneLoaderUseCase));
+            _gameStateUseCase = gameStateUseCase ?? throw new ArgumentNullException(nameof(gameStateUseCase));
+            _exceptionHandlingUseCase = exceptionHandlingUseCase ?? throw new ArgumentNullException(nameof(exceptionHandlingUseCase));
 
             _viewStateHandlers = new Dictionary<ViewState, ITitleSceneViewStateHandler>
             {
@@ -59,7 +59,8 @@ namespace WatermelonGameClone.Presentation
 
         public void Initialize()
         {
-            _exceptionHandlingUseCase.SafeExecuteAsync(() => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), 3, _cts.Token)).Forget();
+            _exceptionHandlingUseCase.SafeExecuteAsync(
+                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), 3, _cts.Token)).Forget();
             SetupSubscriptions();
 
             // Set the global state to Title and initialize the scene state

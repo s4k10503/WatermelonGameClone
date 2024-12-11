@@ -46,13 +46,13 @@ namespace WatermelonGameClone.Presentation
             ISceneLoaderUseCase sceneLoaderUseCase,
             IExceptionHandlingUseCase exceptionHandlingUseCase)
         {
-            _mainSceneView = mainSceneView;
-            _mergeItemUseCase = mergeItemUseCase;
-            _scoreUseCase = scoreUseCase;
-            _soundUseCase = soundUseCase;
-            _gameStateUseCase = gameStateUseCase;
-            _sceneLoaderUseCase = sceneLoaderUseCase;
-            _exceptionHandlingUseCase = exceptionHandlingUseCase;
+            _mainSceneView = mainSceneView ?? throw new ArgumentNullException(nameof(mainSceneView));
+            _mergeItemUseCase = mergeItemUseCase ?? throw new ArgumentNullException(nameof(mergeItemUseCase));
+            _scoreUseCase = scoreUseCase ?? throw new ArgumentNullException(nameof(scoreUseCase));
+            _soundUseCase = soundUseCase ?? throw new ArgumentNullException(nameof(soundUseCase));
+            _gameStateUseCase = gameStateUseCase ?? throw new ArgumentNullException(nameof(gameStateUseCase));
+            _sceneLoaderUseCase = sceneLoaderUseCase ?? throw new ArgumentNullException(nameof(sceneLoaderUseCase));
+            _exceptionHandlingUseCase = exceptionHandlingUseCase ?? throw new ArgumentNullException(nameof(exceptionHandlingUseCase));
 
             _isNext = true;
             _mergeItemCreateDelayTime = 0f;

@@ -15,16 +15,13 @@ namespace WatermelonGameClone.UseCase
         private readonly IScoreTableRepository _scoreTableRepository;
         private ScoreContainer _scoreData;
 
-        private readonly ReactiveProperty<int> _currentScore
-            = new ReactiveProperty<int>(0);
-        public IReadOnlyReactiveProperty<int> CurrentScore
-            => _currentScore.ToReadOnlyReactiveProperty();
-        private readonly ReactiveProperty<int> _bestScore
-            = new ReactiveProperty<int>(0);
-        public IReadOnlyReactiveProperty<int> BestScore
-            => _bestScore.ToReadOnlyReactiveProperty();
-        private readonly CompositeDisposable _disposables
-            = new CompositeDisposable();
+        private readonly ReactiveProperty<int> _currentScore = new ReactiveProperty<int>(0);
+        public IReadOnlyReactiveProperty<int> CurrentScore => _currentScore.ToReadOnlyReactiveProperty();
+
+        private readonly ReactiveProperty<int> _bestScore = new ReactiveProperty<int>(0);
+        public IReadOnlyReactiveProperty<int> BestScore => _bestScore.ToReadOnlyReactiveProperty();
+
+        private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
         [Inject]
         public ScoreUseCase(
@@ -33,10 +30,10 @@ namespace WatermelonGameClone.UseCase
             IScoreResetService scoreResetService,
             IScoreTableRepository scoreTableRepository)
         {
-            _scoreRepository = scoreRepository;
-            _scoreRankingService = scoreRankingService;
-            _scoreResetService = scoreResetService;
-            _scoreTableRepository = scoreTableRepository;
+            _scoreRepository = scoreRepository ?? throw new ArgumentNullException(nameof(scoreRepository));
+            _scoreRankingService = scoreRankingService ?? throw new ArgumentNullException(nameof(scoreRankingService));
+            _scoreResetService = scoreResetService ?? throw new ArgumentNullException(nameof(scoreResetService));
+            _scoreTableRepository = scoreTableRepository ?? throw new ArgumentNullException(nameof(scoreTableRepository));
 
             _currentScore.AddTo(_disposables);
             _bestScore.AddTo(_disposables);
@@ -44,18 +41,31 @@ namespace WatermelonGameClone.UseCase
 
         public async UniTask InitializeAsync(CancellationToken ct)
         {
-            _scoreData = await _scoreRepository.LoadScoresAsync(ct);
-            DateTime currentDate = DateTime.Today;
-            DateTime lastPlayedDate = DateTime.Parse(_scoreData.Data.Score.LastPlayedDate);
+            try
+            {
+                _scoreData = await _scoreRepository.LoadScoresAsync(ct) 
+                    ?? throw new ApplicationException("Failed to load score data. The returned data is null.");
 
-            if (_scoreResetService.ShouldResetDailyScores(lastPlayedDate, currentDate))
-                _scoreResetService.ResetScores(ref _scoreData.Data.Rankings.Daily.Scores);
+                DateTime currentDate = DateTime.Today;
+                DateTime lastPlayedDate = DateTime.Parse(_scoreData.Data.Score.LastPlayedDate);
 
-            if (_scoreResetService.ShouldResetMonthlyScores(lastPlayedDate, currentDate))
-                _scoreResetService.ResetScores(ref _scoreData.Data.Rankings.Monthly.Scores);
+                if (_scoreResetService.ShouldResetDailyScores(lastPlayedDate, currentDate))
+                {
+                    _scoreResetService.ResetScores(ref _scoreData.Data.Rankings.Daily.Scores);
+                }
 
-            _currentScore.Value = 0;
-            _bestScore.Value = _scoreData.Data.Score.Best;
+                if (_scoreResetService.ShouldResetMonthlyScores(lastPlayedDate, currentDate))
+                {
+                    _scoreResetService.ResetScores(ref _scoreData.Data.Rankings.Monthly.Scores);
+                }
+
+                _currentScore.Value = 0;
+                _bestScore.Value = _scoreData.Data.Score.Best;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred during score initialization.", ex);
+            }
         }
 
         public void Dispose()
@@ -66,45 +76,77 @@ namespace WatermelonGameClone.UseCase
 
         public void UpdateCurrentScore(int sphereNo)
         {
-            var scores = _scoreTableRepository.GetScoreTable();
-
-            // Retrieve scores from the score table
-            if (sphereNo >= 0 && sphereNo < scores.Length)
+            try
             {
+                var scores = _scoreTableRepository.GetScoreTable();
+
+                if (scores == null || scores.Length == 0)
+                {
+                    throw new ApplicationException("Score table is invalid or empty.");
+                }
+
+                if (sphereNo < 0 || sphereNo >= scores.Length)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(sphereNo), "Sphere number is out of range.");
+                }
+
                 _currentScore.Value += scores[sphereNo];
             }
-            else
+            catch (Exception ex)
             {
-                throw new ArgumentOutOfRangeException(nameof(sphereNo), "Sphere number is out of range.");
+                throw new ApplicationException("An error occurred while updating the current score.", ex);
             }
         }
 
         public async UniTask UpdateScoreRankingAsync(int newScore, CancellationToken ct)
         {
-            if (_scoreData == null || _scoreData.Data?.Rankings?.Daily?.Scores == null)
-                throw new NullReferenceException("_scoreData or its nested properties are null");
-
-            _scoreData.Data.Rankings.Daily.Scores = _scoreRankingService.UpdateTopScores(_scoreData.Data.Rankings.Daily.Scores, newScore, 7);
-            _scoreData.Data.Rankings.Monthly.Scores = _scoreRankingService.UpdateTopScores(_scoreData.Data.Rankings.Monthly.Scores, newScore, 7);
-            _scoreData.Data.Rankings.AllTime.Scores = _scoreRankingService.UpdateTopScores(_scoreData.Data.Rankings.AllTime.Scores, newScore, 7);
-
-            if (_scoreRankingService.IsNewBestScore(_bestScore.Value, newScore))
+            if (_scoreData == null)
             {
-                _bestScore.Value = newScore;
+                throw new NullReferenceException("_scoreData is null. Ensure InitializeAsync was called before updating scores.");
             }
 
-            await SaveScoresAsync(ct);
+            try
+            {
+                _scoreData.Data.Rankings.Daily.Scores = _scoreRankingService.UpdateTopScores(
+                    _scoreData.Data.Rankings.Daily.Scores, newScore, 7);
+                _scoreData.Data.Rankings.Monthly.Scores = _scoreRankingService.UpdateTopScores(
+                    _scoreData.Data.Rankings.Monthly.Scores, newScore, 7);
+                _scoreData.Data.Rankings.AllTime.Scores = _scoreRankingService.UpdateTopScores(
+                    _scoreData.Data.Rankings.AllTime.Scores, newScore, 7);
+
+                if (_scoreRankingService.IsNewBestScore(_bestScore.Value, newScore))
+                {
+                    _bestScore.Value = newScore;
+                }
+
+                await SaveScoresAsync(ct);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while updating score rankings.", ex);
+            }
         }
 
         private async UniTask SaveScoresAsync(CancellationToken ct)
         {
-            _scoreData.Data.Score.Best = _bestScore.Value;
-            _scoreData.Data.Score.LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd");
-            await _scoreRepository.SaveScoresAsync(_scoreData, ct);
+            try
+            {
+                if (_scoreData == null)
+                {
+                    throw new ApplicationException("Cannot save null score data.");
+                }
+
+                _scoreData.Data.Score.Best = _bestScore.Value;
+                _scoreData.Data.Score.LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd");
+
+                await _scoreRepository.SaveScoresAsync(_scoreData, ct);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while saving scores.", ex);
+            }
         }
 
-        public ScoreContainer GetScoreData()
-            => _scoreData;
-
+        public ScoreContainer GetScoreData() => _scoreData;
     }
 }

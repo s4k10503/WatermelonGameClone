@@ -29,12 +29,12 @@ namespace WatermelonGameClone.UseCase
         [Inject]
         public GameStateUseCase(ITimeSettingsRepository timeSettingsRepository)
         {
-            _timeSettingsRepository = timeSettingsRepository;
+            _timeSettingsRepository = timeSettingsRepository ?? throw new ArgumentNullException(nameof(timeSettingsRepository));
 
             // Get time settings
-            DelayedTime = _timeSettingsRepository.GetDelayedTime();
-            TimeScaleGameStart = _timeSettingsRepository.GetTimeScaleGameStart();
-            TimeScaleGameOver = _timeSettingsRepository.GetTimeScaleGameOver();
+            DelayedTime = ValidateTimeValue(_timeSettingsRepository.GetDelayedTime(), "DelayedTime");
+            TimeScaleGameStart = ValidateTimeValue(_timeSettingsRepository.GetTimeScaleGameStart(), "TimeScaleGameStart");
+            TimeScaleGameOver = ValidateTimeValue(_timeSettingsRepository.GetTimeScaleGameOver(), "TimeScaleGameOver");
         }
 
         public void Dispose()
@@ -56,6 +56,21 @@ namespace WatermelonGameClone.UseCase
 
         //Set scene-specific state
         public void SetSceneSpecificState(SceneSpecificState newState)
-            => _sceneState.Value = newState;
+        {
+            if (!Enum.IsDefined(typeof(SceneSpecificState), newState))
+            {
+                throw new ArgumentException($"Invalid scene-specific state: {newState}", nameof(newState));
+            }
+            _sceneState.Value = newState;
+        }
+
+        private static float ValidateTimeValue(float value, string parameterName)
+        {
+            if (value < 0)
+            {
+                throw new ArgumentException($"{parameterName} cannot be negative.", parameterName);
+            }
+            return value;
+        }
     }
 }

@@ -13,6 +13,11 @@ namespace WatermelonGameClone.Infrastructure
 
         public async UniTask SaveSoundSettingsAsync(float volumeBGM, float volumeSE, CancellationToken ct)
         {
+            if (volumeBGM < 0 || volumeBGM > 1 || volumeSE < 0 || volumeSE > 1)
+            {
+                throw new InfrastructureException("Sound volumes must be between 0 and 1.");
+            }
+
             try
             {
                 VolumeSettings volumeSettings = new VolumeSettings
@@ -25,9 +30,7 @@ namespace WatermelonGameClone.Infrastructure
             }
             catch (Exception e)
             {
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-                Debug.LogError($"Failed to save sound settings to JSON: {e.Message}");
-#endif
+                throw new InfrastructureException("Failed to save sound settings to JSON file.", e);
             }
         }
 
@@ -41,12 +44,16 @@ namespace WatermelonGameClone.Infrastructure
                     VolumeSettings volumeSettings = JsonUtility.FromJson<VolumeSettings>(json);
                     return (volumeSettings.VolumeBGM, volumeSettings.VolumeSE);
                 }
+                else
+                {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+                    Debug.LogWarning("Sound settings file not found. Returning default values.");
+#endif
+                }
             }
             catch (Exception e)
             {
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-                Debug.LogError($"Failed to load sound settings from JSON: {e.Message}");
-#endif
+                throw new InfrastructureException("Failed to load sound settings from JSON file.", e);
             }
 
             return (1.0f, 1.0f);

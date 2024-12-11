@@ -22,9 +22,14 @@ namespace WatermelonGameClone.UseCase
             [Inject(Id = "MaxItemNo")] int maxItemNo,
             IMergeItemIndexService itemIndexService)
         {
+            if (maxItemNo <= 0)
+            {
+                throw new ArgumentException("MaxItemNo must be greater than zero.", nameof(maxItemNo));
+            }
+
             _disposables = new CompositeDisposable();
             _nextItemIndex = new ReactiveProperty<int>();
-            _mergeItemIndexService = itemIndexService;
+            _mergeItemIndexService = itemIndexService ?? throw new ArgumentNullException(nameof(itemIndexService));
             MaxItemNo = maxItemNo;
             _nextItemIndex.AddTo(_disposables);
         }
@@ -36,7 +41,14 @@ namespace WatermelonGameClone.UseCase
 
         public void UpdateNextItemIndex()
         {
-            _nextItemIndex.Value = _mergeItemIndexService.GenerateNextItemIndex(MaxItemNo);
+            try
+            {
+                _nextItemIndex.Value = _mergeItemIndexService.GenerateNextItemIndex(MaxItemNo);
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Failed to update next item index.", ex);
+            }
         }
     }
 }

@@ -10,26 +10,35 @@ namespace WatermelonGameClone.Presentation
     {
         // Model
         private ISoundUseCase _soundUseCase;
+        private readonly IExceptionHandlingUseCase _exceptionHandlingUseCase;
 
         private CancellationTokenSource _cts;
 
-
         [Inject]
-        public ProjectPresenter(ISoundUseCase soundUseCase)
+        public ProjectPresenter(
+            ISoundUseCase soundUseCase, 
+            IExceptionHandlingUseCase exceptionHandlingUseCase)
         {
-            _soundUseCase = soundUseCase;
+            _soundUseCase = soundUseCase ?? throw new ArgumentNullException(nameof(soundUseCase));
+            _exceptionHandlingUseCase = exceptionHandlingUseCase ?? throw new ArgumentNullException(nameof(exceptionHandlingUseCase));
             _cts = new CancellationTokenSource();
         }
 
         void IInitializable.Initialize()
         {
-            InitializeAsync(_cts.Token).Forget();
+            _exceptionHandlingUseCase.SafeExecuteAsync(
+                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), 3, _cts.Token)).Forget();
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)
         {
-            await _soundUseCase.InitializeAsync(ct);
-            _soundUseCase.PlayBGM();
+            if (_cts == null || _cts.IsCancellationRequested) return;
+
+            await _exceptionHandlingUseCase.SafeExecuteAsync(async () =>
+            {
+                await _soundUseCase.InitializeAsync(ct);
+                _soundUseCase.PlayBGM();
+            });
         }
 
         public void Dispose()
@@ -37,7 +46,6 @@ namespace WatermelonGameClone.Presentation
             _cts?.Cancel();
             _cts?.Dispose();
             _soundUseCase = null;
-
         }
     }
 }
