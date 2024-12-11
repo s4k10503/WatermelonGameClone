@@ -19,6 +19,7 @@ namespace WatermelonGameClone.Presentation
         private readonly ISoundUseCase _soundUseCase;
         private readonly IGameStateUseCase _gameStateUseCase;
         private readonly ISceneLoaderUseCase _sceneLoaderUseCase;
+        private readonly IExceptionHandlingUseCase _exceptionHandlingUseCase;
 
         // View
         private readonly MainSceneView _mainSceneView;
@@ -38,18 +39,20 @@ namespace WatermelonGameClone.Presentation
         [Inject]
         public MainScenePresenter(
             MainSceneView mainSceneView,
-            IMergeItemUseCase megeItemUseCase,
+            IMergeItemUseCase mergeItemUseCase,
             IScoreUseCase scoreUseCase,
             ISoundUseCase soundUseCase,
             IGameStateUseCase gameStateUseCase,
-            ISceneLoaderUseCase sceneLoaderUseCase)
+            ISceneLoaderUseCase sceneLoaderUseCase,
+            IExceptionHandlingUseCase exceptionHandlingUseCase)
         {
             _mainSceneView = mainSceneView;
-            _mergeItemUseCase = megeItemUseCase;
+            _mergeItemUseCase = mergeItemUseCase;
             _scoreUseCase = scoreUseCase;
             _soundUseCase = soundUseCase;
             _gameStateUseCase = gameStateUseCase;
             _sceneLoaderUseCase = sceneLoaderUseCase;
+            _exceptionHandlingUseCase = exceptionHandlingUseCase;
 
             _isNext = true;
             _mergeItemCreateDelayTime = 0f;
@@ -69,15 +72,22 @@ namespace WatermelonGameClone.Presentation
 
         public void Initialize()
         {
-            InitializeAsync(_cts.Token).Forget();
+            _exceptionHandlingUseCase.SafeExecuteAsync(
+                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), 3, _cts.Token)).Forget();
             SetupSubscriptions(_cts.Token);
         }
 
         public void Tick()
         {
+            if (_cts == null || _cts.IsCancellationRequested)
+            {
+                return;
+            }
+
             if (CanCreateNextItem())
             {
-                CreateNextItemAsync().Forget();
+                _exceptionHandlingUseCase.SafeExecuteAsync(
+                    () => _exceptionHandlingUseCase.RetryAsync(() => CreateNextItemAsync(), 2, _cts.Token)).Forget();
             }
         }
 
@@ -96,13 +106,17 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask InitializeAsync(CancellationToken ct)
         {
-            await _scoreUseCase.InitializeAsync(ct);
-            _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
-            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Initializing);
-            _mergeItemUseCase.UpdateNextItemIndex();
-            UpdateScoreDisplays();
+            if (_cts == null || _cts.IsCancellationRequested) return;
 
-            _currentViewState.Value = ViewState.Playing;
+            await _exceptionHandlingUseCase.SafeExecuteAsync(async () =>
+            {
+                await _scoreUseCase.InitializeAsync(ct);
+                _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
+                _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Initializing);
+                _mergeItemUseCase.UpdateNextItemIndex();
+                UpdateScoreDisplays();
+                _currentViewState.Value = ViewState.Playing;
+            });
         }
 
         private void SetupSubscriptions(CancellationToken ct)
@@ -114,15 +128,21 @@ namespace WatermelonGameClone.Presentation
         private void SubscribeToModelUpdates()
         {
             _mergeItemUseCase.NextItemIndex
-                .Subscribe(index => _mainSceneView.NextItemPanelView.UpdateNextItemImages(index))
+                .Subscribe(
+                    index => _exceptionHandlingUseCase.SafeExecute(() => _mainSceneView.NextItemPanelView.UpdateNextItemImages(index))
+                )
                 .AddTo(_disposables);
 
             _scoreUseCase.CurrentScore
-                .Subscribe(UpdateCurrentScoreDisplays)
+                .Subscribe(
+                    score => _exceptionHandlingUseCase.SafeExecute(() => UpdateCurrentScoreDisplays(score))
+                )
                 .AddTo(_disposables);
 
             _scoreUseCase.BestScore
-                .Subscribe(score => _mainSceneView.ScorePanelView.UpdateBestScore(score))
+                .Subscribe(
+                    score => _exceptionHandlingUseCase.SafeExecute(() => _mainSceneView.ScorePanelView.UpdateBestScore(score))
+                )
                 .AddTo(_disposables);
         }
 
@@ -130,15 +150,15 @@ namespace WatermelonGameClone.Presentation
         {
             _currentViewState
                 .DistinctUntilChanged()
-                .Subscribe(UpdateViewStateUI)
+                .Subscribe(state => _exceptionHandlingUseCase.SafeExecute(() => UpdateViewStateUI(state)))
                 .AddTo(_disposables);
 
             _mainSceneView.RestartRequested
-                .Subscribe(_ => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct).Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct)).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToTitleRequested
-                .Subscribe(_ => HandleSceneChangeAsync(TitleSceneName, ct).Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleSceneChangeAsync(TitleSceneName, ct)).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToGameRequested
@@ -152,26 +172,26 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _mainSceneView.DisplayScoreRequested
-                .Subscribe(ShowDetailedScore)
+                .Subscribe(_ => ShowDetailedScore())
                 .AddTo(_disposables);
 
             _mainSceneView.DetailedScoreRankView.OnBack
-                .Subscribe(ReturnToGameOverScreen)
+                .Subscribe(_ => ReturnToGameOverScreen())
                 .AddTo(_disposables);
 
             _mainSceneView.MergeItemManager.OnItemCreated
                 .Subscribe(megeItem =>
                 {
                     megeItem.OnDropping
-                        .Subscribe(HandleItemDropping)
+                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleItemDropping()))
                         .AddTo(_disposables);
 
                     megeItem.OnMerging
-                        .Subscribe(HandleItemMerging)
+                        .Subscribe(mergeData => _exceptionHandlingUseCase.SafeExecute(() => HandleItemMerging(mergeData)))
                         .AddTo(_disposables);
 
                     megeItem.OnGameOver
-                        .Subscribe(_ => HandleGameOverAsync().Forget())
+                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameOverAsync()).Forget())
                         .AddTo(_disposables);
                 }).AddTo(_disposables);
         }
@@ -204,6 +224,8 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask CreateNextItemAsync()
         {
+            if (_cts == null || _cts.IsCancellationRequested) return;
+
             _isNext = false;
             await _mainSceneView.MergeItemManager.CreateItem(
                 _mergeItemUseCase.NextItemIndex.Value, _mergeItemCreateDelayTime, _cts.Token);
@@ -211,7 +233,7 @@ namespace WatermelonGameClone.Presentation
             _mergeItemCreateDelayTime = 1.0f;
         }
 
-        private void HandleItemDropping(Unit _)
+        private void HandleItemDropping()
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.ItemDropping);
             _soundUseCase.PlaySoundEffect(SoundEffect.Drop);
@@ -230,6 +252,8 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask HandleGameOverAsync()
         {
+            if (_cts == null || _cts.IsCancellationRequested) return;
+
             _gameStateUseCase.SetGlobalGameState(GlobalGameState.GameOver);
             await _scoreUseCase.UpdateScoreRankingAsync(_scoreUseCase.CurrentScore.Value, _cts.Token);
             UpdateScoreDisplays();
@@ -241,6 +265,8 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask HandleSceneChangeAsync(string sceneName, CancellationToken ct)
         {
+            if (_cts == null || _cts.IsCancellationRequested) return;
+
             _currentViewState.Value = ViewState.Loading;
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
             await _sceneLoaderUseCase.LoadSceneAsync(sceneName, ct);
@@ -250,7 +276,6 @@ namespace WatermelonGameClone.Presentation
         {
             _gameStateUseCase.SetGlobalGameState(_previousGlobalState);
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
-
             _currentViewState.Value = ViewState.Playing;
         }
 
@@ -259,16 +284,15 @@ namespace WatermelonGameClone.Presentation
             _previousGlobalState = _gameStateUseCase.GlobalState.Value;
             _gameStateUseCase.SetGlobalGameState(GlobalGameState.Paused);
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
-
             _currentViewState.Value = ViewState.Paused;
         }
 
-        private void ShowDetailedScore(Unit _)
+        private void ShowDetailedScore()
         {
             _currentViewState.Value = ViewState.DetailedScore;
         }
 
-        private void ReturnToGameOverScreen(Unit _)
+        private void ReturnToGameOverScreen()
         {
             _currentViewState.Value = ViewState.GameOver;
         }
