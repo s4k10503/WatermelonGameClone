@@ -32,6 +32,7 @@ namespace WatermelonGameClone.Presentation
         private GlobalGameState _previousGlobalState;
         private RenderTexture _screenshotCache;
         private const string TitleSceneName = "TitleScene";
+        private const int _maxRetries = 3;
 
         private readonly CompositeDisposable _disposables;
         private readonly CancellationTokenSource _cts;
@@ -73,7 +74,7 @@ namespace WatermelonGameClone.Presentation
         public void Initialize()
         {
             _exceptionHandlingUseCase.SafeExecuteAsync(
-                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), 3, _cts.Token)).Forget();
+                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
             SetupSubscriptions(_cts.Token);
         }
 
@@ -87,7 +88,7 @@ namespace WatermelonGameClone.Presentation
             if (CanCreateNextItem())
             {
                 _exceptionHandlingUseCase.SafeExecuteAsync(
-                    () => _exceptionHandlingUseCase.RetryAsync(() => CreateNextItemAsync(), 2, _cts.Token)).Forget();
+                    () => _exceptionHandlingUseCase.RetryAsync(() => CreateNextItemAsync(), _maxRetries, _cts.Token), _cts.Token).Forget();
             }
         }
 
@@ -116,7 +117,7 @@ namespace WatermelonGameClone.Presentation
                 _mergeItemUseCase.UpdateNextItemIndex();
                 UpdateScoreDisplays();
                 _currentViewState.Value = ViewState.Playing;
-            });
+            }, _cts.Token);
         }
 
         private void SetupSubscriptions(CancellationToken ct)
@@ -129,20 +130,20 @@ namespace WatermelonGameClone.Presentation
         {
             _mergeItemUseCase.NextItemIndex
                 .Subscribe(
-                    index => _exceptionHandlingUseCase.SafeExecute(() => _mainSceneView.NextItemPanelView.UpdateNextItemImages(index))
-                )
+                    index => _exceptionHandlingUseCase
+                        .SafeExecute(() => _mainSceneView.NextItemPanelView.UpdateNextItemImages(index)))
                 .AddTo(_disposables);
 
             _scoreUseCase.CurrentScore
                 .Subscribe(
-                    score => _exceptionHandlingUseCase.SafeExecute(() => UpdateCurrentScoreDisplays(score))
-                )
+                    score => _exceptionHandlingUseCase
+                        .SafeExecute(() => UpdateCurrentScoreDisplays(score)))
                 .AddTo(_disposables);
 
             _scoreUseCase.BestScore
                 .Subscribe(
-                    score => _exceptionHandlingUseCase.SafeExecute(() => _mainSceneView.ScorePanelView.UpdateBestScore(score))
-                )
+                    score => _exceptionHandlingUseCase
+                        .SafeExecute(() => _mainSceneView.ScorePanelView.UpdateBestScore(score)))
                 .AddTo(_disposables);
         }
 
@@ -150,15 +151,18 @@ namespace WatermelonGameClone.Presentation
         {
             _currentViewState
                 .DistinctUntilChanged()
-                .Subscribe(state => _exceptionHandlingUseCase.SafeExecute(() => UpdateViewStateUI(state)))
+                .Subscribe(state => _exceptionHandlingUseCase
+                    .SafeExecute(() => UpdateViewStateUI(state)))
                 .AddTo(_disposables);
 
             _mainSceneView.RestartRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct)).Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase
+                    .SafeExecuteAsync(() => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct), ct).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToTitleRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleSceneChangeAsync(TitleSceneName, ct)).Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase
+                    .SafeExecuteAsync(() => HandleSceneChangeAsync(TitleSceneName, ct), ct).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToGameRequested
@@ -191,7 +195,7 @@ namespace WatermelonGameClone.Presentation
                         .AddTo(_disposables);
 
                     megeItem.OnGameOver
-                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameOverAsync()).Forget())
+                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameOverAsync(), ct).Forget())
                         .AddTo(_disposables);
                 }).AddTo(_disposables);
         }

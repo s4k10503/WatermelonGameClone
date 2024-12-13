@@ -19,9 +19,9 @@ namespace WatermelonGameClone.UseCase
             await _exceptionHandler.RetryAsync(action, maxRetries, cts);
         }
 
-        public async UniTask SafeExecuteAsync(Func<UniTask> action)
+        public async UniTask SafeExecuteAsync(Func<UniTask> action, CancellationToken cts)
         {
-            await _exceptionHandler.SafeExecuteAsync(action);
+            await _exceptionHandler.SafeExecuteAsync(action, cts);
         }
 
         public void SafeExecute(Action action)

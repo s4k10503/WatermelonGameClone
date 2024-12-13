@@ -8,7 +8,7 @@ namespace WatermelonGameClone.UseCase
     public interface IExceptionHandlingUseCase
     {
         UniTask RetryAsync(Func<UniTask> action, int maxRetries, CancellationToken cts);
-        UniTask SafeExecuteAsync(Func<UniTask> action);
+        UniTask SafeExecuteAsync(Func<UniTask> action, CancellationToken cts);
         void SafeExecute(Action action);
     }
 }

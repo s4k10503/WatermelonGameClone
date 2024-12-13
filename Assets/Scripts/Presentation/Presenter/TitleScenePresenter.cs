@@ -25,6 +25,7 @@ namespace WatermelonGameClone.Presentation
         private readonly Dictionary<ViewState, ITitleSceneViewStateHandler> _viewStateHandlers;
 
         private const string MainSceneName = "MainScene";
+        private const int _maxRetries = 3;
 
         private readonly CompositeDisposable _disposables;
         private readonly CancellationTokenSource _cts;
@@ -60,7 +61,7 @@ namespace WatermelonGameClone.Presentation
         public void Initialize()
         {
             _exceptionHandlingUseCase.SafeExecuteAsync(
-                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), 3, _cts.Token)).Forget();
+                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
             SetupSubscriptions();
 
             // Set the global state to Title and initialize the scene state
@@ -85,7 +86,7 @@ namespace WatermelonGameClone.Presentation
                 _titleSceneView.SettingsPanelView.SetSeSliderValue(_soundUseCase.VolumeSe.Value);
 
                 UpdateScoreDisplay();
-            });
+            }, _cts.Token);
         }
 
         private void SetupSubscriptions()
@@ -103,7 +104,7 @@ namespace WatermelonGameClone.Presentation
 
             // TitlePanel
             _titleSceneView.GameStartRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameStart()).Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameStart(), _cts.Token).Forget())
                 .AddTo(_disposables);
 
             _titleSceneView.MyScoreRequested
@@ -153,7 +154,7 @@ namespace WatermelonGameClone.Presentation
                 _titleSceneView.HideTitlePage();
                 _titleSceneView.ShowLoadingPage();
                 await _sceneLoaderUseCase.LoadSceneAsync(MainSceneName, _cts.Token);
-            });
+            }, _cts.Token);
         }
 
         private void HandleBackToTitlePanel()
@@ -191,7 +192,7 @@ namespace WatermelonGameClone.Presentation
             => _exceptionHandlingUseCase.SafeExecute(() => _soundUseCase.SetSEVolume(value));
 
         private void HandleSaveVolume()
-            => _exceptionHandlingUseCase.SafeExecuteAsync(() => _soundUseCase.SaveVolume(_cts.Token)).Forget();
+            => _exceptionHandlingUseCase.SafeExecuteAsync(() => _soundUseCase.SaveVolume(_cts.Token), _cts.Token).Forget();
 
         private void UpdateScoreDisplay()
         {

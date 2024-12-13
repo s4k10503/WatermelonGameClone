@@ -38,7 +38,7 @@ namespace WatermelonGameClone.Infrastructure
             }
         }
 
-        public async UniTask SafeExecuteAsync(Func<UniTask> action)
+        public async UniTask SafeExecuteAsync(Func<UniTask> action, CancellationToken cts)
         {
             try
             {

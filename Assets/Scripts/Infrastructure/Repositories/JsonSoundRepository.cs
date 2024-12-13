@@ -46,17 +46,14 @@ namespace WatermelonGameClone.Infrastructure
                 }
                 else
                 {
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-                    Debug.LogWarning("Sound settings file not found. Returning default values.");
-#endif
+                    // Sound settings file not found. Returning default values.
+                    return (1.0f, 1.0f);
                 }
             }
             catch (Exception e)
             {
                 throw new InfrastructureException("Failed to load sound settings from JSON file.", e);
             }
-
-            return (1.0f, 1.0f);
         }
     }
 }

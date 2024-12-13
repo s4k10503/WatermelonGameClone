@@ -12,11 +12,13 @@ namespace WatermelonGameClone.Presentation
         private ISoundUseCase _soundUseCase;
         private readonly IExceptionHandlingUseCase _exceptionHandlingUseCase;
 
+        private const int _maxRetries = 3;
+
         private CancellationTokenSource _cts;
 
         [Inject]
         public ProjectPresenter(
-            ISoundUseCase soundUseCase, 
+            ISoundUseCase soundUseCase,
             IExceptionHandlingUseCase exceptionHandlingUseCase)
         {
             _soundUseCase = soundUseCase ?? throw new ArgumentNullException(nameof(soundUseCase));
@@ -27,7 +29,7 @@ namespace WatermelonGameClone.Presentation
         void IInitializable.Initialize()
         {
             _exceptionHandlingUseCase.SafeExecuteAsync(
-                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), 3, _cts.Token)).Forget();
+                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)
@@ -38,7 +40,7 @@ namespace WatermelonGameClone.Presentation
             {
                 await _soundUseCase.InitializeAsync(ct);
                 _soundUseCase.PlayBGM();
-            });
+            }, _cts.Token);
         }
 
         public void Dispose()

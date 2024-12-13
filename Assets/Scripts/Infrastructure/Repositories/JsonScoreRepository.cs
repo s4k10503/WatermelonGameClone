@@ -40,17 +40,14 @@ namespace WatermelonGameClone.Infrastructure
                 }
                 else
                 {
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-                    Debug.LogWarning("Score file not found. Returning default score data.");
-#endif
+                    // Score file not found. Returning default score data.
+                    return CreateDefaultScoreContainer();
                 }
             }
             catch (Exception e)
             {
                 throw new InfrastructureException("Failed to load scores from JSON file.", e);
             }
-
-            return CreateDefaultScoreContainer();
         }
 
         private ScoreContainer CreateDefaultScoreContainer()
