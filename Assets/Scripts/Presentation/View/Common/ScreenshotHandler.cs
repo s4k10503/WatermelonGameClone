@@ -3,6 +3,7 @@ using UnityEngine.Rendering;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Zenject;
+using System;
 
 namespace WatermelonGameClone.Presentation
 {
@@ -35,45 +36,46 @@ namespace WatermelonGameClone.Presentation
 
         public async UniTask<RenderTexture> CaptureScreenshotAsync(CancellationToken ct)
         {
-            ct.ThrowIfCancellationRequested();
-
-            int width = Screen.width;
-            int height = Screen.height;
-
-            _currentRenderTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
-            var oldTargetCamera = _mainCamera.targetTexture;
-            var oldTargetUICamera = _uiCamera.targetTexture;
-
-            _mainCamera.targetTexture = _currentRenderTexture;
-            _mainCamera.Render();
-
-            // Because if you don't restore the target texture, it may affect the next render
-            _mainCamera.targetTexture = oldTargetCamera;
-
-            // Avoid clearing the RenderTexture contents before the UI camera starts rendering.
-            // Keep the RenderTexture containing the output of the main camera as is, 
-            // and add the contents of the UI camera without overwriting it.
-            _uiCamera.clearFlags = CameraClearFlags.Nothing;
-
-            _uiCamera.targetTexture = _currentRenderTexture;
-            _uiCamera.Render();
-            _uiCamera.targetTexture = oldTargetUICamera;
-
-            var request = AsyncGPUReadback.Request(_currentRenderTexture);
-            await UniTask.WaitUntil(() => request.done, cancellationToken: ct);
-
-            if (request.hasError)
+            try
             {
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-                Debug.LogError("An error occurred in AsyncGPUReadback.");
-#endif
+                int width = Screen.width;
+                int height = Screen.height;
 
-                RenderTexture.ReleaseTemporary(_currentRenderTexture);
-                _currentRenderTexture = null;
-                return null;
+                _currentRenderTexture = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32);
+                var oldTargetCamera = _mainCamera.targetTexture;
+                var oldTargetUICamera = _uiCamera.targetTexture;
+
+                _mainCamera.targetTexture = _currentRenderTexture;
+                _mainCamera.Render();
+
+                // Because if you don't restore the target texture, it may affect the next render
+                _mainCamera.targetTexture = oldTargetCamera;
+
+                // Avoid clearing the RenderTexture contents before the UI camera starts rendering.
+                // Keep the RenderTexture containing the output of the main camera as is, 
+                // and add the contents of the UI camera without overwriting it.
+                _uiCamera.clearFlags = CameraClearFlags.Nothing;
+
+                _uiCamera.targetTexture = _currentRenderTexture;
+                _uiCamera.Render();
+                _uiCamera.targetTexture = oldTargetUICamera;
+
+                var request = AsyncGPUReadback.Request(_currentRenderTexture);
+                await UniTask.WaitUntil(() => request.done, cancellationToken: ct);
+
+                if (request.hasError)
+                {
+                    // An error occurred in AsyncGPUReadback.
+                    RenderTexture.ReleaseTemporary(_currentRenderTexture);
+                    _currentRenderTexture = null;
+                    return null;
+                }
+                return _currentRenderTexture;
             }
-
-            return _currentRenderTexture;
+            catch (Exception e)
+            {
+                throw new ApplicationException("Unexpected error during screenshot capture", e);
+            }
         }
     }
 }
