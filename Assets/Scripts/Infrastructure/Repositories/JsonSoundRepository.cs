@@ -28,9 +28,14 @@ namespace WatermelonGameClone.Infrastructure
                 string json = JsonUtility.ToJson(volumeSettings);
                 await File.WriteAllTextAsync(s_soundSettingsFilePath, json, ct);
             }
-            catch (Exception e)
+            catch (OperationCanceledException)
             {
-                throw new InfrastructureException("Failed to save sound settings to JSON file.", e);
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InfrastructureException("Failed to save sound settings to JSON file.", ex);
             }
         }
 
@@ -50,9 +55,14 @@ namespace WatermelonGameClone.Infrastructure
                     return (1.0f, 1.0f);
                 }
             }
-            catch (Exception e)
+            catch (OperationCanceledException)
             {
-                throw new InfrastructureException("Failed to load sound settings from JSON file.", e);
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InfrastructureException("Failed to load sound settings from JSON file.", ex);
             }
         }
     }

@@ -29,18 +29,28 @@ namespace WatermelonGameClone.Presentation
         void IInitializable.Initialize()
         {
             _exceptionHandlingUseCase.SafeExecuteAsync(
-                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
+                () => _exceptionHandlingUseCase.RetryAsync(
+                    () => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)
         {
-            if (_cts == null || _cts.IsCancellationRequested) return;
-
-            await _exceptionHandlingUseCase.SafeExecuteAsync(async () =>
+            try
             {
+                if (_cts == null || _cts.IsCancellationRequested) return;
+
                 await _soundUseCase.InitializeAsync(ct);
                 _soundUseCase.PlayBGM();
-            }, _cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred during initialization.", ex);
+            }
         }
 
         public void Dispose()

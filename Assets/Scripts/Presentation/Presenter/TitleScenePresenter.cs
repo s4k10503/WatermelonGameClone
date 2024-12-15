@@ -61,7 +61,8 @@ namespace WatermelonGameClone.Presentation
         public void Initialize()
         {
             _exceptionHandlingUseCase.SafeExecuteAsync(
-                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
+                    () => _exceptionHandlingUseCase.RetryAsync(
+                        () => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
             SetupSubscriptions();
 
             // Set the global state to Title and initialize the scene state
@@ -71,14 +72,14 @@ namespace WatermelonGameClone.Presentation
 
         public void Dispose()
         {
-            _disposables?.Dispose();
             _cts?.Cancel();
             _cts?.Dispose();
+            _disposables?.Dispose();
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)
         {
-            await _exceptionHandlingUseCase.SafeExecuteAsync(async () =>
+            try
             {
                 await _scoreUseCase.InitializeAsync(ct);
 
@@ -86,7 +87,16 @@ namespace WatermelonGameClone.Presentation
                 _titleSceneView.SettingsPanelView.SetSeSliderValue(_soundUseCase.VolumeSe.Value);
 
                 UpdateScoreDisplay();
-            }, _cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred during initialization.", ex);
+            }
         }
 
         private void SetupSubscriptions()
@@ -148,59 +158,74 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask HandleGameStart()
         {
-            await _exceptionHandlingUseCase.SafeExecuteAsync(async () =>
+            try
             {
                 _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
                 _titleSceneView.HideTitlePage();
                 _titleSceneView.ShowLoadingPage();
                 await _sceneLoaderUseCase.LoadSceneAsync(MainSceneName, _cts.Token);
-            }, _cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while starting the game.", ex);
+            }
         }
 
         private void HandleBackToTitlePanel()
         {
-            _exceptionHandlingUseCase.SafeExecute(() =>
-            {
-                HandleSaveVolume();
-                _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Idle);
-                _currentViewState.Value = ViewState.Title;
-            });
+            HandleSaveVolume().Forget();
+            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Idle);
+            _currentViewState.Value = ViewState.Title;
         }
 
         private void HandleDisplayScores()
         {
-            _exceptionHandlingUseCase.SafeExecute(() =>
-            {
-                _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.DisplayingScores);
-                _currentViewState.Value = ViewState.DetailedScore;
-            });
+            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.DisplayingScores);
+            _currentViewState.Value = ViewState.DetailedScore;
         }
 
         private void HandleDisplaySettings()
         {
-            _exceptionHandlingUseCase.SafeExecute(() =>
-            {
-                _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Settings);
-                _currentViewState.Value = ViewState.Settings;
-            });
+            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Settings);
+            _currentViewState.Value = ViewState.Settings;
         }
 
         private void HandleSetBgmVolume(float value)
-            => _exceptionHandlingUseCase.SafeExecute(() => _soundUseCase.SetBGMVolume(value));
+        {
+            _soundUseCase.SetBGMVolume(value);
+        }
 
         private void HandleSetSeVolume(float value)
-            => _exceptionHandlingUseCase.SafeExecute(() => _soundUseCase.SetSEVolume(value));
+        {
+            _soundUseCase.SetSEVolume(value);
+        }
 
-        private void HandleSaveVolume()
-            => _exceptionHandlingUseCase.SafeExecuteAsync(() => _soundUseCase.SaveVolume(_cts.Token), _cts.Token).Forget();
+        private async UniTask HandleSaveVolume()
+        {
+            try
+            {
+                await _soundUseCase.SaveVolume(_cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while saving volume settings.", ex);
+            }
+        }
 
         private void UpdateScoreDisplay()
         {
-            _exceptionHandlingUseCase.SafeExecute(() =>
-            {
-                var scoreData = _scoreUseCase.GetScoreData();
-                _titleSceneView.DetailedScoreRankView.DisplayTopScores(scoreData);
-            });
+            var scoreData = _scoreUseCase.GetScoreData();
+            _titleSceneView.DetailedScoreRankView.DisplayTopScores(scoreData);
         }
     }
 }

@@ -45,13 +45,21 @@ namespace WatermelonGameClone.UseCase
 
         private async UniTask LoadSoundSettingsAsync(CancellationToken ct)
         {
-            (float volumeBgm, float volumeSE) = await _soundVolumeRepository.LoadSoundSettingsAsync(ct);
+            try
+            {
+                (float volumeBgm, float volumeSE) = await _soundVolumeRepository.LoadSoundSettingsAsync(ct);
 
-            _audioSourceBgm.volume = ValidateVolume(volumeBgm, "VolumeBgm");
-            _audioSourceSe.volume = ValidateVolume(volumeSE, "VolumeSe");
+                _audioSourceBgm.volume = ValidateVolume(volumeBgm, "VolumeBgm");
+                _audioSourceSe.volume = ValidateVolume(volumeSE, "VolumeSe");
 
-            _soundEffects[SoundEffect.Drop] = _soundEffectsRepository.GetClip(SoundEffect.Drop);
-            _soundEffects[SoundEffect.Merge] = _soundEffectsRepository.GetClip(SoundEffect.Merge);
+                _soundEffects[SoundEffect.Drop] = _soundEffectsRepository.GetClip(SoundEffect.Drop);
+                _soundEffects[SoundEffect.Merge] = _soundEffectsRepository.GetClip(SoundEffect.Merge);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
         }
 
         public void SetBGMVolume(float volumeBgm)

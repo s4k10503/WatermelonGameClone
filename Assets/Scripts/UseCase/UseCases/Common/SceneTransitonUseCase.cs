@@ -30,7 +30,12 @@ namespace WatermelonGameClone.UseCase
             }
             catch (OperationCanceledException)
             {
+                // Cancellation is considered normal behavior and the processing is terminated
                 throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred during load operation.", ex);
             }
         }
     }

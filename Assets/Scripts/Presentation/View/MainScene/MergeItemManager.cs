@@ -54,9 +54,14 @@ namespace WatermelonGameClone.Presentation
                 itemView.GameObject.SetActive(true);
                 _onItemCreated.OnNext(itemView);
             }
-            catch (Exception e)
+            catch (OperationCanceledException)
             {
-                throw new ApplicationException("Unexpected error during create item", e);
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Unexpected error during create item", ex);
             }
         }
 

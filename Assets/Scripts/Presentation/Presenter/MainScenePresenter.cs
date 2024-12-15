@@ -74,7 +74,8 @@ namespace WatermelonGameClone.Presentation
         public void Initialize()
         {
             _exceptionHandlingUseCase.SafeExecuteAsync(
-                () => _exceptionHandlingUseCase.RetryAsync(() => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
+                () => _exceptionHandlingUseCase.RetryAsync(
+                    () => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
             SetupSubscriptions(_cts.Token);
         }
 
@@ -88,7 +89,8 @@ namespace WatermelonGameClone.Presentation
             if (CanCreateNextItem())
             {
                 _exceptionHandlingUseCase.SafeExecuteAsync(
-                    () => _exceptionHandlingUseCase.RetryAsync(() => CreateNextItemAsync(), _maxRetries, _cts.Token), _cts.Token).Forget();
+                    () => _exceptionHandlingUseCase.RetryAsync(
+                        () => CreateNextItemAsync(), _maxRetries, _cts.Token), _cts.Token).Forget();
             }
         }
 
@@ -100,16 +102,16 @@ namespace WatermelonGameClone.Presentation
                 _screenshotCache = null;
             }
 
-            _disposables?.Dispose();
             _cts?.Cancel();
             _cts?.Dispose();
+            _disposables?.Dispose();
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)
         {
             if (_cts == null || _cts.IsCancellationRequested) return;
 
-            await _exceptionHandlingUseCase.SafeExecuteAsync(async () =>
+            try
             {
                 await _scoreUseCase.InitializeAsync(ct);
                 _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
@@ -117,7 +119,16 @@ namespace WatermelonGameClone.Presentation
                 _mergeItemUseCase.UpdateNextItemIndex();
                 UpdateScoreDisplays();
                 _currentViewState.Value = ViewState.Playing;
-            }, _cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred during initialization.", ex);
+            }
         }
 
         private void SetupSubscriptions(CancellationToken ct)
@@ -230,11 +241,23 @@ namespace WatermelonGameClone.Presentation
         {
             if (_cts == null || _cts.IsCancellationRequested) return;
 
-            _isNext = false;
-            await _mainSceneView.MergeItemManager.CreateItem(
-                _mergeItemUseCase.NextItemIndex.Value, _mergeItemCreateDelayTime, _cts.Token);
-            _mergeItemUseCase.UpdateNextItemIndex();
-            _mergeItemCreateDelayTime = 1.0f;
+            try
+            {
+                _isNext = false;
+                await _mainSceneView.MergeItemManager.CreateItem(
+                    _mergeItemUseCase.NextItemIndex.Value, _mergeItemCreateDelayTime, _cts.Token);
+                _mergeItemUseCase.UpdateNextItemIndex();
+                _mergeItemCreateDelayTime = 1.0f;
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while creating the next item.", ex);
+            }
         }
 
         private void HandleItemDropping()
@@ -258,22 +281,46 @@ namespace WatermelonGameClone.Presentation
         {
             if (_cts == null || _cts.IsCancellationRequested) return;
 
-            _gameStateUseCase.SetGlobalGameState(GlobalGameState.GameOver);
-            await _scoreUseCase.UpdateScoreRankingAsync(_scoreUseCase.CurrentScore.Value, _cts.Token);
-            UpdateScoreDisplays();
-            AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
-            _screenshotCache = await _mainSceneView.ScreenshotHandler.CaptureScreenshotAsync(_cts.Token);
+            try
+            {
+                _gameStateUseCase.SetGlobalGameState(GlobalGameState.GameOver);
+                await _scoreUseCase.UpdateScoreRankingAsync(_scoreUseCase.CurrentScore.Value, _cts.Token);
+                UpdateScoreDisplays();
+                AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
+                _screenshotCache = await _mainSceneView.ScreenshotHandler.CaptureScreenshotAsync(_cts.Token);
 
-            _currentViewState.Value = ViewState.GameOver;
+                _currentViewState.Value = ViewState.GameOver;
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred during game over handling.", ex);
+            }
         }
 
         private async UniTask HandleSceneChangeAsync(string sceneName, CancellationToken ct)
         {
             if (_cts == null || _cts.IsCancellationRequested) return;
 
-            _currentViewState.Value = ViewState.Loading;
-            AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
-            await _sceneLoaderUseCase.LoadSceneAsync(sceneName, ct);
+            try
+            {
+                _currentViewState.Value = ViewState.Loading;
+                AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
+                await _sceneLoaderUseCase.LoadSceneAsync(sceneName, ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException($"An error occurred while changing the scene to {sceneName}.", ex);
+            }
         }
 
         private void ResumeGame(Unit _)

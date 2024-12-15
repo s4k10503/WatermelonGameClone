@@ -72,9 +72,14 @@ namespace WatermelonGameClone.Presentation
                 }
                 return _currentRenderTexture;
             }
-            catch (Exception e)
+            catch (OperationCanceledException)
             {
-                throw new ApplicationException("Unexpected error during screenshot capture", e);
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Unexpected error during screenshot capture", ex);
             }
         }
     }

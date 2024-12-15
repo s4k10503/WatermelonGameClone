@@ -23,9 +23,14 @@ namespace WatermelonGameClone.Infrastructure
                 string json = JsonUtility.ToJson(scoreData);
                 await File.WriteAllTextAsync(s_scoresFilePath, json, ct);
             }
-            catch (Exception e)
+            catch (OperationCanceledException)
             {
-                throw new InfrastructureException("Failed to save scores to JSON file.", e);
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InfrastructureException("Failed to save scores to JSON file.", ex);
             }
         }
 
@@ -44,9 +49,9 @@ namespace WatermelonGameClone.Infrastructure
                     return CreateDefaultScoreContainer();
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new InfrastructureException("Failed to load scores from JSON file.", e);
+                throw new InfrastructureException("Failed to load scores from JSON file.", ex);
             }
         }
 

@@ -62,6 +62,11 @@ namespace WatermelonGameClone.UseCase
                 _currentScore.Value = 0;
                 _bestScore.Value = _scoreData.Data.Score.Best;
             }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new ApplicationException("An error occurred during score initialization.", ex);
@@ -104,7 +109,7 @@ namespace WatermelonGameClone.UseCase
             {
                 throw new NullReferenceException("_scoreData is null. Ensure InitializeAsync was called before updating scores.");
             }
-
+            
             try
             {
                 _scoreData.Data.Rankings.Daily.Scores = _scoreRankingService.UpdateTopScores(
@@ -120,6 +125,11 @@ namespace WatermelonGameClone.UseCase
                 }
 
                 await SaveScoresAsync(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
             }
             catch (Exception ex)
             {
@@ -141,12 +151,18 @@ namespace WatermelonGameClone.UseCase
 
                 await _scoreRepository.SaveScoresAsync(_scoreData, ct);
             }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
             catch (Exception ex)
             {
                 throw new ApplicationException("An error occurred while saving scores.", ex);
             }
         }
 
-        public ScoreContainer GetScoreData() => _scoreData;
+        public ScoreContainer GetScoreData()
+            => _scoreData;
     }
 }
