@@ -30,7 +30,13 @@ namespace WatermelonGameClone.Installers
                 .To<ScoreResetService>()
                 .FromNew()
                 .AsSingle();
-            
+
+            Container
+                .Bind<IExceptionHandler>()
+                .To<ExceptionHandler>()
+                .FromNew()
+                .AsSingle();
+
             // Common Repositories
             Container
                 .Bind<TimeSettings>()
@@ -90,6 +96,11 @@ namespace WatermelonGameClone.Installers
 
             Container
                 .BindInterfacesTo<SoundUseCase>()
+                .FromNew()
+                .AsSingle();
+
+            Container
+                .BindInterfacesTo<ExceptionHandlingUseCase>()
                 .FromNew()
                 .AsSingle();
 

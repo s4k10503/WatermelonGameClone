@@ -44,13 +44,25 @@ namespace WatermelonGameClone.Presentation
 
         public async UniTask CreateItem(int itemNo, float delaySeconds, CancellationToken ct)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken: ct);
-            GameObject itemObj = _container.InstantiatePrefab(_itemPrefabs[itemNo], _itemPosition);
-            IMergeItemView itemView = itemObj.GetComponent<IMergeItemView>();
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken: ct);
+                GameObject itemObj = _container.InstantiatePrefab(_itemPrefabs[itemNo], _itemPosition);
+                IMergeItemView itemView = itemObj.GetComponent<IMergeItemView>();
 
-            itemView.Initialize(itemNo);
-            itemView.GameObject.SetActive(true);
-            _onItemCreated.OnNext(itemView);
+                itemView.Initialize(itemNo);
+                itemView.GameObject.SetActive(true);
+                _onItemCreated.OnNext(itemView);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Unexpected error during create item", ex);
+            }
         }
 
         public void MergeItem(Vector3 position, int itemNo)

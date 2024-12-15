@@ -13,16 +13,24 @@ namespace WatermelonGameClone.Infrastructure
 
         public async UniTask SaveScoresAsync(ScoreContainer scoreData, CancellationToken ct)
         {
+            if (scoreData == null)
+            {
+                throw new InfrastructureException("Cannot save null score data.");
+            }
+
             try
             {
                 string json = JsonUtility.ToJson(scoreData);
                 await File.WriteAllTextAsync(s_scoresFilePath, json, ct);
             }
-            catch (Exception e)
+            catch (OperationCanceledException)
             {
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-                Debug.LogError($"Failed to save score to JSON: {e.Message}");
-#endif
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InfrastructureException("Failed to save scores to JSON file.", ex);
             }
         }
 
@@ -35,14 +43,20 @@ namespace WatermelonGameClone.Infrastructure
                     string json = await File.ReadAllTextAsync(s_scoresFilePath, ct);
                     return JsonUtility.FromJson<ScoreContainer>(json);
                 }
+                else
+                {
+                    // Score file not found. Returning default score data.
+                    return CreateDefaultScoreContainer();
+                }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-                Debug.LogError($"Failed to load score from JSON: {e.Message}");
-#endif
+                throw new InfrastructureException("Failed to load scores from JSON file.", ex);
             }
+        }
 
+        private ScoreContainer CreateDefaultScoreContainer()
+        {
             return new ScoreContainer
             {
                 Data = new ScoreData

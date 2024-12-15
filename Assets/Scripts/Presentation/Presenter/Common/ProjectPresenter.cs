@@ -10,26 +10,47 @@ namespace WatermelonGameClone.Presentation
     {
         // Model
         private ISoundUseCase _soundUseCase;
+        private readonly IExceptionHandlingUseCase _exceptionHandlingUseCase;
+
+        private const int _maxRetries = 3;
 
         private CancellationTokenSource _cts;
 
-
         [Inject]
-        public ProjectPresenter(ISoundUseCase soundUseCase)
+        public ProjectPresenter(
+            ISoundUseCase soundUseCase,
+            IExceptionHandlingUseCase exceptionHandlingUseCase)
         {
-            _soundUseCase = soundUseCase;
+            _soundUseCase = soundUseCase ?? throw new ArgumentNullException(nameof(soundUseCase));
+            _exceptionHandlingUseCase = exceptionHandlingUseCase ?? throw new ArgumentNullException(nameof(exceptionHandlingUseCase));
             _cts = new CancellationTokenSource();
         }
 
         void IInitializable.Initialize()
         {
-            InitializeAsync(_cts.Token).Forget();
+            _exceptionHandlingUseCase.SafeExecuteAsync(
+                () => _exceptionHandlingUseCase.RetryAsync(
+                    () => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)
         {
-            await _soundUseCase.InitializeAsync(ct);
-            _soundUseCase.PlayBGM();
+            try
+            {
+                if (_cts == null || _cts.IsCancellationRequested) return;
+
+                await _soundUseCase.InitializeAsync(ct);
+                _soundUseCase.PlayBGM();
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred during initialization.", ex);
+            }
         }
 
         public void Dispose()
@@ -37,7 +58,6 @@ namespace WatermelonGameClone.Presentation
             _cts?.Cancel();
             _cts?.Dispose();
             _soundUseCase = null;
-
         }
     }
 }
