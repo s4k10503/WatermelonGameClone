@@ -14,6 +14,11 @@ namespace WatermelonGameClone.Domain
 
         public int GenerateNextItemIndex(int maxSphereNo)
         {
+            if (maxSphereNo <= 0)
+            {
+                throw new DomainException("Max sphere number must be greater than zero.");
+            }
+            
             int maxIndex = maxSphereNo / 2 - 1;
 
             // C# Random.next is required for MaxExclusive, so+1

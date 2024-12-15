@@ -16,6 +16,7 @@ namespace WatermelonGameClone.Presentation
         private readonly ISoundUseCase _soundUseCase;
         private readonly ISceneLoaderUseCase _sceneLoaderUseCase;
         private readonly IGameStateUseCase _gameStateUseCase;
+        private readonly IExceptionHandlingUseCase _exceptionHandlingUseCase;
 
         // View
         private readonly TitleSceneView _titleSceneView;
@@ -24,10 +25,10 @@ namespace WatermelonGameClone.Presentation
         private readonly Dictionary<ViewState, ITitleSceneViewStateHandler> _viewStateHandlers;
 
         private const string MainSceneName = "MainScene";
+        private const int _maxRetries = 3;
 
         private readonly CompositeDisposable _disposables;
         private readonly CancellationTokenSource _cts;
-
 
         [Inject]
         public TitleScenePresenter(
@@ -35,13 +36,15 @@ namespace WatermelonGameClone.Presentation
             IScoreUseCase scoreUseCase,
             ISoundUseCase soundUseCase,
             ISceneLoaderUseCase sceneLoaderUseCase,
-            IGameStateUseCase gameStateUseCase)
+            IGameStateUseCase gameStateUseCase,
+            IExceptionHandlingUseCase exceptionHandlingUseCase)
         {
-            _titleSceneView = gameView;
-            _scoreUseCase = scoreUseCase;
-            _soundUseCase = soundUseCase;
-            _sceneLoaderUseCase = sceneLoaderUseCase;
-            _gameStateUseCase = gameStateUseCase;
+            _titleSceneView = gameView ?? throw new ArgumentNullException(nameof(gameView));
+            _scoreUseCase = scoreUseCase ?? throw new ArgumentNullException(nameof(scoreUseCase));
+            _soundUseCase = soundUseCase ?? throw new ArgumentNullException(nameof(soundUseCase));
+            _sceneLoaderUseCase = sceneLoaderUseCase ?? throw new ArgumentNullException(nameof(sceneLoaderUseCase));
+            _gameStateUseCase = gameStateUseCase ?? throw new ArgumentNullException(nameof(gameStateUseCase));
+            _exceptionHandlingUseCase = exceptionHandlingUseCase ?? throw new ArgumentNullException(nameof(exceptionHandlingUseCase));
 
             _viewStateHandlers = new Dictionary<ViewState, ITitleSceneViewStateHandler>
             {
@@ -57,7 +60,9 @@ namespace WatermelonGameClone.Presentation
 
         public void Initialize()
         {
-            InitializeAsync().Forget();
+            _exceptionHandlingUseCase.SafeExecuteAsync(
+                    () => _exceptionHandlingUseCase.RetryAsync(
+                        () => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
             SetupSubscriptions();
 
             // Set the global state to Title and initialize the scene state
@@ -67,22 +72,31 @@ namespace WatermelonGameClone.Presentation
 
         public void Dispose()
         {
-            _disposables?.Dispose();
             _cts?.Cancel();
             _cts?.Dispose();
+            _disposables?.Dispose();
         }
 
-        private async UniTask InitializeAsync()
+        private async UniTask InitializeAsync(CancellationToken ct)
         {
-            await _scoreUseCase
-                .InitializeAsync(_cts.Token);
+            try
+            {
+                await _scoreUseCase.InitializeAsync(ct);
 
-            _titleSceneView.SettingsPanelView
-                .SetBgmSliderValue(_soundUseCase.VolumeBgm.Value);
-            _titleSceneView.SettingsPanelView
-                .SetSeSliderValue(_soundUseCase.VolumeSe.Value);
+                _titleSceneView.SettingsPanelView.SetBgmSliderValue(_soundUseCase.VolumeBgm.Value);
+                _titleSceneView.SettingsPanelView.SetSeSliderValue(_soundUseCase.VolumeSe.Value);
 
-            UpdateScoreDisplay();
+                UpdateScoreDisplay();
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred during initialization.", ex);
+            }
         }
 
         private void SetupSubscriptions()
@@ -95,40 +109,40 @@ namespace WatermelonGameClone.Presentation
             // Update the UI when the state is changed
             _currentViewState
                 .DistinctUntilChanged()
-                .Subscribe(UpdateViewStateUI)
+                .Subscribe(state => _exceptionHandlingUseCase.SafeExecute(() => UpdateViewStateUI(state)))
                 .AddTo(_disposables);
 
             // TitlePanel
             _titleSceneView.GameStartRequested
-                .Subscribe(_ => HandleGameStart().Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameStart(), _cts.Token).Forget())
                 .AddTo(_disposables);
 
             _titleSceneView.MyScoreRequested
-                .Subscribe(HandleDisplayScores)
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleDisplayScores()))
                 .AddTo(_disposables);
 
             _titleSceneView.TitlePanellView.OnSettings
-                .Subscribe(HandleDisplaySettings)
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleDisplaySettings()))
                 .AddTo(_disposables);
 
             // DetailedScoreRankPanel
             _titleSceneView.DetailedScoreRankView.OnBack
-                .Subscribe(HandleBackToTitlePanel)
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePanel()))
                 .AddTo(_disposables);
 
             // SettingsPanel
             _titleSceneView.SettingsPanelView.ValueBgm
                 .SkipLatestValueOnSubscribe()
-                .Subscribe(HandleSetBgmVolume)
+                .Subscribe(value => _exceptionHandlingUseCase.SafeExecute(() => HandleSetBgmVolume(value)))
                 .AddTo(_disposables);
 
             _titleSceneView.SettingsPanelView.ValueSe
                 .SkipLatestValueOnSubscribe()
-                .Subscribe(HandleSetSeVolume)
+                .Subscribe(value => _exceptionHandlingUseCase.SafeExecute(() => HandleSetSeVolume(value)))
                 .AddTo(_disposables);
 
             _titleSceneView.SettingsPanelView.OnBack
-                .Subscribe(HandleBackToTitlePanel)
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePanel()))
                 .AddTo(_disposables);
         }
 
@@ -144,39 +158,69 @@ namespace WatermelonGameClone.Presentation
 
         private async UniTask HandleGameStart()
         {
-            _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
-            _titleSceneView.HideTitlePage();
-            _titleSceneView.ShowLoadingPage();
-            await _sceneLoaderUseCase.LoadSceneAsync(MainSceneName, _cts.Token);
+            try
+            {
+                _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
+                _titleSceneView.HideTitlePage();
+                _titleSceneView.ShowLoadingPage();
+                await _sceneLoaderUseCase.LoadSceneAsync(MainSceneName, _cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while starting the game.", ex);
+            }
         }
 
-        private void HandleBackToTitlePanel(Unit _)
+        private void HandleBackToTitlePanel()
         {
-            HandleSaveVolume();
+            HandleSaveVolume().Forget();
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Idle);
             _currentViewState.Value = ViewState.Title;
         }
 
-        private void HandleDisplayScores(Unit _)
+        private void HandleDisplayScores()
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.DisplayingScores);
             _currentViewState.Value = ViewState.DetailedScore;
         }
 
-        private void HandleDisplaySettings(Unit _)
+        private void HandleDisplaySettings()
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Settings);
             _currentViewState.Value = ViewState.Settings;
         }
 
         private void HandleSetBgmVolume(float value)
-            => _soundUseCase.SetBGMVolume(value);
+        {
+            _soundUseCase.SetBGMVolume(value);
+        }
 
         private void HandleSetSeVolume(float value)
-            => _soundUseCase.SetSEVolume(value);
+        {
+            _soundUseCase.SetSEVolume(value);
+        }
 
-        private void HandleSaveVolume()
-            => _soundUseCase.SaveVolume(_cts.Token).Forget();
+        private async UniTask HandleSaveVolume()
+        {
+            try
+            {
+                await _soundUseCase.SaveVolume(_cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while saving volume settings.", ex);
+            }
+        }
 
         private void UpdateScoreDisplay()
         {
