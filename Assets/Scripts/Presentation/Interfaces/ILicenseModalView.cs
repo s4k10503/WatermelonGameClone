@@ -2,6 +2,8 @@ using WatermelonGameClone.Domain;
 using System.Collections.Generic;
 using System;
 using UniRx;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace WatermelonGameClone.Presentation
 {
@@ -12,6 +14,7 @@ namespace WatermelonGameClone.Presentation
         // Methods related to game state and UI updates
         public void ShowModal();
         public void HideModal();
-        public void DisplayLicenses(IReadOnlyList<License> licenses);
+        UniTask SetLicensesAsync(IReadOnlyList<License> licenses, CancellationToken ct);
+        void ForceMeshUpdateText();
     }
 }

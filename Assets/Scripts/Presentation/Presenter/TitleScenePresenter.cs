@@ -122,7 +122,7 @@ namespace WatermelonGameClone.Presentation
             // Update the UI when the state is changed
             _currentViewState
                 .DistinctUntilChanged()
-                .Subscribe(state => _exceptionHandlingUseCase.SafeExecute(() => UpdateViewStateUI(state)))
+                .Subscribe(state => _exceptionHandlingUseCase.SafeExecute(() => UpdateViewStateUI(state, _cts.Token)))
                 .AddTo(_disposables);
 
             // TitlePanel
@@ -168,11 +168,11 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
         }
 
-        private void UpdateViewStateUI(ViewState state)
+        private void UpdateViewStateUI(ViewState state, CancellationToken ct)
         {
             if (_viewStateHandlers.TryGetValue(state, out var handler))
             {
-                handler.Apply(_titleSceneView, _titleSceneViewStateData);
+                handler.ApplyAsync(_titleSceneView, _titleSceneViewStateData, ct);
             }
         }
 

@@ -1,3 +1,7 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+
 namespace WatermelonGameClone.Presentation
 {
     // MainScene Specific Handlers
@@ -51,43 +55,125 @@ namespace WatermelonGameClone.Presentation
     // TitleScene Specific Handlers
     public class TitleSceneLoadingViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            view.ShowLoadingPage();
+            try
+            {
+                view.ShowLoadingPage();
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(".", ex);
+            }
         }
     }
 
     public class TitleSceneDetailedScoreViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            view.DetailedScoreRankView.ShowPanel();
-            view.DetailedScoreRankView.DisplayTopScores(data.ScoreContainer);
+            try
+            {
+                view.DetailedScoreRankView.ShowPanel();
+                view.DetailedScoreRankView.DisplayTopScores(data.ScoreContainer);
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(".", ex);
+            }
         }
     }
 
     public class SettingsViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            view.SettingsPanelView.ShowPanel();
+            try
+            {
+                view.SettingsPanelView.ShowPanel();
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(".", ex);
+            }
         }
     }
 
     public class LicenseViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        private bool _isLicenseTextSet = false;
+
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            view.LicenseModalView.ShowModal();
-            view.LicenseModalView.DisplayLicenses(data.Licenses);
+            try
+            {
+                var licenseModalView = view.LicenseModalView;
+
+                licenseModalView.ShowModal();
+
+                // Update license information text
+                if (!_isLicenseTextSet)
+                {
+                    await licenseModalView.SetLicensesAsync(data.Licenses, ct);
+                    _isLicenseTextSet = true;
+                }
+
+                // Forcibly update the mesh to stabilize the layout
+                licenseModalView.ForceMeshUpdateText();
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(".", ex);
+            }
         }
     }
 
     public class TitleViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            view.ShowTitlePageMainElements();
+            try
+            {
+                view.ShowTitlePageMainElements();
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException(".", ex);
+            }
         }
     }
 }

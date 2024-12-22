@@ -9,6 +9,8 @@ using Zenject;
 using UniRx.Triggers;
 using DG.Tweening;
 using System.Text;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace WatermelonGameClone.Presentation
 {
@@ -54,7 +56,7 @@ namespace WatermelonGameClone.Presentation
         public void HideModal()
             => _canvas.enabled = false;
 
-        public void DisplayLicenses(IReadOnlyList<License> licenses)
+        public async UniTask SetLicensesAsync(IReadOnlyList<License> licenses, CancellationToken ct)
         {
             var sb = new StringBuilder();
             foreach (var license in licenses)
@@ -64,8 +66,24 @@ namespace WatermelonGameClone.Presentation
                 sb.AppendLine($"{license.Copyright}\n");
                 sb.AppendLine(string.Join("\n", license.Terms));
                 sb.AppendLine("\n");
+
+                // Divide large amounts of data processing and process each frame
+                if (sb.Length > 500)
+                {
+                    _licenseText.text += sb.ToString();
+                    sb.Clear();
+                    await UniTask.Yield(ct);
+                }
             }
-            _licenseText.text = sb.ToString();
+
+            // Set the remaining text
+            _licenseText.text += sb.ToString();
+        }
+
+        public void ForceMeshUpdateText()
+        {
+            _licenseText.ForceMeshUpdate();
+            Canvas.ForceUpdateCanvases();
         }
 
         private void SetupButtonAnimations(Button button)
