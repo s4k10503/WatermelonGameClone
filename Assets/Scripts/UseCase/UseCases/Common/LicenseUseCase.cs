@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using WatermelonGameClone.Domain;
 
@@ -13,9 +14,9 @@ namespace WatermelonGameClone.UseCase
             _licenseRepository = licenseRepository;
         }
 
-        public async UniTask<IReadOnlyList<License>> GetLicensesAsync()
+        public async UniTask<IReadOnlyList<License>> GetLicensesAsync(CancellationToken ct)
         {
-            return await _licenseRepository.LoadLicensesAsync();
+            return await _licenseRepository.LoadLicensesAsync(ct);
         }
     }
 }

@@ -3,29 +3,51 @@ using System.IO;
 using Cysharp.Threading.Tasks;
 using WatermelonGameClone.Domain;
 using UnityEngine;
+using System.Threading;
+using System;
 
-namespace WatermelonGameClon.Infrastructure
+namespace WatermelonGameClone.Infrastructure
 {
-    public class LicenseRepository : ILicenseRepository
+    public class JsonLicenseRepository : ILicenseRepository
     {
-        private const string FilePath = "licenses.json";
+        private const string FilePath = "License.json";
 
-        public async UniTask<IReadOnlyList<License>> LoadLicensesAsync()
+        public async UniTask<IReadOnlyList<License>> LoadLicensesAsync(CancellationToken ct)
         {
             string path = Path.Combine(Application.streamingAssetsPath, FilePath);
-            if (!File.Exists(path))
-                throw new FileNotFoundException($"License file not found at {path}");
 
-            string json = await File.ReadAllTextAsync(path);
-            var container = JsonUtility.FromJson<LicenseContainerDto>(json);
-
-            var licenses = new List<License>();
-            foreach (var dto in container.Licenses)
+            if (string.IsNullOrEmpty(path))
             {
-                licenses.Add(new License(dto.Name, dto.LicenseType, dto.Copyright, dto.Terms));
+                throw new InfrastructureException("StreamingAssets path is invalid.");
             }
 
-            return licenses;
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException($"License file not found at {path}");
+            }
+
+            try
+            {
+                string json = await File.ReadAllTextAsync(path, ct);
+                var container = JsonUtility.FromJson<LicenseContainerDto>(json);
+
+                var licenses = new List<License>();
+                foreach (var dto in container.Licenses)
+                {
+                    licenses.Add(new License(dto.Name, dto.Type, dto.Copyright, dto.Terms));
+                }
+
+                return licenses;
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new InfrastructureException("Failed to load license file.", ex);
+            }
         }
 
         [System.Serializable]
@@ -38,7 +60,7 @@ namespace WatermelonGameClon.Infrastructure
         private class LicenseDto
         {
             public string Name;
-            public string LicenseType;
+            public string Type;
             public string Copyright;
             public string[] Terms;
         }

@@ -16,6 +16,7 @@ namespace WatermelonGameClone.Presentation
         private readonly ISoundUseCase _soundUseCase;
         private readonly ISceneLoaderUseCase _sceneLoaderUseCase;
         private readonly IGameStateUseCase _gameStateUseCase;
+        private readonly ILicenseUseCase _licenseUseCase;
         private readonly IExceptionHandlingUseCase _exceptionHandlingUseCase;
 
         // View
@@ -26,6 +27,8 @@ namespace WatermelonGameClone.Presentation
 
         private const string MainSceneName = "MainScene";
         private const int _maxRetries = 3;
+        ScoreContainer _scoreContainer;
+        IReadOnlyList<License> _licenses;
 
         private readonly CompositeDisposable _disposables;
         private readonly CancellationTokenSource _cts;
@@ -37,6 +40,7 @@ namespace WatermelonGameClone.Presentation
             ISoundUseCase soundUseCase,
             ISceneLoaderUseCase sceneLoaderUseCase,
             IGameStateUseCase gameStateUseCase,
+            ILicenseUseCase licenseUseCase,
             IExceptionHandlingUseCase exceptionHandlingUseCase)
         {
             _titleSceneView = gameView ?? throw new ArgumentNullException(nameof(gameView));
@@ -44,6 +48,7 @@ namespace WatermelonGameClone.Presentation
             _soundUseCase = soundUseCase ?? throw new ArgumentNullException(nameof(soundUseCase));
             _sceneLoaderUseCase = sceneLoaderUseCase ?? throw new ArgumentNullException(nameof(sceneLoaderUseCase));
             _gameStateUseCase = gameStateUseCase ?? throw new ArgumentNullException(nameof(gameStateUseCase));
+            _licenseUseCase = licenseUseCase ?? throw new ArgumentNullException(nameof(licenseUseCase));
             _exceptionHandlingUseCase = exceptionHandlingUseCase ?? throw new ArgumentNullException(nameof(exceptionHandlingUseCase));
 
             _viewStateHandlers = new Dictionary<ViewState, ITitleSceneViewStateHandler>
@@ -51,6 +56,7 @@ namespace WatermelonGameClone.Presentation
                 { ViewState.Title, new TitleViewStateHandler() },
                 { ViewState.DetailedScore, new TitleSceneDetailedScoreViewStateHandler() },
                 { ViewState.Settings, new SettingsViewStateHandler() },
+                { ViewState.License, new LicenseViewStateHandler() },
                 { ViewState.Loading, new TitleSceneLoadingViewStateHandler() },
             };
 
@@ -82,6 +88,9 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 await _scoreUseCase.InitializeAsync(ct);
+                _scoreContainer = _scoreUseCase.GetScoreData();
+
+                _licenses = await _licenseUseCase.GetLicensesAsync(ct);
 
                 _titleSceneView.SettingsPanelView.SetBgmSliderValue(_soundUseCase.VolumeBgm.Value);
                 _titleSceneView.SettingsPanelView.SetSeSliderValue(_soundUseCase.VolumeSe.Value);
@@ -125,8 +134,17 @@ namespace WatermelonGameClone.Presentation
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleDisplaySettings()))
                 .AddTo(_disposables);
 
+            _titleSceneView.TitlePanellView.OnLicense
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => OpenLicenseModal()))
+                .AddTo(_disposables);
+
             // DetailedScoreRankPanel
             _titleSceneView.DetailedScoreRankView.OnBack
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePanel()))
+                .AddTo(_disposables);
+
+            // LicenseModal
+            _titleSceneView.LicenseModalView.OnBack
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePanel()))
                 .AddTo(_disposables);
 
@@ -148,7 +166,7 @@ namespace WatermelonGameClone.Presentation
 
         private void UpdateViewStateUI(ViewState state)
         {
-            var data = new TitleSceneViewStateData(_scoreUseCase.GetScoreData());
+            var data = new TitleSceneViewStateData(_scoreUseCase.GetScoreData(), _licenses);
 
             if (_viewStateHandlers.TryGetValue(state, out var handler))
             {
@@ -227,5 +245,12 @@ namespace WatermelonGameClone.Presentation
             var scoreData = _scoreUseCase.GetScoreData();
             _titleSceneView.DetailedScoreRankView.DisplayTopScores(scoreData);
         }
+
+        private void OpenLicenseModal()
+        {
+            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.License);
+            _currentViewState.Value = ViewState.License;
+        }
+
     }
 }

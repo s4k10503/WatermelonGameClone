@@ -5,18 +5,25 @@ using WatermelonGameClone.UseCase;
 using WatermelonGameClone.Presentation;
 using WatermelonGameClone.Infrastructure;
 
-
 namespace WatermelonGameClone.Installers
 {
     public sealed class TitleSceneInstaller : MonoInstaller
     {
         public override void InstallBindings()
         {
-            // Presenter
+            // Repository
             Container
-                .BindInterfacesTo<TitleScenePresenter>()
-                .AsSingle()
-                .NonLazy();
+                .Bind<ILicenseRepository>()
+                .To<JsonLicenseRepository>()
+                .FromNew()
+                .AsSingle();
+
+            // UseCase
+            Container
+                .Bind<ILicenseUseCase>()
+                .To<LicenseUseCase>()
+                .FromNew()
+                .AsSingle();
 
             // View 
             Container
@@ -43,9 +50,21 @@ namespace WatermelonGameClone.Installers
                 .AsSingle();
 
             Container
+                .Bind<ILicenseModalView>()
+                .To<LicenseModalView>()
+                .FromComponentInHierarchy()
+                .AsSingle();
+
+            Container
                 .Bind<LoadingPanelView>()
                 .FromComponentInHierarchy()
                 .AsCached();
+
+            // Presenter
+            Container
+                .BindInterfacesTo<TitleScenePresenter>()
+                .AsSingle()
+                .NonLazy();
         }
     }
 }

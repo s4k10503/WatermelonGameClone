@@ -14,6 +14,7 @@ namespace WatermelonGameClone.Presentation
         [SerializeField] Button _buttonGameStart;
         [SerializeField] Button _buttonMyScore;
         [SerializeField] Button _buttonSettings;
+        [SerializeField] Button _buttonLicense;
         [SerializeField] Canvas _canvas;
 
         private IUIAnimator _uiAnimator;
@@ -23,6 +24,7 @@ namespace WatermelonGameClone.Presentation
         public IObservable<Unit> OnGameStart => _buttonGameStart.OnClickAsObservable();
         public IObservable<Unit> OnMyScore => _buttonMyScore.OnClickAsObservable();
         public IObservable<Unit> OnSettings => _buttonSettings.OnClickAsObservable();
+        public IObservable<Unit> OnLicense => _buttonLicense.OnClickAsObservable();
 
         [Inject]
         public void Construct(IUIAnimator uiAnimator)
@@ -40,14 +42,18 @@ namespace WatermelonGameClone.Presentation
             SetupButtonAnimations(_buttonGameStart);
             SetupButtonAnimations(_buttonMyScore);
             SetupButtonAnimations(_buttonSettings);
+            SetupButtonAnimations(_buttonLicense);
+
             this.UpdateAsObservable()
                 .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionType.Sin))
                 .AddTo(this);
         }
 
-        public void ShowPanel() => _canvas.enabled = true;
+        public void ShowPanel()
+            => _canvas.enabled = true;
 
-        public void HidePanel() => _canvas.enabled = false;
+        public void HidePanel()
+            => _canvas.enabled = false;
 
         private void SetupButtonAnimations(Button button)
         {
@@ -71,6 +77,5 @@ namespace WatermelonGameClone.Presentation
                 })
                 .AddTo(this);
         }
-
     }
 }

@@ -56,6 +56,8 @@ namespace WatermelonGameClone.Presentation
             view.HideTitlePageMainElements();
             view.DetailedScoreRankView.HidePanel();
             view.SettingsPanelView.HidePanel();
+            view.LicenseModalView.HideModal();
+
             view.ShowLoadingPage();
         }
     }
@@ -67,6 +69,8 @@ namespace WatermelonGameClone.Presentation
             view.HideTitlePageMainElements();
             view.HideLoadingPage();
             view.SettingsPanelView.HidePanel();
+            view.LicenseModalView.HideModal();
+
             view.DetailedScoreRankView.ShowPanel();
             view.DetailedScoreRankView.DisplayTopScores(data.ScoreContainer);
         }
@@ -79,7 +83,23 @@ namespace WatermelonGameClone.Presentation
             view.HideTitlePageMainElements();
             view.HideLoadingPage();
             view.DetailedScoreRankView.HidePanel();
+            view.LicenseModalView.HideModal();
+
             view.SettingsPanelView.ShowPanel();
+        }
+    }
+
+    public class LicenseViewStateHandler : TitleSceneViewStateHandlerBase
+    {
+        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        {
+            view.HideTitlePageMainElements();
+            view.HideLoadingPage();
+            view.SettingsPanelView.HidePanel();
+            view.DetailedScoreRankView.HidePanel();
+
+            view.LicenseModalView.ShowModal();
+            view.LicenseModalView.DisplayLicenses(data.Licenses);
         }
     }
 

@@ -14,6 +14,7 @@ namespace WatermelonGameClone.Presentation
         public ITitlePanelView TitlePanellView { get; private set; }
         public IDetailedScoreRankView DetailedScoreRankView { get; private set; }
         public ISettingsPanelView SettingsPanelView { get; private set; }
+        public ILicenseModalView LicenseModalView { get; private set; }
 
         public IObservable<Unit> GameStartRequested => TitlePanellView.OnGameStart;
         public IObservable<Unit> MyScoreRequested => TitlePanellView.OnMyScore;
@@ -22,11 +23,13 @@ namespace WatermelonGameClone.Presentation
         public void Construct(
             ITitlePanelView titlePanellView,
             IDetailedScoreRankView detailedScoreRankView,
-            ISettingsPanelView settingsPanelView)
+            ISettingsPanelView settingsPanelView,
+            ILicenseModalView licenseModalView)
         {
             TitlePanellView = titlePanellView;
             DetailedScoreRankView = detailedScoreRankView;
             SettingsPanelView = settingsPanelView;
+            LicenseModalView = licenseModalView;
         }
 
         public void ShowTitlePage()

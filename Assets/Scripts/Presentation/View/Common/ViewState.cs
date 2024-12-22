@@ -9,5 +9,6 @@ namespace WatermelonGameClone.Presentation
         Paused,
         GameOver,
         DetailedScore,
+        License
     }
 }

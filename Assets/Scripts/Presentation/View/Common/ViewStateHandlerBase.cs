@@ -37,6 +37,7 @@ namespace WatermelonGameClone.Presentation
             view.HideLoadingPage();
             view.DetailedScoreRankView.HidePanel();
             view.SettingsPanelView.HidePanel();
+            view.LicenseModalView.HideModal();
             view.ShowTitlePageMainElements();
         }
 
