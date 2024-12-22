@@ -8,6 +8,7 @@ using UniRx;
 using Zenject;
 using UniRx.Triggers;
 using DG.Tweening;
+using System.Text;
 
 namespace WatermelonGameClone.Presentation
 {
@@ -30,6 +31,7 @@ namespace WatermelonGameClone.Presentation
             _uiAnimator = uiAnimator;
             _originalScale = _buttonBack.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
+            _licenseText.text = string.Empty;
         }
 
         private void Start()
@@ -54,15 +56,16 @@ namespace WatermelonGameClone.Presentation
 
         public void DisplayLicenses(IReadOnlyList<License> licenses)
         {
-            _licenseText.text = string.Empty;
-
+            var sb = new StringBuilder();
             foreach (var license in licenses)
             {
-                _licenseText.text += $"{license.Name}\n\n";
-                _licenseText.text += $"{license.Type}\n";
-                _licenseText.text += $"{license.Copyright}\n";
-                _licenseText.text += $"\n{string.Join("\n", license.Terms)}\n\n\n";
+                sb.AppendLine($"{license.Name}\n");
+                sb.AppendLine($"{license.Type}\n");
+                sb.AppendLine($"{license.Copyright}\n");
+                sb.AppendLine(string.Join("\n", license.Terms));
+                sb.AppendLine("\n");
             }
+            _licenseText.text = sb.ToString();
         }
 
         private void SetupButtonAnimations(Button button)

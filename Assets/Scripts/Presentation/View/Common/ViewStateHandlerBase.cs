@@ -35,10 +35,10 @@ namespace WatermelonGameClone.Presentation
         protected virtual void ResetAllUI(TitleSceneView view)
         {
             view.HideLoadingPage();
+            view.HideTitlePageMainElements();
             view.DetailedScoreRankView.HidePanel();
             view.SettingsPanelView.HidePanel();
             view.LicenseModalView.HideModal();
-            view.ShowTitlePageMainElements();
         }
 
         protected abstract void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data);
