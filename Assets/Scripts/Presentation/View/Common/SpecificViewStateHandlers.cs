@@ -70,7 +70,7 @@ namespace WatermelonGameClone.Presentation
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(".", ex);
+                throw new ApplicationException("An error occurred while applying the loading view state.", ex);
             }
         }
     }
@@ -93,7 +93,7 @@ namespace WatermelonGameClone.Presentation
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(".", ex);
+                throw new ApplicationException("An error occurred while displaying detailed scores view state.", ex);
             }
         }
     }
@@ -115,7 +115,7 @@ namespace WatermelonGameClone.Presentation
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(".", ex);
+                throw new ApplicationException("An error occurred while applying the settings view state.", ex);
             }
         }
     }
@@ -150,7 +150,7 @@ namespace WatermelonGameClone.Presentation
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(".", ex);
+                throw new ApplicationException("An error occurred while applying the license view state.", ex);
             }
         }
     }
@@ -172,7 +172,7 @@ namespace WatermelonGameClone.Presentation
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(".", ex);
+                throw new ApplicationException("An error occurred while applying the Title view state.", ex);
             }
         }
     }

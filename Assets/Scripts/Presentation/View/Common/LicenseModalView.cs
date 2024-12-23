@@ -30,7 +30,7 @@ namespace WatermelonGameClone.Presentation
         [Inject]
         public void Construct(IUIAnimator uiAnimator)
         {
-            _uiAnimator = uiAnimator;
+            _uiAnimator = uiAnimator ?? throw new ArgumentNullException(nameof(uiAnimator));
             _originalScale = _buttonBack.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
             _licenseText.text = string.Empty;
@@ -58,26 +58,38 @@ namespace WatermelonGameClone.Presentation
 
         public async UniTask SetLicensesAsync(IReadOnlyList<License> licenses, CancellationToken ct)
         {
-            var sb = new StringBuilder();
-            foreach (var license in licenses)
+            try
             {
-                sb.AppendLine($"{license.Name}\n");
-                sb.AppendLine($"{license.Type}\n");
-                sb.AppendLine($"{license.Copyright}\n");
-                sb.AppendLine(string.Join("\n", license.Terms));
-                sb.AppendLine("\n");
-
-                // Divide large amounts of data processing and process each frame
-                if (sb.Length > 500)
+                var sb = new StringBuilder();
+                foreach (var license in licenses)
                 {
-                    _licenseText.text += sb.ToString();
-                    sb.Clear();
-                    await UniTask.Yield(ct);
-                }
-            }
+                    sb.AppendLine($"{license.Name}\n");
+                    sb.AppendLine($"{license.Type}\n");
+                    sb.AppendLine($"{license.Copyright}\n");
+                    sb.AppendLine(string.Join("\n", license.Terms));
+                    sb.AppendLine("\n");
 
-            // Set the remaining text
-            _licenseText.text += sb.ToString();
+                    // Divide large amounts of data processing and process each frame
+                    if (sb.Length > 500)
+                    {
+                        _licenseText.text += sb.ToString();
+                        sb.Clear();
+                        await UniTask.Yield(ct);
+                    }
+                }
+
+                // Set the remaining text
+                _licenseText.text += sb.ToString();
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Error in SetLicensesAsync.", ex);
+            }
         }
 
         public void ForceMeshUpdateText()

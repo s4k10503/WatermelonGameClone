@@ -56,7 +56,7 @@ namespace WatermelonGameClone.Presentation
             }
             catch (Exception ex)
             {
-                throw new ApplicationException(".", ex);
+                throw new ApplicationException("An error occurred while rest UI.", ex);
             }
         }
 
