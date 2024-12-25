@@ -1,3 +1,7 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+
 namespace WatermelonGameClone.Presentation
 {
     // MainScene Specific Handlers
@@ -51,43 +55,125 @@ namespace WatermelonGameClone.Presentation
     // TitleScene Specific Handlers
     public class TitleSceneLoadingViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            view.HideTitlePageMainElements();
-            view.DetailedScoreRankView.HidePanel();
-            view.SettingsPanelView.HidePanel();
-            view.ShowLoadingPage();
+            try
+            {
+                view.ShowLoadingPage();
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while applying the loading view state.", ex);
+            }
         }
     }
 
     public class TitleSceneDetailedScoreViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            view.HideTitlePageMainElements();
-            view.HideLoadingPage();
-            view.SettingsPanelView.HidePanel();
-            view.DetailedScoreRankView.ShowPanel();
-            view.DetailedScoreRankView.DisplayTopScores(data.ScoreContainer);
+            try
+            {
+                view.DetailedScoreRankView.ShowPanel();
+                view.DetailedScoreRankView.DisplayTopScores(data.ScoreContainer);
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while displaying detailed scores view state.", ex);
+            }
         }
     }
 
     public class SettingsViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            view.HideTitlePageMainElements();
-            view.HideLoadingPage();
-            view.DetailedScoreRankView.HidePanel();
-            view.SettingsPanelView.ShowPanel();
+            try
+            {
+                view.SettingsPanelView.ShowPanel();
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while applying the settings view state.", ex);
+            }
+        }
+    }
+
+    public class LicenseViewStateHandler : TitleSceneViewStateHandlerBase
+    {
+        private bool _isLicenseTextSet = false;
+
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
+        {
+            try
+            {
+                var licenseModalView = view.LicenseModalView;
+
+                licenseModalView.ShowModal();
+
+                // Update license information text
+                if (!_isLicenseTextSet)
+                {
+                    await licenseModalView.SetLicensesAsync(data.Licenses, ct);
+                    _isLicenseTextSet = true;
+                }
+
+                // Forcibly update the mesh to stabilize the layout
+                licenseModalView.ForceMeshUpdateText();
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while applying the license view state.", ex);
+            }
         }
     }
 
     public class TitleViewStateHandler : TitleSceneViewStateHandlerBase
     {
-        protected override void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data)
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            // Default state is already handled by ResetAllUI.
+            try
+            {
+                view.ShowTitlePageMainElements();
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while applying the Title view state.", ex);
+            }
         }
     }
 }

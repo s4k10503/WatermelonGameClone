@@ -1,3 +1,7 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+
 namespace WatermelonGameClone.Presentation
 {
     // Base class for MainScene ViewState Handlers
@@ -26,20 +30,37 @@ namespace WatermelonGameClone.Presentation
     // Base class for TitleScene ViewState Handlers
     public abstract class TitleSceneViewStateHandlerBase : ITitleSceneViewStateHandler
     {
-        public virtual void Apply(TitleSceneView view, TitleSceneViewStateData data)
+        public virtual async UniTask ApplyAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
         {
-            ResetAllUI(view);
-            ApplyCustomState(view, data);
+            await ResetAllUIAsync(view, ct);
+            await ApplyCustomStateAsync(view, data, ct);
         }
 
-        protected virtual void ResetAllUI(TitleSceneView view)
+        protected virtual async UniTask ResetAllUIAsync(
+            TitleSceneView view, CancellationToken ct)
         {
-            view.HideLoadingPage();
-            view.DetailedScoreRankView.HidePanel();
-            view.SettingsPanelView.HidePanel();
-            view.ShowTitlePageMainElements();
+            try
+            {
+                view.HideLoadingPage();
+                view.HideTitlePageMainElements();
+                view.DetailedScoreRankView.HidePanel();
+                view.SettingsPanelView.HidePanel();
+                view.LicenseModalView.HideModal();
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while rest UI.", ex);
+            }
         }
 
-        protected abstract void ApplyCustomState(TitleSceneView view, TitleSceneViewStateData data);
+        protected abstract UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct);
     }
 }
