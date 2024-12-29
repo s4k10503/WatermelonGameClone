@@ -3,7 +3,7 @@ using UniRx;
 
 namespace WatermelonGameClone.Presentation
 {
-    public interface ISettingsPanelView
+    public interface ISettingsModalView
     {
         IReadOnlyReactiveProperty<float> ValueBgm { get; }
         IReadOnlyReactiveProperty<float> ValueSe { get; }

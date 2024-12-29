@@ -11,7 +11,7 @@ using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.Presentation
 {
-    public sealed class DetailedScoreRankView : MonoBehaviour, IDetailedScoreRankView
+    public sealed class DetailedScoreRankPageView : MonoBehaviour, IDetailedScoreRankPageView
     {
         [SerializeField] private GameObject[] _textsScoreRankDaily = new GameObject[7];
         [SerializeField] private GameObject[] _textsScoreRankMonthly = new GameObject[7];

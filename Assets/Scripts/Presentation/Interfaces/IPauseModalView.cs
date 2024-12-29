@@ -3,7 +3,7 @@ using UniRx;
 
 namespace WatermelonGameClone.Presentation
 {
-    public interface IPausePanelView
+    public interface IPauseModalView
     {
         IObservable<Unit> OnRestart { get; }
         IObservable<Unit> OnBackToTitle { get; }

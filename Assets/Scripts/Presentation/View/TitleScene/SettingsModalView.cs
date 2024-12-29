@@ -8,7 +8,7 @@ using Zenject;
 
 namespace WatermelonGameClone.Presentation
 {
-    public class SettingsPanelView : MonoBehaviour, ISettingsPanelView
+    public class SettingsModalView : MonoBehaviour, ISettingsModalView
     {
         [SerializeField] private Slider _sliderBGM;
         [SerializeField] private Slider _sliderSE;

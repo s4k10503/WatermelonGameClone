@@ -4,7 +4,7 @@ using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.Presentation
 {
-    public interface IDetailedScoreRankView
+    public interface IDetailedScoreRankPageView
     {
         IObservable<Unit> OnBack { get; }
 

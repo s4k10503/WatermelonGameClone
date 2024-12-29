@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace WatermelonGameClone.Presentation
 {
-    public sealed class BackgroundPanelView : MonoBehaviour, IBackgroundPanelView
+    public sealed class ModalBackgroundView : MonoBehaviour
     {
         [SerializeField] Canvas _canvas;
 

@@ -8,7 +8,7 @@ using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.Presentation
 {
-    public sealed class ScoreRankView : MonoBehaviour, IScoreRankView
+    public sealed class ScoreRankPanelView : MonoBehaviour, IScoreRankView
     {
         [SerializeField] private GameObject _textPanelTitle;
         [SerializeField] private GameObject _textScoreRank1;

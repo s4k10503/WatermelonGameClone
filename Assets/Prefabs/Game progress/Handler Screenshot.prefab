@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4189317654234569810}
   - component: {fileID: 28211970776973484}
   m_Layer: 0
-  m_Name: ScreenshotHandler
+  m_Name: Handler Screenshot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

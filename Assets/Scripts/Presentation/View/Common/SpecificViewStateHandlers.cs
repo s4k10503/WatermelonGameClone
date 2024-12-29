@@ -27,8 +27,8 @@ namespace WatermelonGameClone.Presentation
     {
         protected override void ApplyCustomState(MainSceneView view, MainSceneViewStateData data)
         {
-            view.BackgroundPanelView.ShowPanel();
-            view.PausePanelView.ShowPanel();
+            view.ModalBackgroundView.ShowPanel();
+            view.PauseModalView.ShowPanel();
         }
     }
 
@@ -36,8 +36,8 @@ namespace WatermelonGameClone.Presentation
     {
         protected override void ApplyCustomState(MainSceneView view, MainSceneViewStateData data)
         {
-            view.BackgroundPanelView.ShowPanel();
-            view.GameOverPanelView.ShowPanel(data.CurrentScore, data.Screenshot, data.ScoreContainer);
+            view.ModalBackgroundView.ShowPanel();
+            view.GameOverModalView.ShowPanel(data.CurrentScore, data.Screenshot, data.ScoreContainer);
         }
     }
 
@@ -47,8 +47,8 @@ namespace WatermelonGameClone.Presentation
         {
             view.Stageview.HideStage();
             view.HideMainPageMainElements();
-            view.GameOverPanelView.HidePanel();
-            view.DetailedScoreRankView.ShowPanel();
+            view.GameOverModalView.HidePanel();
+            view.DetailedScoreRankPageView.ShowPanel();
         }
     }
 
@@ -82,8 +82,8 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.DetailedScoreRankView.ShowPanel();
-                view.DetailedScoreRankView.DisplayTopScores(data.ScoreContainer);
+                view.DetailedScoreRankPageView.ShowPanel();
+                view.DetailedScoreRankPageView.DisplayTopScores(data.ScoreContainer);
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }
             catch (OperationCanceledException)
@@ -105,7 +105,8 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.SettingsPanelView.ShowPanel();
+                view.ModalBackgroundView.ShowPanel();
+                view.SettingsPageView.ShowPanel();
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }
             catch (OperationCanceledException)
@@ -129,8 +130,8 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
+                view.ModalBackgroundView.ShowPanel();
                 var licenseModalView = view.LicenseModalView;
-
                 licenseModalView.ShowModal();
 
                 // Update license information text

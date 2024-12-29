@@ -96,8 +96,8 @@ namespace WatermelonGameClone.Presentation
 
                 _titleSceneViewStateData = new TitleSceneViewStateData(_scoreContainer, _licenses);
 
-                _titleSceneView.SettingsPanelView.SetBgmSliderValue(_soundUseCase.VolumeBgm.Value);
-                _titleSceneView.SettingsPanelView.SetSeSliderValue(_soundUseCase.VolumeSe.Value);
+                _titleSceneView.SettingsPageView.SetBgmSliderValue(_soundUseCase.VolumeBgm.Value);
+                _titleSceneView.SettingsPageView.SetSeSliderValue(_soundUseCase.VolumeSe.Value);
 
                 UpdateScoreDisplay();
             }
@@ -134,16 +134,16 @@ namespace WatermelonGameClone.Presentation
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleDisplayScores()))
                 .AddTo(_disposables);
 
-            _titleSceneView.TitlePanellView.OnSettings
+            _titleSceneView.TitlePageView.OnSettings
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleDisplaySettings()))
                 .AddTo(_disposables);
 
-            _titleSceneView.TitlePanellView.OnLicense
+            _titleSceneView.TitlePageView.OnLicense
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => OpenLicenseModal()))
                 .AddTo(_disposables);
 
             // DetailedScoreRankPanel
-            _titleSceneView.DetailedScoreRankView.OnBack
+            _titleSceneView.DetailedScoreRankPageView.OnBack
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePanel()))
                 .AddTo(_disposables);
 
@@ -153,17 +153,17 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             // SettingsPanel
-            _titleSceneView.SettingsPanelView.ValueBgm
+            _titleSceneView.SettingsPageView.ValueBgm
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(value => _exceptionHandlingUseCase.SafeExecute(() => HandleSetBgmVolume(value)))
                 .AddTo(_disposables);
 
-            _titleSceneView.SettingsPanelView.ValueSe
+            _titleSceneView.SettingsPageView.ValueSe
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(value => _exceptionHandlingUseCase.SafeExecute(() => HandleSetSeVolume(value)))
                 .AddTo(_disposables);
 
-            _titleSceneView.SettingsPanelView.OnBack
+            _titleSceneView.SettingsPageView.OnBack
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePanel()))
                 .AddTo(_disposables);
         }
@@ -245,7 +245,7 @@ namespace WatermelonGameClone.Presentation
         private void UpdateScoreDisplay()
         {
             var scoreData = _scoreUseCase.GetScoreData();
-            _titleSceneView.DetailedScoreRankView.DisplayTopScores(scoreData);
+            _titleSceneView.DetailedScoreRankPageView.DisplayTopScores(scoreData);
         }
 
         private void OpenLicenseModal()

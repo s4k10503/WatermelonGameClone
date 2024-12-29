@@ -140,7 +140,7 @@ GameObject:
   - component: {fileID: 616790923553051270}
   - component: {fileID: 4861825233187233703}
   m_Layer: 5
-  m_Name: Panel_Title
+  m_Name: Panel Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -656,7 +656,7 @@ GameObject:
   - component: {fileID: 3849456786560065406}
   - component: {fileID: 8608753693611941348}
   m_Layer: 5
-  m_Name: Panel_Inner
+  m_Name: Panel Inner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -735,7 +735,7 @@ GameObject:
   - component: {fileID: 3862691755286938668}
   - component: {fileID: 8580076616871915711}
   m_Layer: 5
-  m_Name: Panel_Outer
+  m_Name: Panel Outer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -828,7 +828,7 @@ GameObject:
   - component: {fileID: 1715875691717602486}
   - component: {fileID: 8874062911520725443}
   m_Layer: 5
-  m_Name: Modal_License
+  m_Name: Modal License
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -915,7 +915,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvas: {fileID: 6665441197713549736}
-  _buttonBack: {fileID: 345143319288037854}
+  _buttonBack: {fileID: 0}
   _licenseText: {fileID: 1348327107737975401}
 --- !u!1 &8343129276026666654
 GameObject:
@@ -1201,17 +1201,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
---- !u!114 &345143319288037854 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
-  m_PrefabInstance: {fileID: 4352649901640766439}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &1546674938743753182 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}

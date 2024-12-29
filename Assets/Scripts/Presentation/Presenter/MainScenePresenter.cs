@@ -190,7 +190,7 @@ namespace WatermelonGameClone.Presentation
                 .Subscribe(_ => ShowDetailedScore())
                 .AddTo(_disposables);
 
-            _mainSceneView.DetailedScoreRankView.OnBack
+            _mainSceneView.DetailedScoreRankPageView.OnBack
                 .Subscribe(_ => ReturnToGameOverScreen())
                 .AddTo(_disposables);
 
@@ -353,7 +353,7 @@ namespace WatermelonGameClone.Presentation
             _mainSceneView.ScorePanelView.UpdateBestScore(_scoreUseCase.BestScore.Value);
             var scoreData = _scoreUseCase.GetScoreData();
             _mainSceneView.ScoreRankView.DisplayTopScores(scoreData);
-            _mainSceneView.DetailedScoreRankView.DisplayTopScores(scoreData);
+            _mainSceneView.DetailedScoreRankPageView.DisplayTopScores(scoreData);
         }
 
         private void AdjustTimeScale(float timeScale)
