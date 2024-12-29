@@ -26,6 +26,13 @@ namespace WatermelonGameClone.Installers
                 .AsSingle();
 
             Container
+                .Bind<IGameOverJudgmentService>()
+                .To<GameOverJudgmentService>()
+                .FromNew()
+                .AsSingle();
+
+            // UseCases
+            Container
                 .BindInterfacesTo<MergeItemUseCase>()
                 .FromNew()
                 .AsSingle();

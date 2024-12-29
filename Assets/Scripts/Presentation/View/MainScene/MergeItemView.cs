@@ -20,11 +20,10 @@ namespace WatermelonGameClone.Presentation
         private Rigidbody2D _rb;
         private readonly float _minDiameter = 0.4f;
         private readonly float _stepSize = 0.2f;
-        private float _ceilingContactTime;
-        private readonly float _timeLimit = 1f;
 
         public GameObject GameObject
             => this.gameObject;
+
         public int SphereNo { get; private set; }
         private int _maxSphereNo;
 
@@ -32,24 +31,24 @@ namespace WatermelonGameClone.Presentation
         private IDisposable _mouseMoveSubscription;
         private IDisposable _mouseClickSubscription;
 
-        private readonly Subject<Unit> _onGameOver
-            = new Subject<Unit>();
         private readonly Subject<Unit> _onDropping
             = new Subject<Unit>();
+        public IObservable<Unit> OnDropping
+            => _onDropping;
+
         private readonly Subject<MergeData> _onMerging
             = new Subject<MergeData>();
 
-        public IObservable<Unit> OnGameOver
-            => _onGameOver;
-        public IObservable<Unit> OnDropping
-            => _onDropping;
         public IObservable<MergeData> OnMerging
             => _onMerging;
 
-        private readonly ReactiveProperty<int> _nextSphereIndex
-            = new ReactiveProperty<int>();
+        private readonly ReactiveProperty<int> _nextSphereIndex = new();
         public IReadOnlyReactiveProperty<int> NextSphereIndex
             => _nextSphereIndex.ToReadOnlyReactiveProperty();
+
+        private readonly ReactiveProperty<float> _ceilingContactTime = new();
+        public IReadOnlyReactiveProperty<float> ContactTime
+            => _ceilingContactTime.ToReadOnlyReactiveProperty();
 
         [Inject]
         public void Construct(
@@ -62,10 +61,10 @@ namespace WatermelonGameClone.Presentation
 
         private void Awake()
         {
-            _onGameOver.AddTo(this);
             _onDropping.AddTo(this);
             _onMerging.AddTo(this);
             _nextSphereIndex.AddTo(this);
+            _ceilingContactTime.AddTo(this);
 
             _isDrop = false;
             _rb = GetComponent<Rigidbody2D>();
@@ -103,22 +102,14 @@ namespace WatermelonGameClone.Presentation
 
         private void OnTriggerStay2D(Collider2D collision)
         {
-            if (_isGameOver) return;
             if (collision.TryGetComponent<IGameOverTrigger>(out _))
-            {
-                _ceilingContactTime += Time.deltaTime;
-                if (_ceilingContactTime > _timeLimit)
-                {
-                    _isGameOver = true;
-                    _onGameOver.OnNext(Unit.Default);
-                }
-            }
+                _ceilingContactTime.Value += Time.deltaTime;
         }
 
         private void OnTriggerExit2D(Collider2D collision)
         {
             if (collision.TryGetComponent<IGameOverTrigger>(out _))
-                _ceilingContactTime = 0;
+                _ceilingContactTime.Value = 0;
         }
 
         public void Initialize(int sphereNo)

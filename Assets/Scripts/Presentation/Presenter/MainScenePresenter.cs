@@ -195,18 +195,18 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _mainSceneView.MergeItemManager.OnItemCreated
-                .Subscribe(megeItem =>
+                .Subscribe(mergeItem =>
                 {
-                    megeItem.OnDropping
+                    mergeItem.OnDropping
                         .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleItemDropping()))
                         .AddTo(_disposables);
 
-                    megeItem.OnMerging
+                    mergeItem.OnMerging
                         .Subscribe(mergeData => _exceptionHandlingUseCase.SafeExecute(() => HandleItemMerging(mergeData)))
                         .AddTo(_disposables);
 
-                    megeItem.OnGameOver
-                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameOverAsync(), ct).Forget())
+                    mergeItem.ContactTime
+                        .Subscribe(contactTime => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameOverAsync(contactTime), ct).Forget())
                         .AddTo(_disposables);
                 }).AddTo(_disposables);
         }
@@ -277,8 +277,10 @@ namespace WatermelonGameClone.Presentation
             _mainSceneView.MergeItemManager.DestroyItem(mergeData.ItemB);
         }
 
-        private async UniTask HandleGameOverAsync()
+        private async UniTask HandleGameOverAsync(float contactTime)
         {
+            if (!_mergeItemUseCase.CheckGameOver(contactTime)) return;
+
             if (_cts == null || _cts.IsCancellationRequested) return;
 
             try

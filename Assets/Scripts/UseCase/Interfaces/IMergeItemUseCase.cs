@@ -8,5 +8,6 @@ namespace WatermelonGameClone.UseCase
         public IReadOnlyReactiveProperty<int> NextItemIndex { get; }
         public int MaxItemNo { get; }
         void UpdateNextItemIndex();
+        bool CheckGameOver(float contactTime);
     }
 }
