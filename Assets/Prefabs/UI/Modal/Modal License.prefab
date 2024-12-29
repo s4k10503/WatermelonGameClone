@@ -915,7 +915,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _canvas: {fileID: 6665441197713549736}
-  _buttonBack: {fileID: 0}
+  _buttonBack: {fileID: 4557164930037084820}
   _licenseText: {fileID: 1348327107737975401}
 --- !u!1 &8343129276026666654
 GameObject:
@@ -1206,3 +1206,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
   m_PrefabInstance: {fileID: 4352649901640766439}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &4557164930037084820 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 241493838434509171, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_PrefabInstance: {fileID: 4352649901640766439}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
