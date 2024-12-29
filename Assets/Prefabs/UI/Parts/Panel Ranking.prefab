@@ -284,7 +284,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1487837479800120419, guid: 6697439ae8fdb404694608e234bf44d1, type: 3}
       propertyPath: m_Name
-      value: Arrow_Bar
+      value: Bar Arrow
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -394,7 +394,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7678615604368507500, guid: 0ab1d765a2f6c83419db1a42332f0264, type: 3}
       propertyPath: m_Name
-      value: Title_TMP
+      value: TMP Title
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -501,7 +501,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4526858576095030968, guid: 27689884f0543ff42b2a6aebd19e486a, type: 3}
       propertyPath: m_Name
-      value: Rank_Bar_Now
+      value: Bar RankNow
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -616,7 +616,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6336598222852048232, guid: bd3e8cc422a4ae049aac51574f5291cf, type: 3}
       propertyPath: m_Name
-      value: Rank_Text_Bar_Local
+      value: Bar RankTextLocal
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -718,7 +718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7411971860776984088, guid: 545487cd0d0bb194a9afc7b7c284725d, type: 3}
       propertyPath: m_Name
-      value: Rank1_Bar
+      value: Bar Rank1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -837,7 +837,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6336598222852048232, guid: bd3e8cc422a4ae049aac51574f5291cf, type: 3}
       propertyPath: m_Name
-      value: Rank_Text_Bar_Now
+      value: Bar RankTextNow
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -859,7 +859,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 305004191757698155, guid: 0874fe018cd7cb545a8bc234911a44a4, type: 3}
       propertyPath: m_Name
-      value: Rank3_Bar
+      value: Bar Rank3
       objectReference: {fileID: 0}
     - target: {fileID: 8555444492341353680, guid: 0874fe018cd7cb545a8bc234911a44a4, type: 3}
       propertyPath: m_Pivot.x
@@ -966,7 +966,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6379005497599439362, guid: 84c674ebbffbc074d80e494589100447, type: 3}
       propertyPath: m_Name
-      value: Rank2_Bar
+      value: Bar Rank2
       objectReference: {fileID: 0}
     - target: {fileID: 6537245739737765779, guid: 84c674ebbffbc074d80e494589100447, type: 3}
       propertyPath: m_Pivot.x

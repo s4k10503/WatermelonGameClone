@@ -5,7 +5,7 @@ using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.Presentation
 {
-    public interface IGameOverPanelView
+    public interface IGameOverModalView
     {
         // Observables for UI events
         IObservable<Unit> OnRestart { get; }

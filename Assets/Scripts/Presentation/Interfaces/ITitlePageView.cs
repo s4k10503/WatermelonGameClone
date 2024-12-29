@@ -3,7 +3,7 @@ using UniRx;
 
 namespace WatermelonGameClone.Presentation
 {
-    public interface ITitlePanelView
+    public interface ITitlePageView
     {
         IObservable<Unit> OnGameStart { get; }
         IObservable<Unit> OnMyScore { get; }

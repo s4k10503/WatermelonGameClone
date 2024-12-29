@@ -5,12 +5,10 @@ using WatermelonGameClone.UseCase;
 using WatermelonGameClone.Presentation;
 using WatermelonGameClone.Infrastructure;
 
-
 namespace WatermelonGameClone.Installers
 {
     public sealed class MainSceneInstaller : MonoInstaller
     {
-        [SerializeField] private GameObject _inputEventProvider;
         [SerializeField] private GameObject _screenshotHandler;
         [SerializeField] private Camera _mainCamera;
         [SerializeField] private Camera _uiCamera;
@@ -44,7 +42,7 @@ namespace WatermelonGameClone.Installers
                 .AsCached();
 
             Container
-                .Bind<LoadingPanelView>()
+                .Bind<LoadingPageView>()
                 .FromComponentInHierarchy()
                 .AsCached();
 
@@ -88,31 +86,30 @@ namespace WatermelonGameClone.Installers
 
             Container
                 .Bind<IScoreRankView>()
-                .To<ScoreRankView>()
+                .To<ScoreRankPanelView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 
             Container
-                .Bind<IDetailedScoreRankView>()
-                .To<DetailedScoreRankView>()
+                .Bind<IDetailedScoreRankPageView>()
+                .To<DetailedScoreRankPageView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 
             Container
-                .Bind<IGameOverPanelView>()
-                .To<GameOverPanelView>()
+                .Bind<IGameOverModalView>()
+                .To<GameOverModalView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 
             Container
-                .Bind<IPausePanelView>()
-                .To<PausePanelView>()
+                .Bind<IPauseModalView>()
+                .To<PauseModalView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 
             Container
-                .Bind<IBackgroundPanelView>()
-                .To<BackgroundPanelView>()
+                .Bind<ModalBackgroundView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 

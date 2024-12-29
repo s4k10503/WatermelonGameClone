@@ -1,56 +1,65 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 using UniRx;
 using UniRx.Triggers;
-using DG.Tweening;
 using Zenject;
-using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.Presentation
 {
-    public sealed class TitlePanelView : MonoBehaviour, ITitlePanelView
+    public sealed class PauseModalView : MonoBehaviour, IPauseModalView
     {
-        [SerializeField] Button _buttonGameStart;
-        [SerializeField] Button _buttonMyScore;
-        [SerializeField] Button _buttonSettings;
-        [SerializeField] Button _buttonLicense;
-        [SerializeField] Canvas _canvas;
+        [SerializeField] private Button _buttonBackToTitle;
+        [SerializeField] private Button _buttonRestart;
+        [SerializeField] private Button _buttonBackToGame;
+        [SerializeField] private Canvas _canvas;
+
+        public IObservable<Unit> OnRestart
+            => _buttonRestart.OnClickAsObservable();
+        public IObservable<Unit> OnBackToTitle
+            => _buttonBackToTitle.OnClickAsObservable();
+        public IObservable<Unit> OnBackToGame
+            => _buttonBackToGame.OnClickAsObservable();
 
         private IUIAnimator _uiAnimator;
         private Vector3 _originalScale;
         private Vector3 _pressedScale;
 
-        public IObservable<Unit> OnGameStart => _buttonGameStart.OnClickAsObservable();
-        public IObservable<Unit> OnMyScore => _buttonMyScore.OnClickAsObservable();
-        public IObservable<Unit> OnSettings => _buttonSettings.OnClickAsObservable();
-        public IObservable<Unit> OnLicense => _buttonLicense.OnClickAsObservable();
 
         [Inject]
         public void Construct(IUIAnimator uiAnimator)
         {
-            _uiAnimator = uiAnimator;
-            _uiAnimator.GetUIPosition(transform);
-
-            _originalScale = _buttonGameStart.transform.localScale;
+            _originalScale = _buttonBackToTitle.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
+            _uiAnimator = uiAnimator;
         }
 
         private void Start()
         {
-            ShowPanel();
-            SetupButtonAnimations(_buttonGameStart);
-            SetupButtonAnimations(_buttonMyScore);
-            SetupButtonAnimations(_buttonSettings);
-            SetupButtonAnimations(_buttonLicense);
+            SetupButtonAnimations(_buttonBackToGame);
+            SetupButtonAnimations(_buttonBackToTitle);
+            SetupButtonAnimations(_buttonRestart);
+        }
 
-            this.UpdateAsObservable()
-                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionType.Sin))
-                .AddTo(this);
+        private void OnDestroy()
+        {
+            _buttonBackToTitle = null;
+            _buttonRestart = null;
+            _buttonBackToGame = null;
+            _canvas = null;
+
+            _uiAnimator = null;
         }
 
         public void ShowPanel()
-            => _canvas.enabled = true;
+        {
+            _canvas.enabled = true;
+            transform.SetAsLastSibling();
+
+            _uiAnimator
+                .AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
+        }
 
         public void HidePanel()
             => _canvas.enabled = false;

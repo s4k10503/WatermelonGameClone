@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6808545798481771011}
   - component: {fileID: 9181559275078447074}
   - component: {fileID: 2395623045247691463}
-  - component: {fileID: 1904490081421917126}
+  - component: {fileID: 8207072204811490391}
   m_Layer: 5
   m_Name: Modal TranslucentBlack
   m_TagString: Untagged
@@ -56,7 +56,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 1
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -100,7 +100,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1904490081421917126
+--- !u!114 &8207072204811490391
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

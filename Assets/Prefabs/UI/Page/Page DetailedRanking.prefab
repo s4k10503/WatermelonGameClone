@@ -402,7 +402,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5760515582866854257}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -439,7 +439,7 @@ GameObject:
   - component: {fileID: 1104034762447258002}
   - component: {fileID: 4127644911742510903}
   m_Layer: 5
-  m_Name: Modal DetailedRanking
+  m_Name: Page DetailedRanking
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -552,7 +552,7 @@ MonoBehaviour:
   - {fileID: 8950865627274334303}
   - {fileID: 5721563563313224872}
   _canvas: {fileID: 4999568400899591845}
-  _buttonBack: {fileID: 3857313287057045227}
+  _buttonBack: {fileID: 1041337161943926177}
 --- !u!1001 &141376694908429441
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1138,21 +1138,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7345752068154553493, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
-      value: Button
+      value: Button Back
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
---- !u!224 &2610745640056831723 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
-  m_PrefabInstance: {fileID: 948685005595436242}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &3857313287057045227 stripped
+--- !u!114 &1041337161943926177 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_CorrespondingSourceObject: {fileID: 241493838434509171, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
   m_PrefabInstance: {fileID: 948685005595436242}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -1161,6 +1156,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &2610745640056831723 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_PrefabInstance: {fileID: 948685005595436242}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1045606640053092420
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4505,7 +4505,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7678615604368507500, guid: 0ab1d765a2f6c83419db1a42332f0264, type: 3}
       propertyPath: m_Name
-      value: TMP_Title
+      value: TMP Title
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

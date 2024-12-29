@@ -148,7 +148,7 @@ GameObject:
   - component: {fileID: 268436334588136502}
   - component: {fileID: 761375874083050753}
   m_Layer: 5
-  m_Name: Panel_Title
+  m_Name: Panel Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -254,7 +254,7 @@ GameObject:
   - component: {fileID: 8330571627383315019}
   - component: {fileID: 8509244331509650313}
   m_Layer: 5
-  m_Name: innner Panel
+  m_Name: Panel inner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -422,7 +422,7 @@ GameObject:
   - component: {fileID: 6031994782777072838}
   - component: {fileID: 1792989148890205085}
   m_Layer: 5
-  m_Name: score panel
+  m_Name: Panel Score
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -499,7 +499,7 @@ GameObject:
   - component: {fileID: 6748833686852662247}
   - component: {fileID: 5586093737196389517}
   m_Layer: 5
-  m_Name: left Panel
+  m_Name: Panel Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -591,7 +591,7 @@ GameObject:
   - component: {fileID: 8501967047225808377}
   - component: {fileID: 5286291790707709885}
   m_Layer: 5
-  m_Name: right panel
+  m_Name: Panel Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -896,9 +896,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e4ac6e5d32eaf84690fd4c53e145e4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buttonBackToTitle: {fileID: 3662036705602943098}
-  _buttonRestart: {fileID: 7712336712176927819}
-  _buttonDisplayScore: {fileID: 849728508562258304}
+  _buttonRestart: {fileID: 5833223912216573697}
+  _buttonBackToTitle: {fileID: 659308566718352176}
+  _buttonScore: {fileID: 3476401562393840330}
   _scoreText: {fileID: 1132260313874874530}
   _screenshot: {fileID: 256073343596893038}
   _textPanelTitle: {fileID: 1527095441376053594}
@@ -1053,7 +1053,7 @@ GameObject:
   - component: {fileID: 5436280053901475509}
   - component: {fileID: 3205351834732633491}
   m_Layer: 5
-  m_Name: innner panel
+  m_Name: Panel Inner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1213,7 +1213,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7345752068154553493, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
-      value: Button 3
+      value: Button BackToTitle
       objectReference: {fileID: 0}
     - target: {fileID: 7604824527842791571, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
@@ -1224,14 +1224,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
---- !u!224 &2553255491840438394 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
-  m_PrefabInstance: {fileID: 756500250034383427}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &3662036705602943098 stripped
+--- !u!114 &659308566718352176 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_CorrespondingSourceObject: {fileID: 241493838434509171, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
   m_PrefabInstance: {fileID: 756500250034383427}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -1240,6 +1235,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!224 &2553255491840438394 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_PrefabInstance: {fileID: 756500250034383427}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3704032093878922169
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1334,7 +1334,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7345752068154553493, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
-      value: Button 2
+      value: Button MyScore
       objectReference: {fileID: 0}
     - target: {fileID: 7604824527842791571, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
@@ -1345,9 +1345,14 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
---- !u!114 &849728508562258304 stripped
+--- !u!224 &1906712863279509888 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_PrefabInstance: {fileID: 3704032093878922169}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3476401562393840330 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_CorrespondingSourceObject: {fileID: 241493838434509171, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
   m_PrefabInstance: {fileID: 3704032093878922169}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -1356,11 +1361,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!224 &1906712863279509888 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
-  m_PrefabInstance: {fileID: 3704032093878922169}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6028687555135673970
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1459,7 +1459,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7345752068154553493, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
-      value: Button 1
+      value: Button Restart
       objectReference: {fileID: 0}
     - target: {fileID: 7604824527842791571, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
       propertyPath: m_Name
@@ -1470,9 +1470,9 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
---- !u!114 &7712336712176927819 stripped
+--- !u!114 &5833223912216573697 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
+  m_CorrespondingSourceObject: {fileID: 241493838434509171, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
   m_PrefabInstance: {fileID: 6028687555135673970}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -1576,7 +1576,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3749595845848616982, guid: d43f52938d26d8749a9fccfcf188f1c0, type: 3}
       propertyPath: m_Name
-      value: Panel_Rank
+      value: Panel Rank
       objectReference: {fileID: 0}
     - target: {fileID: 8034812021591874567, guid: d43f52938d26d8749a9fccfcf188f1c0, type: 3}
       propertyPath: m_RaycastTarget

@@ -1,4 +1,3 @@
-using UnityEngine;
 using Zenject;
 using WatermelonGameClone.Domain;
 using WatermelonGameClone.UseCase;
@@ -32,20 +31,20 @@ namespace WatermelonGameClone.Installers
                 .AsCached();
 
             Container
-                .Bind<ITitlePanelView>()
-                .To<TitlePanelView>()
+                .Bind<ITitlePageView>()
+                .To<TitlePageView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 
             Container
-                .Bind<IDetailedScoreRankView>()
-                .To<DetailedScoreRankView>()
+                .Bind<IDetailedScoreRankPageView>()
+                .To<DetailedScoreRankPageView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 
             Container
-                .Bind<ISettingsPanelView>()
-                .To<SettingsPanelView>()
+                .Bind<ISettingsModalView>()
+                .To<SettingsModalView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 
@@ -56,9 +55,14 @@ namespace WatermelonGameClone.Installers
                 .AsSingle();
 
             Container
-                .Bind<LoadingPanelView>()
+                .Bind<LoadingPageView>()
                 .FromComponentInHierarchy()
                 .AsCached();
+            
+            Container
+                .Bind<ModalBackgroundView>()
+                .FromComponentInHierarchy()
+                .AsSingle();
 
             // Presenter
             Container

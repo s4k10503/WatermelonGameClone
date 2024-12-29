@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace WatermelonGameClone.Presentation
 {
-    public class LoadingPanelView : MonoBehaviour
+    public class LoadingPageView : MonoBehaviour
     {
         [SerializeField] private Canvas _canvas;
 

@@ -15,11 +15,11 @@ namespace WatermelonGameClone.Presentation
 
         public IScorePanelView ScorePanelView { get; private set; }
         public IScoreRankView ScoreRankView { get; private set; }
-        public IDetailedScoreRankView DetailedScoreRankView { get; private set; }
+        public IDetailedScoreRankPageView DetailedScoreRankPageView { get; private set; }
         public INextItemPanelView NextItemPanelView { get; private set; }
-        public IGameOverPanelView GameOverPanelView { get; private set; }
-        public IPausePanelView PausePanelView { get; private set; }
-        public IBackgroundPanelView BackgroundPanelView { get; private set; }
+        public IGameOverModalView GameOverModalView { get; private set; }
+        public IPauseModalView PauseModalView { get; private set; }
+        public ModalBackgroundView ModalBackgroundView { get; private set; }
         public IScreenshotHandler ScreenshotHandler { get; private set; }
         public IMergeItemManager MergeItemManager { get; private set; }
         public StageView Stageview { get; private set; }
@@ -29,11 +29,11 @@ namespace WatermelonGameClone.Presentation
         public void Construct(
             IScorePanelView scorePanelView,
             IScoreRankView scoreRankView,
-            IDetailedScoreRankView detailedScoreRankView,
+            IDetailedScoreRankPageView detailedScoreRankView,
             INextItemPanelView nextItemPanelView,
-            IGameOverPanelView gameOverPanelView,
-            IPausePanelView pausePanelView,
-            IBackgroundPanelView backgroundPanelView,
+            IGameOverModalView gameOverPanelView,
+            IPauseModalView pausePanelView,
+            ModalBackgroundView backgroundPanelView,
             IScreenshotHandler screenshotHandler,
             IInputEventProvider inputEventProvider,
             IMergeItemManager mergeItemManager,
@@ -41,11 +41,11 @@ namespace WatermelonGameClone.Presentation
         {
             ScorePanelView = scorePanelView;
             ScoreRankView = scoreRankView;
-            DetailedScoreRankView = detailedScoreRankView;
+            DetailedScoreRankPageView = detailedScoreRankView;
             NextItemPanelView = nextItemPanelView;
-            GameOverPanelView = gameOverPanelView;
-            PausePanelView = pausePanelView;
-            BackgroundPanelView = backgroundPanelView;
+            GameOverModalView = gameOverPanelView;
+            PauseModalView = pausePanelView;
+            ModalBackgroundView = backgroundPanelView;
             ScreenshotHandler = screenshotHandler;
             MergeItemManager = mergeItemManager;
             _inputEventProvider = inputEventProvider;
@@ -60,11 +60,11 @@ namespace WatermelonGameClone.Presentation
 
             ScorePanelView = null;
             ScoreRankView = null;
-            DetailedScoreRankView = null;
+            DetailedScoreRankPageView = null;
             NextItemPanelView = null;
-            GameOverPanelView = null;
-            PausePanelView = null;
-            BackgroundPanelView = null;
+            GameOverModalView = null;
+            PauseModalView = null;
+            ModalBackgroundView = null;
             ScreenshotHandler = null;
             MergeItemManager = null;
             Stageview = null;
@@ -75,23 +75,23 @@ namespace WatermelonGameClone.Presentation
         public IObservable<Unit> RestartRequested =>
             Observable.Merge
             (
-                GameOverPanelView.OnRestart,
-                PausePanelView.OnRestart
+                GameOverModalView.OnRestart,
+                PauseModalView.OnRestart
             );
 
         public IObservable<Unit> BackToTitleRequested =>
             Observable.Merge
             (
-                GameOverPanelView.OnBackToTitle,
-                PausePanelView.OnBackToTitle
+                GameOverModalView.OnBackToTitle,
+                PauseModalView.OnBackToTitle
             );
 
         public IObservable<Unit> BackToGameRequested
-            => PausePanelView.OnBackToGame;
+            => PauseModalView.OnBackToGame;
         public IObservable<Unit> PauseRequested
             => _inputEventProvider.OnEscapeKey;
         public IObservable<Unit> DisplayScoreRequested
-            => GameOverPanelView.OnDisplayScore;
+            => GameOverModalView.OnDisplayScore;
 
         public void ShowMainPage()
         {

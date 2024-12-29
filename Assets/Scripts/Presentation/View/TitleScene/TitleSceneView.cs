@@ -11,25 +11,41 @@ namespace WatermelonGameClone.Presentation
         [SerializeField] private Canvas _titlePageMainElements;
         [SerializeField] private Canvas _loadingPageRoot;
 
-        public ITitlePanelView TitlePanellView { get; private set; }
-        public IDetailedScoreRankView DetailedScoreRankView { get; private set; }
-        public ISettingsPanelView SettingsPanelView { get; private set; }
+        public ITitlePageView TitlePageView { get; private set; }
+        public IDetailedScoreRankPageView DetailedScoreRankPageView { get; private set; }
+        public ISettingsModalView SettingsPageView { get; private set; }
         public ILicenseModalView LicenseModalView { get; private set; }
+        public ModalBackgroundView ModalBackgroundView { get; private set; }
 
-        public IObservable<Unit> GameStartRequested => TitlePanellView.OnGameStart;
-        public IObservable<Unit> MyScoreRequested => TitlePanellView.OnMyScore;
+        public IObservable<Unit> GameStartRequested => TitlePageView.OnGameStart;
+        public IObservable<Unit> MyScoreRequested => TitlePageView.OnMyScore;
 
         [Inject]
         public void Construct(
-            ITitlePanelView titlePanellView,
-            IDetailedScoreRankView detailedScoreRankView,
-            ISettingsPanelView settingsPanelView,
-            ILicenseModalView licenseModalView)
+            ITitlePageView titlePanellView,
+            IDetailedScoreRankPageView detailedScoreRankView,
+            ISettingsModalView settingsPanelView,
+            ILicenseModalView licenseModalView, 
+            ModalBackgroundView modalBackgroundView)
         {
-            TitlePanellView = titlePanellView;
-            DetailedScoreRankView = detailedScoreRankView;
-            SettingsPanelView = settingsPanelView;
+            TitlePageView = titlePanellView;
+            DetailedScoreRankPageView = detailedScoreRankView;
+            SettingsPageView = settingsPanelView;
             LicenseModalView = licenseModalView;
+            ModalBackgroundView = modalBackgroundView;
+        }
+
+        private void OnDestroy()
+        {
+            _titlePageRoot = null;
+            _titlePageMainElements = null;
+            _loadingPageRoot = null;
+            
+            TitlePageView = null;
+            DetailedScoreRankPageView = null;
+            SettingsPageView = null;
+            LicenseModalView = null;
+            ModalBackgroundView = null;
         }
 
         public void ShowTitlePage()

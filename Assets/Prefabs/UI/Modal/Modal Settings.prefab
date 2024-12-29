@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 200093843898379794}
   - component: {fileID: 4279221013102537364}
   m_Layer: 5
-  m_Name: Slider_SE
+  m_Name: Slider SE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 4753118207677998247}
   - component: {fileID: 252184285328101428}
   m_Layer: 5
-  m_Name: Panel_Outer
+  m_Name: Panel Outer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -194,7 +194,7 @@ GameObject:
   - component: {fileID: 4979492149185665682}
   - component: {fileID: 3835480941929388735}
   m_Layer: 5
-  m_Name: Panel_Undefined
+  m_Name: Panel Undefined
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -359,7 +359,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sliderBGM: {fileID: 7689520119216463021}
   _sliderSE: {fileID: 4279221013102537364}
-  _buttonBack: {fileID: 8117540936342348117}
+  _buttonBack: {fileID: 0}
   _canvas: {fileID: 2949040855200794915}
 --- !u!1 &857470948151128216
 GameObject:
@@ -409,7 +409,7 @@ GameObject:
   - component: {fileID: 3668367445723513284}
   - component: {fileID: 7361658259494665443}
   m_Layer: 5
-  m_Name: Panel_Items
+  m_Name: Panel Items
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -638,7 +638,7 @@ GameObject:
   - component: {fileID: 4283531237024001082}
   - component: {fileID: 3217976926182651235}
   m_Layer: 5
-  m_Name: Panel_Undefined
+  m_Name: Panel Undefined
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -940,7 +940,7 @@ GameObject:
   - component: {fileID: 4684160264617263093}
   - component: {fileID: 222103151559425391}
   m_Layer: 5
-  m_Name: Panel_Inner
+  m_Name: Panel Inner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1351,7 +1351,7 @@ GameObject:
   - component: {fileID: 6895762553106127134}
   - component: {fileID: 3797962526316045849}
   m_Layer: 5
-  m_Name: Panel_BGM
+  m_Name: Panel BGM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1427,7 +1427,7 @@ GameObject:
   - component: {fileID: 7678540588325552396}
   - component: {fileID: 7689520119216463021}
   m_Layer: 5
-  m_Name: Slider_BGM
+  m_Name: Slider BGM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1834,7 +1834,7 @@ GameObject:
   - component: {fileID: 7472909168784926384}
   - component: {fileID: 5505231157773082893}
   m_Layer: 5
-  m_Name: Panel_SE
+  m_Name: Panel SE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1913,7 +1913,7 @@ GameObject:
   - component: {fileID: 8998814858186289677}
   - component: {fileID: 3969309777418534700}
   m_Layer: 5
-  m_Name: Panel_Title
+  m_Name: Panel Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2113,14 +2113,3 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2959248339805002297, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
   m_PrefabInstance: {fileID: 5191179747858330476}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8117540936342348117 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4084072183057125945, guid: b9ad73d3db3168740aa0d8ecc2d3cfa7, type: 3}
-  m_PrefabInstance: {fileID: 5191179747858330476}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

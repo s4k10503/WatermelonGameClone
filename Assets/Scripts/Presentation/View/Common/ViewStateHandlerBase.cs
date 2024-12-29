@@ -16,10 +16,10 @@ namespace WatermelonGameClone.Presentation
         protected virtual void ResetAllUI(MainSceneView view)
         {
             view.HideLoadingPage();
-            view.BackgroundPanelView.HidePanel();
-            view.PausePanelView.HidePanel();
-            view.GameOverPanelView.HidePanel();
-            view.DetailedScoreRankView.HidePanel();
+            view.ModalBackgroundView.HidePanel();
+            view.PauseModalView.HidePanel();
+            view.GameOverModalView.HidePanel();
+            view.DetailedScoreRankPageView.HidePanel();
             view.Stageview.ShowStage();
             view.ShowMainPageMainElements();
         }
@@ -43,9 +43,10 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 view.HideLoadingPage();
+                view.ModalBackgroundView.HidePanel();
                 view.HideTitlePageMainElements();
-                view.DetailedScoreRankView.HidePanel();
-                view.SettingsPanelView.HidePanel();
+                view.DetailedScoreRankPageView.HidePanel();
+                view.SettingsPageView.HidePanel();
                 view.LicenseModalView.HideModal();
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }

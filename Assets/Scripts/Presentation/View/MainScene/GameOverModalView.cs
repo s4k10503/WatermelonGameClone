@@ -12,11 +12,11 @@ using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.Presentation
 {
-    public sealed class GameOverPanelView : MonoBehaviour, IGameOverPanelView
+    public sealed class GameOverModalView : MonoBehaviour, IGameOverModalView
     {
-        [SerializeField] private Button _buttonBackToTitle;
         [SerializeField] private Button _buttonRestart;
-        [SerializeField] private Button _buttonDisplayScore;
+        [SerializeField] private Button _buttonBackToTitle;
+        [SerializeField] private Button _buttonScore;
         [SerializeField] private TextMeshProUGUI _scoreText;
         [SerializeField] private RawImage _screenshot;
 
@@ -41,7 +41,7 @@ namespace WatermelonGameClone.Presentation
         public IObservable<Unit> OnBackToTitle
             => _buttonBackToTitle.OnClickAsObservable();
         public IObservable<Unit> OnDisplayScore
-            => _buttonDisplayScore.OnClickAsObservable();
+            => _buttonScore.OnClickAsObservable();
 
         private IUIAnimator _uiAnimator;
         private Vector3 _originalScale;
@@ -81,7 +81,7 @@ namespace WatermelonGameClone.Presentation
 
             SetupButtonAnimations(_buttonBackToTitle);
             SetupButtonAnimations(_buttonRestart);
-            SetupButtonAnimations(_buttonDisplayScore);
+            SetupButtonAnimations(_buttonScore);
         }
 
         private void OnDestroy()
@@ -94,7 +94,7 @@ namespace WatermelonGameClone.Presentation
 
             _buttonBackToTitle = null;
             _buttonRestart = null;
-            _buttonDisplayScore = null;
+            _buttonScore = null;
             _scoreText = null;
             _screenshot = null;
 
