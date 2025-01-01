@@ -42,7 +42,7 @@ namespace WatermelonGameClone.Presentation
             _container = null;
         }
 
-        public async UniTask CreateItem(int itemNo, float delaySeconds, CancellationToken ct)
+        public async UniTask CreateItemAsync(int itemNo, float delaySeconds, CancellationToken ct)
         {
             try
             {
@@ -67,6 +67,12 @@ namespace WatermelonGameClone.Presentation
 
         public void MergeItem(Vector3 position, int itemNo)
         {
+            if (_itemPrefabs == null || itemNo + 1 >= _itemPrefabs.Length)
+            {
+                // Reached maximum itemNo. No further merging possible.
+                return;
+            }
+
             GameObject itemObj = _container.InstantiatePrefab(
                 _itemPrefabs[itemNo + 1], position, Quaternion.identity, _itemPosition);
 
@@ -77,10 +83,10 @@ namespace WatermelonGameClone.Presentation
             _onItemCreated.OnNext(itemView);
         }
 
-        public void DestroyItem(GameObject itemView)
+        public void DestroyItem(GameObject itemObj)
         {
-            Destroy(itemView);
-            itemView = null;
+            Destroy(itemObj);
+            itemObj = null;
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using UniRx;
 using Zenject;
+using UnityEngine;
 using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.UseCase
@@ -14,6 +15,7 @@ namespace WatermelonGameClone.UseCase
             => _nextItemIndex.ToReadOnlyReactiveProperty();
 
         private readonly IMergeItemIndexService _mergeItemIndexService;
+        private readonly IMergeJudgmentService _mergeJudgmentService;
         private readonly IGameOverJudgmentService _gameOverJudgmentService;
         private readonly IGameRuleSettingsRepository _gameRuleSettingsRepository;
 
@@ -23,7 +25,8 @@ namespace WatermelonGameClone.UseCase
         public MergeItemUseCase(
             [Inject(Id = "MaxItemNo")] int maxItemNo,
             IMergeItemIndexService itemIndexService,
-            IGameOverJudgmentService gameOverJudgmentService, 
+            IMergeJudgmentService mergeJudgmentService,
+            IGameOverJudgmentService gameOverJudgmentService,
             IGameRuleSettingsRepository gameRuleSettingsRepository)
         {
             if (maxItemNo <= 0)
@@ -31,10 +34,12 @@ namespace WatermelonGameClone.UseCase
                 throw new ArgumentException("MaxItemNo must be greater than zero.", nameof(maxItemNo));
             }
 
-            MaxItemNo = maxItemNo;
             _disposables = new CompositeDisposable();
             _nextItemIndex = new ReactiveProperty<int>();
+
+            MaxItemNo = maxItemNo;
             _mergeItemIndexService = itemIndexService ?? throw new ArgumentNullException(nameof(itemIndexService));
+            _mergeJudgmentService = mergeJudgmentService ?? throw new ArgumentNullException(nameof(mergeJudgmentService));
             _gameOverJudgmentService = gameOverJudgmentService ?? throw new ArgumentNullException(nameof(gameOverJudgmentService));
             _gameRuleSettingsRepository = gameRuleSettingsRepository ?? throw new ArgumentNullException(nameof(_gameRuleSettingsRepository));
             _contactTimeLimit = _gameRuleSettingsRepository.GetContactTimeLimit();
@@ -45,6 +50,16 @@ namespace WatermelonGameClone.UseCase
         public void Dispose()
         {
             _disposables?.Dispose();
+        }
+
+        public bool CanMerge(int currentItemNo, int targetItemNo)
+        {
+            return _mergeJudgmentService.CanMerge(currentItemNo, targetItemNo);
+        }
+
+        public MergeData CreateMergeData(Vector2 sourcePosition, Vector2 targetPosition, int itemNo)
+        {
+            return _mergeJudgmentService.CreateMergeData(sourcePosition, targetPosition, itemNo);
         }
 
         public void UpdateNextItemIndex()
@@ -63,5 +78,19 @@ namespace WatermelonGameClone.UseCase
         {
             return _gameOverJudgmentService.CheckGameOver(contactTime, _contactTimeLimit);
         }
+
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+        public void SetNextItemIndex(int index)
+        {
+            try
+            {
+                _nextItemIndex.Value = index; // Set directly for debugging
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Failed to set next item index.", ex);
+            }
+        }
+#endif
     }
 }

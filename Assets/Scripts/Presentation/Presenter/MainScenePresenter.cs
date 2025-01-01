@@ -116,7 +116,6 @@ namespace WatermelonGameClone.Presentation
                 await _scoreUseCase.InitializeAsync(ct);
                 _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
                 _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Initializing);
-                _mergeItemUseCase.UpdateNextItemIndex();
                 UpdateScoreDisplays();
                 _currentViewState.Value = ViewState.Playing;
             }
@@ -201,8 +200,8 @@ namespace WatermelonGameClone.Presentation
                         .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleItemDropping()))
                         .AddTo(_disposables);
 
-                    mergeItem.OnMerging
-                        .Subscribe(mergeData => _exceptionHandlingUseCase.SafeExecute(() => HandleItemMerging(mergeData)))
+                    mergeItem.OnMergeRequest
+                        .Subscribe(request => _exceptionHandlingUseCase.SafeExecute(() => HandleMergeRequest(request.Source, request.Target)))
                         .AddTo(_disposables);
 
                     mergeItem.ContactTime
@@ -244,9 +243,11 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 _isNext = false;
-                await _mainSceneView.MergeItemManager.CreateItem(
+                await _mainSceneView.MergeItemManager.CreateItemAsync(
                     _mergeItemUseCase.NextItemIndex.Value, _mergeItemCreateDelayTime, _cts.Token);
+
                 _mergeItemUseCase.UpdateNextItemIndex();
+                //_mergeItemUseCase.SetNextItemIndex(10);
                 _mergeItemCreateDelayTime = 1.0f;
             }
             catch (OperationCanceledException)
@@ -267,14 +268,33 @@ namespace WatermelonGameClone.Presentation
             _isNext = true;
         }
 
-        private void HandleItemMerging(MergeData mergeData)
+        private void HandleMergeRequest(IMergeItemView source, IMergeItemView target)
+        {
+            if (_mergeItemUseCase.CanMerge(source.ItemNo, target.ItemNo))
+            {
+                var mergeData = _mergeItemUseCase.CreateMergeData(
+                    source.GameObject.transform.position,
+                    target.GameObject.transform.position,
+                    source.ItemNo);
+
+                HandleItemMerging(mergeData, source, target);
+            }
+        }
+
+        private void HandleItemMerging(
+            MergeData mergeData,
+            IMergeItemView itemA,
+            IMergeItemView itemB)
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Merging);
+
+            _mainSceneView.MergeItemManager.DestroyItem(itemA.GameObject);
+            _mainSceneView.MergeItemManager.DestroyItem(itemB.GameObject);
+
+            _mainSceneView.MergeItemManager.MergeItem(mergeData.Position, mergeData.ItemNo);
+
             _soundUseCase.PlaySoundEffect(SoundEffect.Merge);
             _scoreUseCase.UpdateCurrentScore(mergeData.ItemNo);
-            _mainSceneView.MergeItemManager.MergeItem(mergeData.Position, mergeData.ItemNo);
-            _mainSceneView.MergeItemManager.DestroyItem(mergeData.ItemA);
-            _mainSceneView.MergeItemManager.DestroyItem(mergeData.ItemB);
         }
 
         private async UniTask HandleGameOverAsync(float contactTime)

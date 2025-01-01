@@ -4,17 +4,13 @@ namespace WatermelonGameClone.Domain
 {
     public class MergeData
     {
-        public Vector3 Position;
+        public Vector2 Position;
         public int ItemNo;
-        public GameObject ItemA;
-        public GameObject ItemB;
 
-        public MergeData(Vector3 position, int itemNo, GameObject itemA, GameObject itemB)
+        public MergeData(Vector2 position, int itemNo)
         {
             Position = position;
             ItemNo = itemNo;
-            ItemA = itemA;
-            ItemB = itemB;
         }
     }
 }

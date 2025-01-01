@@ -13,38 +13,34 @@ namespace WatermelonGameClone.Presentation
         [SerializeField] private float _maxX = 2.7f;
         [SerializeField] private float _fixedY = 3.5f;
 
-        public bool _isDrop { get; private set; }
-        private bool _isGameOver = false;
+        private bool _isDrop;
 
         // Physics
+        public GameObject GameObject
+            => gameObject;
         private Rigidbody2D _rb;
         private readonly float _minDiameter = 0.4f;
         private readonly float _stepSize = 0.2f;
 
-        public GameObject GameObject
-            => this.gameObject;
-
-        public int SphereNo { get; private set; }
-        private int _maxSphereNo;
+        public int ItemNo { get; private set; }
 
         private IInputEventProvider _inputEventProvider;
         private IDisposable _mouseMoveSubscription;
         private IDisposable _mouseClickSubscription;
 
         private readonly Subject<Unit> _onDropping
-            = new Subject<Unit>();
+            = new();
         public IObservable<Unit> OnDropping
             => _onDropping;
 
-        private readonly Subject<MergeData> _onMerging
-            = new Subject<MergeData>();
+        private readonly Subject<(IMergeItemView Source, IMergeItemView Target)> _onMergeRequest
+            = new();
+        public IObservable<(IMergeItemView Source, IMergeItemView Target)> OnMergeRequest
+            => _onMergeRequest;
 
-        public IObservable<MergeData> OnMerging
-            => _onMerging;
-
-        private readonly ReactiveProperty<int> _nextSphereIndex = new();
-        public IReadOnlyReactiveProperty<int> NextSphereIndex
-            => _nextSphereIndex.ToReadOnlyReactiveProperty();
+        private readonly ReactiveProperty<int> _nextItemIndex = new();
+        public IReadOnlyReactiveProperty<int> NextItemIndex
+            => _nextItemIndex.ToReadOnlyReactiveProperty();
 
         private readonly ReactiveProperty<float> _ceilingContactTime = new();
         public IReadOnlyReactiveProperty<float> ContactTime
@@ -52,18 +48,16 @@ namespace WatermelonGameClone.Presentation
 
         [Inject]
         public void Construct(
-            [Inject(Id = "MaxItemNo")] int maxSphereNo,
             IInputEventProvider inputEventProvider)
         {
-            _maxSphereNo = maxSphereNo;
             _inputEventProvider = inputEventProvider;
         }
 
         private void Awake()
         {
             _onDropping.AddTo(this);
-            _onMerging.AddTo(this);
-            _nextSphereIndex.AddTo(this);
+            _onMergeRequest.AddTo(this);
+            _nextItemIndex.AddTo(this);
             _ceilingContactTime.AddTo(this);
 
             _isDrop = false;
@@ -94,10 +88,16 @@ namespace WatermelonGameClone.Presentation
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (IsEligibleForMerge(collision, out IMergeItemView otherSphere))
-            {
-                RequestMerge(otherSphere);
-            }
+            // If the collision target does not have iMergeiteMView, the process is terminated
+            if (!collision.gameObject.TryGetComponent(out IMergeItemView targetItem))
+                return;
+
+            // If own instance id is larger than the other, the processing is terminated
+            if (gameObject.GetInstanceID() >= targetItem.GameObject.GetInstanceID())
+                return;
+
+            // Send a merge request only when the conditions are met
+            _onMergeRequest.OnNext((this, targetItem));
         }
 
         private void OnTriggerStay2D(Collider2D collision)
@@ -112,20 +112,20 @@ namespace WatermelonGameClone.Presentation
                 _ceilingContactTime.Value = 0;
         }
 
-        public void Initialize(int sphereNo)
+        public void Initialize(int itemNo)
         {
-            SphereNo = sphereNo;
+            ItemNo = itemNo;
         }
 
-        public void InitializeAfterMerge(int sphereNo)
+        public void InitializeAfterMerge(int itemNo)
         {
-            SphereNo = sphereNo;
+            ItemNo = itemNo;
             _isDrop = true;
         }
 
         private void UpdatePosition(Vector2 mousePos)
         {
-            float currentDiameter = _minDiameter + _stepSize * (SphereNo + 1);
+            float currentDiameter = _minDiameter + _stepSize * (ItemNo + 1);
             float offset = currentDiameter / 2 + 0.01f;
             float adjustedMinX = _minX + offset;
             float adjustedMaxX = _maxX - offset;
@@ -144,26 +144,6 @@ namespace WatermelonGameClone.Presentation
 
             _mouseMoveSubscription?.Dispose();
             _mouseClickSubscription?.Dispose();
-        }
-
-        private bool IsEligibleForMerge(Collision2D collision, out IMergeItemView otherSphere)
-        {
-            otherSphere = null;
-            GameObject colObj = collision.gameObject;
-            if (!colObj.TryGetComponent<IMergeItemView>(out _))
-                return false;
-
-            otherSphere = colObj.GetComponent<IMergeItemView>();
-            return SphereNo == otherSphere.SphereNo;
-        }
-
-        private void RequestMerge(IMergeItemView otherSphere)
-        {
-            if (gameObject.GetInstanceID() < otherSphere.GameObject.GetInstanceID() && SphereNo < _maxSphereNo - 1)
-            {
-                var newPosition = (transform.position + otherSphere.GameObject.transform.position) / 2;
-                _onMerging.OnNext(new MergeData(newPosition, SphereNo, gameObject, otherSphere.GameObject));
-            }
         }
     }
 }

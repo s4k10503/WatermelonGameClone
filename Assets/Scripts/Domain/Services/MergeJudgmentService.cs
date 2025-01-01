@@ -14,7 +14,20 @@ namespace WatermelonGameClone.Domain
             return currentItemNo == targetItemNo;
         }
 
-        public Vector3 CalculateMergePosition(Vector3 position1, Vector3 position2)
+        public MergeData CreateMergeData(Vector2 sourcePosition, Vector2 targetPosition, int itemNo)
+        {
+
+            if (itemNo < 0)
+            {
+                throw new DomainException("Item number must be greater than zero.");
+            }
+
+            var newPosition = CalculateMergePosition(sourcePosition, targetPosition);
+
+            return new MergeData(newPosition, itemNo);
+        }
+
+        private Vector3 CalculateMergePosition(Vector2 position1, Vector2 position2)
         {
             return (position1 + position2) / 2;
         }

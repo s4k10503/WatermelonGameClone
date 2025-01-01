@@ -1,6 +1,5 @@
 using System;
 using UniRx;
-using WatermelonGameClone.Domain;
 using UnityEngine;
 
 namespace WatermelonGameClone.Presentation
@@ -8,14 +7,14 @@ namespace WatermelonGameClone.Presentation
     public interface IMergeItemView
     {
         IObservable<Unit> OnDropping { get; }
-        IObservable<MergeData> OnMerging { get; }
-        IReadOnlyReactiveProperty<int> NextSphereIndex { get; }
+        IObservable<(IMergeItemView Source, IMergeItemView Target)> OnMergeRequest { get; }
+        IReadOnlyReactiveProperty<int> NextItemIndex { get; }
         IReadOnlyReactiveProperty<float> ContactTime { get; }
         GameObject GameObject { get; }
-        int SphereNo { get; }
+        int ItemNo { get; }
 
-        void Initialize(int sphereNo);
-        void InitializeAfterMerge(int sphereNo);
+        void Initialize(int itemNo);
+        void InitializeAfterMerge(int itemNo);
 
     }
 }
