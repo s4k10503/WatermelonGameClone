@@ -8,13 +8,13 @@ namespace WatermelonGameClone.Presentation
     {
         IObservable<Unit> OnDropping { get; }
         IObservable<(IMergeItemView Source, IMergeItemView Target)> OnMergeRequest { get; }
-        IReadOnlyReactiveProperty<int> NextItemIndex { get; }
-        IReadOnlyReactiveProperty<float> ContactTime { get; }
+        IObservable<(Guid id, float deltaTime)> OnContactTimeUpdated { get; }
+        IObservable<Guid> OnContactExited { get; }
+
         GameObject GameObject { get; }
         int ItemNo { get; }
 
-        void Initialize(int itemNo);
-        void InitializeAfterMerge(int itemNo);
+        void Initialize(Guid id, int itemNo, bool isAfterMerge = false);
 
     }
 }

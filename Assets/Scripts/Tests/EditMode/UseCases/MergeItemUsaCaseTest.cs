@@ -60,6 +60,35 @@ namespace WatermelonGameClone.Tests
         }
 
         [Test]
+        public void AddContactTime_ShouldIncreaseContactTimeCorrectly()
+        {
+            // Arrange
+            MergeItemEntity entity = new MergeItemEntity(1);
+            float initialTime = entity.ContactTime;
+            float deltaTime = 2.5f;
+
+            // Act
+            entity.AddContactTime(deltaTime);
+
+            // Assert
+            Assert.AreEqual(initialTime + deltaTime, entity.ContactTime, "ContactTime should be increased by deltaTime.");
+        }
+
+        [Test]
+        public void ResetContactTime_ShouldSetContactTimeToZero()
+        {
+            // Arrange
+            MergeItemEntity entity = new MergeItemEntity(1);
+            entity.AddContactTime(1.5f);
+
+            // Act
+            entity.ResetContactTime();
+
+            // Assert
+            Assert.AreEqual(0f, entity.ContactTime, "ContactTime should be reset to zero.");
+        }
+
+        [Test]
         public void UpdateNextItemIndex_ShouldUpdateNextItemIndexValue()
         {
             // Arrange

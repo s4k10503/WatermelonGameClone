@@ -3,12 +3,15 @@ using UniRx;
 using Zenject;
 using UnityEngine;
 using WatermelonGameClone.Domain;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WatermelonGameClone.UseCase
 {
     public sealed class MergeItemUseCase : IMergeItemUseCase, IDisposable
     {
         public int MaxItemNo { get; private set; }
+        private readonly Dictionary<Guid, IMergeItemEntity> _entities;
         private readonly float _contactTimeLimit;
         private readonly ReactiveProperty<int> _nextItemIndex;
         public IReadOnlyReactiveProperty<int> NextItemIndex
@@ -34,8 +37,9 @@ namespace WatermelonGameClone.UseCase
                 throw new ArgumentException("MaxItemNo must be greater than zero.", nameof(maxItemNo));
             }
 
-            _disposables = new CompositeDisposable();
+            _entities = new Dictionary<Guid, IMergeItemEntity>();
             _nextItemIndex = new ReactiveProperty<int>();
+            _disposables = new CompositeDisposable();
 
             MaxItemNo = maxItemNo;
             _mergeItemIndexService = itemIndexService ?? throw new ArgumentNullException(nameof(itemIndexService));
@@ -50,6 +54,44 @@ namespace WatermelonGameClone.UseCase
         public void Dispose()
         {
             _disposables?.Dispose();
+        }
+
+        public IMergeItemEntity CreateMergeItemEntity(int itemNo)
+        {
+            var entity = new MergeItemEntity(itemNo);
+            _entities[entity.Id] = entity;
+            return entity;
+        }
+
+        public IMergeItemEntity GetEntityById(Guid id)
+        {
+            return _entities.ContainsKey(id) ? _entities[id] : null;
+        }
+
+        public IReadOnlyList<IMergeItemEntity> GetAllEntities()
+        {
+            return _entities.Values.ToList();
+        }
+
+        public void RemoveEntity(Guid id)
+        {
+            _entities.Remove(id);
+        }
+
+        public void AddContactTime(Guid id, float deltaTime)
+        {
+            if (_entities.TryGetValue(id, out var entity))
+            {
+                entity.AddContactTime(deltaTime);
+            }
+        }
+
+        public void ResetContactTime(Guid id)
+        {
+            if (_entities.TryGetValue(id, out var entity))
+            {
+                entity.ResetContactTime();
+            }
         }
 
         public bool CanMerge(int currentItemNo, int targetItemNo)

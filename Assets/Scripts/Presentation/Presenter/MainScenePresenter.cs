@@ -176,13 +176,13 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _mainSceneView.BackToGameRequested
-                .Subscribe(ResumeGame)
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ResumeGame()))
                 .AddTo(_disposables);
 
             _mainSceneView.PauseRequested
                 .Where(_ => _gameStateUseCase.GlobalState.Value != GlobalGameState.GameOver &&
                             _gameStateUseCase.GlobalState.Value != GlobalGameState.Paused)
-                .Subscribe(PauseGame)
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => PauseGame()))
                 .AddTo(_disposables);
 
             _mainSceneView.DisplayScoreRequested
@@ -196,16 +196,20 @@ namespace WatermelonGameClone.Presentation
             _mainSceneView.MergeItemManager.OnItemCreated
                 .Subscribe(mergeItem =>
                 {
+                    mergeItem.OnContactTimeUpdated
+                        .Subscribe(data => _exceptionHandlingUseCase.SafeExecute(() => HandleContactTimeUpdated(data.id, data.deltaTime)))
+                        .AddTo(_disposables);
+
+                    mergeItem.OnContactExited
+                        .Subscribe(data => _exceptionHandlingUseCase.SafeExecute(() => HandleContactExited(data)))
+                        .AddTo(_disposables);
+
                     mergeItem.OnDropping
                         .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleItemDropping()))
                         .AddTo(_disposables);
 
                     mergeItem.OnMergeRequest
                         .Subscribe(request => _exceptionHandlingUseCase.SafeExecute(() => HandleMergeRequest(request.Source, request.Target)))
-                        .AddTo(_disposables);
-
-                    mergeItem.ContactTime
-                        .Subscribe(contactTime => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameOverAsync(contactTime), ct).Forget())
                         .AddTo(_disposables);
                 }).AddTo(_disposables);
         }
@@ -231,6 +235,25 @@ namespace WatermelonGameClone.Presentation
             _mainSceneView.ScoreRankView.DisplayCurrentScore(score);
         }
 
+        private void HandleContactTimeUpdated(Guid id, float deltaTime)
+        {
+            var entity = _mergeItemUseCase.GetEntityById(id);
+            if (entity != null)
+            {
+                _mergeItemUseCase.AddContactTime(id, deltaTime);
+
+                if (_mergeItemUseCase.CheckGameOver(entity.ContactTime))
+                {
+                    HandleGameOverAsync(entity.ContactTime).Forget();
+                }
+            }
+        }
+
+        private void HandleContactExited(Guid id)
+        {
+            _mergeItemUseCase.ResetContactTime(id);
+        }
+
         private bool CanCreateNextItem()
         {
             return _isNext && _gameStateUseCase.GlobalState.Value != GlobalGameState.GameOver;
@@ -243,8 +266,15 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 _isNext = false;
+
+                // Generate entity from use case
+                var entity = _mergeItemUseCase.CreateMergeItemEntity(_mergeItemUseCase.NextItemIndex.Value);
+                var id = entity.Id;
+
                 await _mainSceneView.MergeItemManager.CreateItemAsync(
-                    _mergeItemUseCase.NextItemIndex.Value, _mergeItemCreateDelayTime, _cts.Token);
+                    id,
+                    _mergeItemUseCase.NextItemIndex.Value,
+                    _mergeItemCreateDelayTime, _cts.Token);
 
                 _mergeItemUseCase.UpdateNextItemIndex();
                 //_mergeItemUseCase.SetNextItemIndex(10);
@@ -277,11 +307,16 @@ namespace WatermelonGameClone.Presentation
                     target.GameObject.transform.position,
                     source.ItemNo);
 
-                HandleItemMerging(mergeData, source, target);
+                // Generate a new entity in the use case
+                var newEntity = _mergeItemUseCase.CreateMergeItemEntity(mergeData.ItemNo);
+                var newId = newEntity.Id;
+
+                HandleItemMerging(newId, mergeData, source, target);
             }
         }
 
         private void HandleItemMerging(
+            Guid id,
             MergeData mergeData,
             IMergeItemView itemA,
             IMergeItemView itemB)
@@ -291,7 +326,7 @@ namespace WatermelonGameClone.Presentation
             _mainSceneView.MergeItemManager.DestroyItem(itemA.GameObject);
             _mainSceneView.MergeItemManager.DestroyItem(itemB.GameObject);
 
-            _mainSceneView.MergeItemManager.MergeItem(mergeData.Position, mergeData.ItemNo);
+            _mainSceneView.MergeItemManager.MergeItem(id, mergeData.Position, mergeData.ItemNo);
 
             _soundUseCase.PlaySoundEffect(SoundEffect.Merge);
             _scoreUseCase.UpdateCurrentScore(mergeData.ItemNo);
@@ -345,14 +380,14 @@ namespace WatermelonGameClone.Presentation
             }
         }
 
-        private void ResumeGame(Unit _)
+        private void ResumeGame()
         {
             _gameStateUseCase.SetGlobalGameState(_previousGlobalState);
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
             _currentViewState.Value = ViewState.Playing;
         }
 
-        private void PauseGame(Unit _)
+        private void PauseGame()
         {
             _previousGlobalState = _gameStateUseCase.GlobalState.Value;
             _gameStateUseCase.SetGlobalGameState(GlobalGameState.Paused);

@@ -2,80 +2,78 @@ using UnityEngine;
 using System;
 using UniRx;
 using Zenject;
-using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.Presentation
 {
     public sealed class MergeItemView : MonoBehaviour, IMergeItemView
     {
+        // Inspector Fields
         [Header("Movement restrictions")]
         [SerializeField] private float _minX = -2.7f;
         [SerializeField] private float _maxX = 2.7f;
         [SerializeField] private float _fixedY = 3.5f;
 
-        private bool _isDrop;
+        // Constants & Private Fields
+        private const float MinDiameter = 0.4f;
+        private const float StepSize = 0.2f;
 
-        // Physics
-        public GameObject GameObject
-            => gameObject;
-        private Rigidbody2D _rb;
-        private readonly float _minDiameter = 0.4f;
-        private readonly float _stepSize = 0.2f;
-
-        public int ItemNo { get; private set; }
+        private Rigidbody2D _rigidbody2D;
+        private bool _isDropped;
+        private Guid _id;
 
         private IInputEventProvider _inputEventProvider;
-        private IDisposable _mouseMoveSubscription;
-        private IDisposable _mouseClickSubscription;
+        private IDisposable _mouseMoveDisposable;
+        private IDisposable _mouseClickDisposable;
 
-        private readonly Subject<Unit> _onDropping
-            = new();
-        public IObservable<Unit> OnDropping
-            => _onDropping;
+        // Public Properties
+        public GameObject GameObject => gameObject;
+        public int ItemNo { get; private set; }
 
-        private readonly Subject<(IMergeItemView Source, IMergeItemView Target)> _onMergeRequest
-            = new();
-        public IObservable<(IMergeItemView Source, IMergeItemView Target)> OnMergeRequest
-            => _onMergeRequest;
+        // UniRx Subjects (Observables)
+        private readonly Subject<Unit> _dropping = new();
+        public IObservable<Unit> OnDropping => _dropping;
 
-        private readonly ReactiveProperty<int> _nextItemIndex = new();
-        public IReadOnlyReactiveProperty<int> NextItemIndex
-            => _nextItemIndex.ToReadOnlyReactiveProperty();
+        private readonly Subject<(IMergeItemView Source, IMergeItemView Target)> _mergeRequest = new();
+        public IObservable<(IMergeItemView Source, IMergeItemView Target)> OnMergeRequest => _mergeRequest;
 
-        private readonly ReactiveProperty<float> _ceilingContactTime = new();
-        public IReadOnlyReactiveProperty<float> ContactTime
-            => _ceilingContactTime.ToReadOnlyReactiveProperty();
+        private readonly Subject<(Guid id, float deltaTime)> _contactTimeUpdated = new();
+        public IObservable<(Guid id, float deltaTime)> OnContactTimeUpdated => _contactTimeUpdated;
+
+        private readonly Subject<Guid> _contactExited = new();
+        public IObservable<Guid> OnContactExited => _contactExited;
 
         [Inject]
-        public void Construct(
-            IInputEventProvider inputEventProvider)
+        public void Construct(IInputEventProvider inputEventProvider)
         {
             _inputEventProvider = inputEventProvider;
         }
 
         private void Awake()
         {
-            _onDropping.AddTo(this);
-            _onMergeRequest.AddTo(this);
-            _nextItemIndex.AddTo(this);
-            _ceilingContactTime.AddTo(this);
+            // Subscribe this instance's lifecycle to automatically dispose of Subjects
+            _dropping.AddTo(this);
+            _mergeRequest.AddTo(this);
+            _contactTimeUpdated.AddTo(this);
+            _contactExited.AddTo(this);
 
-            _isDrop = false;
-            _rb = GetComponent<Rigidbody2D>();
-            _rb.simulated = false;
+            _rigidbody2D = GetComponent<Rigidbody2D>();
+            _rigidbody2D.simulated = false;
+            _isDropped = false;
         }
 
         private void Start()
         {
-            _mouseMoveSubscription = _inputEventProvider
+            // Submit the mouse movement to update the position
+            _mouseMoveDisposable = _inputEventProvider
                 .OnMouseMove
-                .Where(_ => !_isDrop && Time.timeScale != 0f)
+                .Where(_ => !_isDropped && Time.timeScale != 0f)
                 .Subscribe(UpdatePosition)
                 .AddTo(this);
 
-            _mouseClickSubscription = _inputEventProvider
+            // Submit the mouse click to start drop processing
+            _mouseClickDisposable = _inputEventProvider
                 .OnMouseClick
-                .Where(_ => !_isDrop && Time.timeScale != 0f)
+                .Where(_ => !_isDropped && Time.timeScale != 0f)
                 .Subscribe(_ => StartDropping())
                 .AddTo(this);
         }
@@ -83,67 +81,85 @@ namespace WatermelonGameClone.Presentation
         private void OnDestroy()
         {
             _inputEventProvider = null;
-            _rb = null;
+            _rigidbody2D = null;
+
+            _mouseMoveDisposable?.Dispose();
+            _mouseClickDisposable?.Dispose();
         }
 
+        // Initialize new and synthesized items
+        public void Initialize(Guid id, int itemNo, bool isAfterMerge = false)
+        {
+            _id = id;
+            ItemNo = itemNo;
+            _isDropped = isAfterMerge;
+
+            if (isAfterMerge)
+            {
+                // After the merge, it is treated with the dropped and simulated the rigid body
+                _mouseMoveDisposable?.Dispose();
+                _mouseClickDisposable?.Dispose();
+                _rigidbody2D.simulated = true;
+            }
+        }
+
+        // Update the position of the item according to the mouse position
+        private void UpdatePosition(Vector2 mousePos)
+        {
+            float currentDiameter = MinDiameter + StepSize * (ItemNo + 1);
+            float offset = currentDiameter / 2 + 0.01f;
+
+            float adjustedMinX = _minX + offset;
+            float adjustedMaxX = _maxX - offset;
+
+            mousePos.x = Mathf.Clamp(mousePos.x, adjustedMinX, adjustedMaxX);
+            mousePos.y = _fixedY;
+
+            transform.position = mousePos;
+        }
+
+        // Drop start processing
+        private void StartDropping()
+        {
+            _dropping.OnNext(Unit.Default);
+
+            _isDropped = true;
+            _rigidbody2D.velocity = Vector2.zero;
+            _rigidbody2D.simulated = true;
+
+            _mouseMoveDisposable?.Dispose();
+            _mouseClickDisposable?.Dispose();
+        }
+
+        // Collision / Trigger Handlers
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            // If the collision target does not have iMergeiteMView, the process is terminated
-            if (!collision.gameObject.TryGetComponent(out IMergeItemView targetItem))
-                return;
+            // If the collision partner does not implement iMergeiteMView
+            if (!collision.gameObject.TryGetComponent(out IMergeItemView targetItem)) return;
 
-            // If own instance id is larger than the other, the processing is terminated
-            if (gameObject.GetInstanceID() >= targetItem.GameObject.GetInstanceID())
-                return;
+            // If your GetinstanceID () is larger than the collision partner, it will be processed first
+            if (gameObject.GetInstanceID() >= targetItem.GameObject.GetInstanceID()) return;
 
-            // Send a merge request only when the conditions are met
-            _onMergeRequest.OnNext((this, targetItem));
+            // Merge request notification
+            _mergeRequest.OnNext((this, targetItem));
         }
 
         private void OnTriggerStay2D(Collider2D collision)
         {
+            // Detect contact with the ceiling and notify the time
             if (collision.TryGetComponent<IGameOverTrigger>(out _))
-                _ceilingContactTime.Value += Time.deltaTime;
+            {
+                _contactTimeUpdated.OnNext((_id, Time.deltaTime));
+            }
         }
 
         private void OnTriggerExit2D(Collider2D collision)
         {
+            // Detects contact release with the ceiling
             if (collision.TryGetComponent<IGameOverTrigger>(out _))
-                _ceilingContactTime.Value = 0;
-        }
-
-        public void Initialize(int itemNo)
-        {
-            ItemNo = itemNo;
-        }
-
-        public void InitializeAfterMerge(int itemNo)
-        {
-            ItemNo = itemNo;
-            _isDrop = true;
-        }
-
-        private void UpdatePosition(Vector2 mousePos)
-        {
-            float currentDiameter = _minDiameter + _stepSize * (ItemNo + 1);
-            float offset = currentDiameter / 2 + 0.01f;
-            float adjustedMinX = _minX + offset;
-            float adjustedMaxX = _maxX - offset;
-            mousePos.x = Mathf.Clamp(mousePos.x, adjustedMinX, adjustedMaxX);
-            mousePos.y = _fixedY;
-            transform.position = mousePos;
-        }
-
-        private void StartDropping()
-        {
-            _onDropping.OnNext(Unit.Default);
-
-            _isDrop = true;
-            _rb.velocity = Vector2.zero;
-            _rb.simulated = true;
-
-            _mouseMoveSubscription?.Dispose();
-            _mouseClickSubscription?.Dispose();
+            {
+                _contactExited.OnNext(_id);
+            }
         }
     }
 }
