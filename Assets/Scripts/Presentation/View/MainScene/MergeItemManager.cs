@@ -42,16 +42,18 @@ namespace WatermelonGameClone.Presentation
             _container = null;
         }
 
-        public async UniTask CreateItem(int itemNo, float delaySeconds, CancellationToken ct)
+        public async UniTask CreateItemAsync(Guid id, int itemNo, float delaySeconds, CancellationToken ct)
         {
             try
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(delaySeconds), cancellationToken: ct);
+
                 GameObject itemObj = _container.InstantiatePrefab(_itemPrefabs[itemNo], _itemPosition);
                 IMergeItemView itemView = itemObj.GetComponent<IMergeItemView>();
 
-                itemView.Initialize(itemNo);
+                itemView.Initialize(id, itemNo);
                 itemView.GameObject.SetActive(true);
+
                 _onItemCreated.OnNext(itemView);
             }
             catch (OperationCanceledException)
@@ -65,22 +67,27 @@ namespace WatermelonGameClone.Presentation
             }
         }
 
-        public void MergeItem(Vector3 position, int itemNo)
+        public void MergeItem(Guid id, Vector3 position, int itemNo)
         {
+            if (_itemPrefabs == null || itemNo + 1 >= _itemPrefabs.Length)
+            {
+                // Reached maximum itemNo. No further merging possible.
+                return;
+            }
+
             GameObject itemObj = _container.InstantiatePrefab(
                 _itemPrefabs[itemNo + 1], position, Quaternion.identity, _itemPosition);
 
             var itemView = itemObj.GetComponent<IMergeItemView>();
-            itemView.InitializeAfterMerge(itemNo + 1);
-            ((MonoBehaviour)itemView).GetComponent<Rigidbody2D>().simulated = true;
+            itemView.Initialize(id, itemNo + 1, isAfterMerge: true);
             itemView.GameObject.SetActive(true);
             _onItemCreated.OnNext(itemView);
         }
 
-        public void DestroyItem(GameObject itemView)
+        public void DestroyItem(GameObject itemObj)
         {
-            Destroy(itemView);
-            itemView = null;
+            Destroy(itemObj);
+            itemObj = null;
         }
     }
 }

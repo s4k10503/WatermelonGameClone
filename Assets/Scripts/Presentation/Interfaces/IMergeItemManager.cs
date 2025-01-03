@@ -11,8 +11,8 @@ namespace WatermelonGameClone.Presentation
     {
         IObservable<IMergeItemView> OnItemCreated { get; }
 
-        UniTask CreateItem(int sphereNo, float delaySeconds, CancellationToken ct);
-        void MergeItem(Vector3 position, int sphereNo);
-        void DestroyItem(GameObject sphereView);
+        UniTask CreateItemAsync(Guid id, int itemNo, float delaySeconds, CancellationToken ct);
+        void MergeItem(Guid id, Vector3 position, int itemNo);
+        void DestroyItem(GameObject itemView);
     }
 }

@@ -1,9 +1,10 @@
 namespace WatermelonGameClone.Domain
 {
-    public interface ITimeSettingsRepository
+    public interface IGameRuleSettingsRepository
     {
         float GetDelayedTime();
         float GetTimeScaleGameStart();
         float GetTimeScaleGameOver();
+        float GetContactTimeLimit();
     }
 }

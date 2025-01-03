@@ -24,17 +24,17 @@ namespace WatermelonGameClone.UseCase
         public float TimeScaleGameStart { get; private set; }
         public float TimeScaleGameOver { get; private set; }
 
-        private readonly ITimeSettingsRepository _timeSettingsRepository;
+        private readonly IGameRuleSettingsRepository _gameRuleSettingsRepository;
 
         [Inject]
-        public GameStateUseCase(ITimeSettingsRepository timeSettingsRepository)
+        public GameStateUseCase(IGameRuleSettingsRepository gameRuleSettingsRepository)
         {
-            _timeSettingsRepository = timeSettingsRepository ?? throw new ArgumentNullException(nameof(timeSettingsRepository));
+            _gameRuleSettingsRepository = gameRuleSettingsRepository ?? throw new ArgumentNullException(nameof(gameRuleSettingsRepository));
 
             // Get time settings
-            DelayedTime = ValidateTimeValue(_timeSettingsRepository.GetDelayedTime(), "DelayedTime");
-            TimeScaleGameStart = ValidateTimeValue(_timeSettingsRepository.GetTimeScaleGameStart(), "TimeScaleGameStart");
-            TimeScaleGameOver = ValidateTimeValue(_timeSettingsRepository.GetTimeScaleGameOver(), "TimeScaleGameOver");
+            DelayedTime = ValidateTimeValue(_gameRuleSettingsRepository.GetDelayedTime(), "DelayedTime");
+            TimeScaleGameStart = ValidateTimeValue(_gameRuleSettingsRepository.GetTimeScaleGameStart(), "TimeScaleGameStart");
+            TimeScaleGameOver = ValidateTimeValue(_gameRuleSettingsRepository.GetTimeScaleGameOver(), "TimeScaleGameOver");
         }
 
         public void Dispose()
