@@ -277,7 +277,6 @@ namespace WatermelonGameClone.Presentation
                     _mergeItemCreateDelayTime, _cts.Token);
 
                 _mergeItemUseCase.UpdateNextItemIndex();
-                //_mergeItemUseCase.SetNextItemIndex(10);
                 _mergeItemCreateDelayTime = 1.0f;
             }
             catch (OperationCanceledException)

@@ -43,7 +43,7 @@ namespace WatermelonGameClone.UseCase
         {
             try
             {
-                _scoreData = await _scoreRepository.LoadScoresAsync(ct) 
+                _scoreData = await _scoreRepository.LoadScoresAsync(ct)
                     ?? throw new ApplicationException("Failed to load score data. The returned data is null.");
 
                 DateTime currentDate = DateTime.Today;
@@ -90,7 +90,7 @@ namespace WatermelonGameClone.UseCase
                     throw new ApplicationException("Score table is invalid or empty.");
                 }
 
-                if (sphereNo < 0 || sphereNo >= scores.Length)
+                if (sphereNo > scores.Length || 0 > sphereNo)
                 {
                     throw new ArgumentOutOfRangeException(nameof(sphereNo), "Sphere number is out of range.");
                 }
@@ -109,7 +109,7 @@ namespace WatermelonGameClone.UseCase
             {
                 throw new NullReferenceException("_scoreData is null. Ensure InitializeAsync was called before updating scores.");
             }
-            
+
             try
             {
                 _scoreData.Data.Rankings.Daily.Scores = _scoreRankingService.UpdateTopScores(
