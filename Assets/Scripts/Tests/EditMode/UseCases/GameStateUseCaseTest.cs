@@ -10,21 +10,21 @@ namespace WatermelonGameClone.Tests
     public class GameStateUseCaseTest
     {
         private GameStateUseCase _gameStateUseCase;
-        private ITimeSettingsRepository _mockTimeSettingsRepository;
+        private IGameRuleSettingsRepository _mockGameRuleSettingsRepository;
 
         [SetUp]
         public void SetUp()
         {
             // Creating Mocks
-            _mockTimeSettingsRepository = Substitute.For<ITimeSettingsRepository>();
+            _mockGameRuleSettingsRepository = Substitute.For<IGameRuleSettingsRepository>();
 
-            // Creating Mocks
-            _mockTimeSettingsRepository.GetDelayedTime().Returns(2.5f);
-            _mockTimeSettingsRepository.GetTimeScaleGameStart().Returns(1.0f);
-            _mockTimeSettingsRepository.GetTimeScaleGameOver().Returns(0.0f);
+            // Setup mock to return a default value
+            _mockGameRuleSettingsRepository.GetDelayedTime().Returns(2.5f);
+            _mockGameRuleSettingsRepository.GetTimeScaleGameStart().Returns(1.0f);
+            _mockGameRuleSettingsRepository.GetTimeScaleGameOver().Returns(0.0f);
 
             // Create use cases to be tested
-            _gameStateUseCase = new GameStateUseCase(_mockTimeSettingsRepository);
+            _gameStateUseCase = new GameStateUseCase(_mockGameRuleSettingsRepository);
         }
 
         [Test]
@@ -36,9 +36,9 @@ namespace WatermelonGameClone.Tests
             Assert.AreEqual(0.0f, _gameStateUseCase.TimeScaleGameOver);
 
             // Check to see if the mock was called
-            _mockTimeSettingsRepository.Received(1).GetDelayedTime();
-            _mockTimeSettingsRepository.Received(1).GetTimeScaleGameStart();
-            _mockTimeSettingsRepository.Received(1).GetTimeScaleGameOver();
+            _mockGameRuleSettingsRepository.Received(1).GetDelayedTime();
+            _mockGameRuleSettingsRepository.Received(1).GetTimeScaleGameStart();
+            _mockGameRuleSettingsRepository.Received(1).GetTimeScaleGameOver();
         }
 
         [Test]

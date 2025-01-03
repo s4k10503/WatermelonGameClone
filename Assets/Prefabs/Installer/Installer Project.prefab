@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d7d345c2f58b124883f12e4f77cd7d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _timeSettings: {fileID: 11400000, guid: 99e7d45bdc364e541b6514495df9af2a, type: 2}
+  _gameRuleSettings: {fileID: 11400000, guid: 99e7d45bdc364e541b6514495df9af2a, type: 2}
   _soundSettings: {fileID: 11400000, guid: 1a521a6a42b99954db5122df3762be3b, type: 2}
   _scoreTableSettings: {fileID: 11400000, guid: 65c9397b047f396459c9b80703ab1765, type: 2}
   _audioSourceBGM: {fileID: 7261675480923348666, guid: 6cd93a71c5394b240832136c00e5eadb, type: 3}

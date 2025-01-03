@@ -9,7 +9,7 @@ namespace WatermelonGameClone.Installers
 {
     public class ProjectInstaller : MonoInstaller
     {
-        [SerializeField] TimeSettings _timeSettings;
+        [SerializeField] GameRuleSettings _gameRuleSettings;
         [SerializeField] SoundSettings _soundSettings;
         [SerializeField] ScoreTableSettings _scoreTableSettings;
         [SerializeField] AudioSource _audioSourceBGM;
@@ -39,13 +39,13 @@ namespace WatermelonGameClone.Installers
 
             // Common Repositories
             Container
-                .Bind<TimeSettings>()
-                .FromInstance(_timeSettings)
+                .Bind<GameRuleSettings>()
+                .FromInstance(_gameRuleSettings)
                 .AsSingle();
 
             Container
-                .Bind<ITimeSettingsRepository>()
-                .To<TimeSettingsRepository>()
+                .Bind<IGameRuleSettingsRepository>()
+                .To<GameRuleSettingsRepository>()
                 .FromNew()
                 .AsSingle();
 

@@ -1,21 +1,20 @@
 using System;
 using UniRx;
-using WatermelonGameClone.Domain;
 using UnityEngine;
 
 namespace WatermelonGameClone.Presentation
 {
     public interface IMergeItemView
     {
-        IObservable<Unit> OnGameOver { get; }
         IObservable<Unit> OnDropping { get; }
-        IObservable<MergeData> OnMerging { get; }
-        IReadOnlyReactiveProperty<int> NextSphereIndex { get; }
-        GameObject GameObject { get; }
-        int SphereNo { get; }
+        IObservable<(IMergeItemView Source, IMergeItemView Target)> OnMergeRequest { get; }
+        IObservable<(Guid id, float deltaTime)> OnContactTimeUpdated { get; }
+        IObservable<Guid> OnContactExited { get; }
 
-        void Initialize(int sphereNo);
-        void InitializeAfterMerge(int sphereNo);
+        GameObject GameObject { get; }
+        int ItemNo { get; }
+
+        void Initialize(Guid id, int itemNo, bool isAfterMerge = false);
 
     }
 }
