@@ -12,7 +12,7 @@ namespace WatermelonGameClone.UseCase
         IReadOnlyReactiveProperty<int> BestScore { get; }
 
         UniTask InitializeAsync(CancellationToken ct);
-        void UpdateCurrentScore(int sphereNo);
+        void UpdateCurrentScore(int itemNo);
         UniTask UpdateScoreRankingAsync(int newScore, CancellationToken ct);
         ScoreContainer GetScoreData();
     }

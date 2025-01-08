@@ -79,7 +79,7 @@ namespace WatermelonGameClone.UseCase
             _scoreData = null;
         }
 
-        public void UpdateCurrentScore(int sphereNo)
+        public void UpdateCurrentScore(int itemNo)
         {
             try
             {
@@ -90,12 +90,14 @@ namespace WatermelonGameClone.UseCase
                     throw new ApplicationException("Score table is invalid or empty.");
                 }
 
-                if (sphereNo > scores.Length || 0 > sphereNo)
+                if (itemNo > scores.Length || 0 > itemNo)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(sphereNo), "Sphere number is out of range.");
+                    throw new ArgumentOutOfRangeException(nameof(itemNo), "Item number is out of range.");
                 }
 
-                _currentScore.Value += scores[sphereNo];
+                // The score table has a value corresponding to each item
+                // itemNo is the number of the item after merge, so subtract 1 to get the score
+                _currentScore.Value += scores[itemNo - 1];
             }
             catch (Exception ex)
             {

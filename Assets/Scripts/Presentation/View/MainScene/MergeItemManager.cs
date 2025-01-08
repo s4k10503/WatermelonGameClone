@@ -69,17 +69,17 @@ namespace WatermelonGameClone.Presentation
 
         public void MergeItem(Guid id, Vector3 position, int itemNo)
         {
-            if (_itemPrefabs == null || itemNo + 1 >= _itemPrefabs.Length)
+            if (_itemPrefabs == null || itemNo >= _itemPrefabs.Length)
             {
                 // Reached maximum itemNo. No further merging possible.
                 return;
             }
 
             GameObject itemObj = _container.InstantiatePrefab(
-                _itemPrefabs[itemNo + 1], position, Quaternion.identity, _itemPosition);
+                _itemPrefabs[itemNo], position, Quaternion.identity, _itemPosition);
 
             var itemView = itemObj.GetComponent<IMergeItemView>();
-            itemView.Initialize(id, itemNo + 1, isAfterMerge: true);
+            itemView.Initialize(id, itemNo, isAfterMerge: true);
             itemView.GameObject.SetActive(true);
             _onItemCreated.OnNext(itemView);
         }

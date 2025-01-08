@@ -11,7 +11,9 @@ namespace WatermelonGameClone.Tests
         [SetUp]
         public void SetUp()
         {
-            _mergeItemEntity = new MergeItemEntity(1);
+            int itemNo = 1;
+            float contactTimeLimit = 1.0f;
+            _mergeItemEntity = new MergeItemEntity(itemNo, contactTimeLimit);
         }
 
         [Test]
@@ -47,6 +49,71 @@ namespace WatermelonGameClone.Tests
 
             // Assert
             Assert.AreEqual(0f, _mergeItemEntity.ContactTime, "ContactTime should be reset to 0.");
+        }
+
+        [Test]
+        public void CanMerge_WhenItemNumbersAreEqual_ShouldReturnTrue()
+        {
+            // Arrange
+            var otherEntity = new MergeItemEntity(1, 1.0f);
+
+            // Act
+            bool result = _mergeItemEntity.CanMergeWith(otherEntity);
+
+            // Assert
+            Assert.IsTrue(result, "CanMerge should return true when item numbers are equal.");
+        }
+
+        [Test]
+        public void CanMerge_WhenItemNumbersAreNotEqual_ShouldReturnFalse()
+        {
+            // Arrange
+            var otherEntity = new MergeItemEntity(2, 1.0f);
+
+            // Act
+            bool result = _mergeItemEntity.CanMergeWith(otherEntity);
+
+            // Assert
+            Assert.IsFalse(result, "CanMerge should return false when item numbers are not equal.");
+        }
+
+        [Test]
+        public void CheckGameOver_WhenContactTimeExceedsTimeLimit_ShouldReturnTrue()
+        {
+            // Arrange
+            _mergeItemEntity.AddContactTime(1.5f);
+
+            // Act
+            bool result = _mergeItemEntity.CheckGameOver();
+
+            // Assert
+            Assert.IsTrue(result, "GameOver should be true when contact time exceeds time limit.");
+        }
+
+        [Test]
+        public void CheckGameOver_WhenContactTimeIsEqualToTimeLimit_ShouldReturnFalse()
+        {
+            // Arrange
+            _mergeItemEntity.AddContactTime(1.0f);
+
+            // Act
+            bool result = _mergeItemEntity.CheckGameOver();
+
+            // Assert
+            Assert.IsFalse(result, "GameOver should be false when contact time is equal to time limit.");
+        }
+
+        [Test]
+        public void CheckGameOver_WhenContactTimeIsLessThanTimeLimit_ShouldReturnFalse()
+        {
+            // Arrange
+            _mergeItemEntity.AddContactTime(0.5f);
+
+            // Act
+            bool result = _mergeItemEntity.CheckGameOver();
+
+            // Assert
+            Assert.IsFalse(result, "GameOver should be false when contact time is less than time limit.");
         }
 
         [TearDown]

@@ -4,6 +4,6 @@ namespace WatermelonGameClone.Presentation
     {
         // Methods related to UI updates
         void CreateNextItemImages();
-        void UpdateNextItemImages(int sphereIndex);
+        void UpdateNextItemImages(int itemIndex);
     }
 }
