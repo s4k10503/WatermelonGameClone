@@ -237,15 +237,10 @@ namespace WatermelonGameClone.Presentation
 
         private void HandleContactTimeUpdated(Guid id, float deltaTime)
         {
-            var entity = _mergeItemUseCase.GetEntityById(id);
-            if (entity != null)
+            _mergeItemUseCase.AddContactTime(id, deltaTime);
+            if (_mergeItemUseCase.CheckGameOver(id))
             {
-                _mergeItemUseCase.AddContactTime(id, deltaTime);
-
-                if (_mergeItemUseCase.CheckGameOver(entity.ContactTime))
-                {
-                    HandleGameOverAsync(entity.ContactTime).Forget();
-                }
+                HandleGameOverAsync().Forget();
             }
         }
 
@@ -297,33 +292,38 @@ namespace WatermelonGameClone.Presentation
             _isNext = true;
         }
 
-        private void HandleMergeRequest(IMergeItemView source, IMergeItemView target)
+        private void HandleMergeRequest(IMergeItemView sourceView, IMergeItemView targetView)
         {
-            if (_mergeItemUseCase.CanMerge(source.ItemNo, target.ItemNo))
+            var sourceEntity = _mergeItemUseCase.GetEntityById(sourceView.Id);
+            var targetEntity = _mergeItemUseCase.GetEntityById(targetView.Id);
+
+            if (sourceEntity != null
+                && targetEntity != null
+                && sourceEntity.CanMergeWith(targetEntity))
             {
-                var mergeData = _mergeItemUseCase.CreateMergeData(
-                    source.GameObject.transform.position,
-                    target.GameObject.transform.position,
-                    source.ItemNo);
+                // Update the position of the entity
+                sourceEntity.Position = sourceView.GameObject.transform.position;
+                targetEntity.Position = targetView.GameObject.transform.position;
+
+                var mergeData = _mergeItemUseCase.CreateMergeData(sourceView.Id, targetView.Id);
 
                 // Generate a new entity in the use case
-                var newEntity = _mergeItemUseCase.CreateMergeItemEntity(mergeData.ItemNo);
-                var newId = newEntity.Id;
+                var newId = _mergeItemUseCase.CreateMergeItemEntity(mergeData.ItemNo).Id;
 
-                HandleItemMerging(newId, mergeData, source, target);
+                HandleItemMerging(newId, mergeData, sourceView, targetView);
             }
         }
 
         private void HandleItemMerging(
             Guid id,
             MergeData mergeData,
-            IMergeItemView itemA,
-            IMergeItemView itemB)
+            IMergeItemView sourceView,
+            IMergeItemView targetView)
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Merging);
 
-            _mainSceneView.MergeItemManager.DestroyItem(itemA.GameObject);
-            _mainSceneView.MergeItemManager.DestroyItem(itemB.GameObject);
+            _mainSceneView.MergeItemManager.DestroyItem(sourceView.GameObject);
+            _mainSceneView.MergeItemManager.DestroyItem(targetView.GameObject);
 
             _mainSceneView.MergeItemManager.MergeItem(id, mergeData.Position, mergeData.ItemNo);
 
@@ -331,10 +331,8 @@ namespace WatermelonGameClone.Presentation
             _scoreUseCase.UpdateCurrentScore(mergeData.ItemNo);
         }
 
-        private async UniTask HandleGameOverAsync(float contactTime)
+        private async UniTask HandleGameOverAsync()
         {
-            if (!_mergeItemUseCase.CheckGameOver(contactTime)) return;
-
             if (_cts == null || _cts.IsCancellationRequested) return;
 
             try

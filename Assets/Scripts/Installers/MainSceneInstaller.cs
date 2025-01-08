@@ -3,7 +3,6 @@ using Zenject;
 using WatermelonGameClone.Domain;
 using WatermelonGameClone.UseCase;
 using WatermelonGameClone.Presentation;
-using WatermelonGameClone.Infrastructure;
 
 namespace WatermelonGameClone.Installers
 {
@@ -20,20 +19,8 @@ namespace WatermelonGameClone.Installers
         {
             // Services
             Container
-                .Bind<IMergeItemIndexService>()
-                .To<MergeItemIndexService>()
-                .FromNew()
-                .AsSingle();
-
-            Container
-                .Bind<IMergeJudgmentService>()
-                .To<MergeJudgmentService>()
-                .FromNew()
-                .AsSingle();
-
-            Container
-                .Bind<IGameOverJudgmentService>()
-                .To<GameOverJudgmentService>()
+                .Bind<IMergeService>()
+                .To<MergeService>()
                 .FromNew()
                 .AsSingle();
 

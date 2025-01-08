@@ -64,7 +64,7 @@ namespace WatermelonGameClone.Tests
 
             // Reset ranking data
             var dailyScores = _mockScoreContainer.Data.Rankings.Daily.Scores;
-            
+
             // Act
             await _scoreUseCase.InitializeAsync(CancellationToken.None);
 
@@ -89,19 +89,33 @@ namespace WatermelonGameClone.Tests
             _scoreUseCase.UpdateCurrentScore(1);
 
             // Assert
-            Assert.AreEqual(20, _scoreUseCase.CurrentScore.Value);
+            Assert.AreEqual(10, _scoreUseCase.CurrentScore.Value);
         }
 
         [Test]
-        public void UpdateCurrentScore_ShouldThrowExceptionForInvalidSphereNo()
+        public void UpdateCurrentScore_ShouldThrowApplicationException_WhenItemNoIsNegative()
         {
             // Arrange
             int[] scoreTable = { 10, 20, 30 };
             _mockScoreTableRepository.GetScoreTable().Returns(scoreTable);
 
             // Act & Assert
-            Assert.Throws<ArgumentOutOfRangeException>(() => _scoreUseCase.UpdateCurrentScore(-1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => _scoreUseCase.UpdateCurrentScore(3));
+            var ex = Assert.Throws<ApplicationException>(() => _scoreUseCase.UpdateCurrentScore(-1));
+            Assert.IsInstanceOf<ArgumentOutOfRangeException>(ex.InnerException);
+            Assert.That(ex.InnerException.Message, Does.Contain("Item number is out of range."));
+        }
+
+        [Test]
+        public void UpdateCurrentScore_ShouldThrowApplicationException_WhenItemNoIsOutOfRange()
+        {
+            // Arrange
+            int[] scoreTable = { 10, 20, 30 };
+            _mockScoreTableRepository.GetScoreTable().Returns(scoreTable);
+
+            // Act & Assert
+            var ex = Assert.Throws<ApplicationException>(() => _scoreUseCase.UpdateCurrentScore(4));
+            Assert.IsInstanceOf<ArgumentOutOfRangeException>(ex.InnerException);
+            Assert.That(ex.InnerException.Message, Does.Contain("Item number is out of range."));
         }
 
         [UnityTest]

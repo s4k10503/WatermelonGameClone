@@ -1,7 +1,6 @@
 using System;
 using UniRx;
 using Zenject;
-using UnityEngine;
 using WatermelonGameClone.Domain;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +16,7 @@ namespace WatermelonGameClone.UseCase
         public IReadOnlyReactiveProperty<int> NextItemIndex
             => _nextItemIndex.ToReadOnlyReactiveProperty();
 
-        private readonly IMergeItemIndexService _mergeItemIndexService;
-        private readonly IMergeJudgmentService _mergeJudgmentService;
-        private readonly IGameOverJudgmentService _gameOverJudgmentService;
+        private readonly IMergeService _mergeService;
         private readonly IGameRuleSettingsRepository _gameRuleSettingsRepository;
 
         private readonly CompositeDisposable _disposables;
@@ -27,24 +24,18 @@ namespace WatermelonGameClone.UseCase
         [Inject]
         public MergeItemUseCase(
             [Inject(Id = "MaxItemNo")] int maxItemNo,
-            IMergeItemIndexService itemIndexService,
-            IMergeJudgmentService mergeJudgmentService,
-            IGameOverJudgmentService gameOverJudgmentService,
+            IMergeService mergeService,
             IGameRuleSettingsRepository gameRuleSettingsRepository)
         {
             if (maxItemNo <= 0)
-            {
                 throw new ArgumentException("MaxItemNo must be greater than zero.", nameof(maxItemNo));
-            }
 
             _entities = new Dictionary<Guid, IMergeItemEntity>();
             _nextItemIndex = new ReactiveProperty<int>();
             _disposables = new CompositeDisposable();
 
             MaxItemNo = maxItemNo;
-            _mergeItemIndexService = itemIndexService ?? throw new ArgumentNullException(nameof(itemIndexService));
-            _mergeJudgmentService = mergeJudgmentService ?? throw new ArgumentNullException(nameof(mergeJudgmentService));
-            _gameOverJudgmentService = gameOverJudgmentService ?? throw new ArgumentNullException(nameof(gameOverJudgmentService));
+            _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
             _gameRuleSettingsRepository = gameRuleSettingsRepository ?? throw new ArgumentNullException(nameof(_gameRuleSettingsRepository));
             _contactTimeLimit = _gameRuleSettingsRepository.GetContactTimeLimit();
 
@@ -58,7 +49,10 @@ namespace WatermelonGameClone.UseCase
 
         public IMergeItemEntity CreateMergeItemEntity(int itemNo)
         {
-            var entity = new MergeItemEntity(itemNo);
+            if (itemNo < 0)
+                throw new ArgumentException("ItemNo must be non-negative.", nameof(itemNo));
+
+            var entity = new MergeItemEntity(itemNo, _contactTimeLimit);
             _entities[entity.Id] = entity;
             return entity;
         }
@@ -80,11 +74,24 @@ namespace WatermelonGameClone.UseCase
 
         public void AddContactTime(Guid id, float deltaTime)
         {
-            if (_entities.TryGetValue(id, out var entity))
+            if (!_entities.TryGetValue(id, out var entity))
             {
-                entity.AddContactTime(deltaTime);
+                throw new KeyNotFoundException("Entity is not found.");
             }
+
+            entity.AddContactTime(deltaTime);
         }
+
+        public bool CheckGameOver(Guid id)
+        {
+            if (!_entities.TryGetValue(id, out var entity))
+            {
+                throw new KeyNotFoundException("Entity is not found.");
+            }
+
+            return entity.CheckGameOver();
+        }
+
 
         public void ResetContactTime(Guid id)
         {
@@ -94,31 +101,41 @@ namespace WatermelonGameClone.UseCase
             }
         }
 
-        public bool CanMerge(int currentItemNo, int targetItemNo)
+        public bool CanMerge(Guid sourceId, Guid targetId)
         {
-            return _mergeJudgmentService.CanMerge(currentItemNo, targetItemNo);
+            if (!_entities.TryGetValue(sourceId, out var source) || !_entities.TryGetValue(targetId, out var target))
+            {
+                throw new KeyNotFoundException("One or both entities not found.");
+            }
+
+            return source.CanMergeWith(target);
         }
 
-        public MergeData CreateMergeData(Vector2 sourcePosition, Vector2 targetPosition, int itemNo)
+        public MergeData CreateMergeData(Guid sourceId, Guid targetId)
         {
-            return _mergeJudgmentService.CreateMergeData(sourcePosition, targetPosition, itemNo);
+            if (!_entities.TryGetValue(sourceId, out var source) || !_entities.TryGetValue(targetId, out var target))
+            {
+                throw new KeyNotFoundException("One or both entities not found.");
+            }
+
+            if (!source.CanMergeWith(target))
+            {
+                throw new InvalidOperationException("Entities cannot be merged.");
+            }
+
+            return _mergeService.CreateMergeData(source.Position, target.Position, source.ItemNo);
         }
 
         public void UpdateNextItemIndex()
         {
             try
             {
-                _nextItemIndex.Value = _mergeItemIndexService.GenerateNextItemIndex(MaxItemNo);
+                _nextItemIndex.Value = _mergeService.GenerateNextItemIndex(MaxItemNo);
             }
             catch (Exception ex)
             {
                 throw new ApplicationException("Failed to update next item index.", ex);
             }
-        }
-
-        public bool CheckGameOver(float contactTime)
-        {
-            return _gameOverJudgmentService.CheckGameOver(contactTime, _contactTimeLimit);
         }
 
 #if DEVELOPMENT_BUILD || UNITY_EDITOR

@@ -9,6 +9,7 @@ namespace WatermelonGameClone.Domain
 
         public MergeData(Vector2 position, int itemNo)
         {
+            
             Position = position;
             ItemNo = itemNo;
         }

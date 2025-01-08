@@ -12,6 +12,7 @@ namespace WatermelonGameClone.Presentation
         IObservable<Guid> OnContactExited { get; }
 
         GameObject GameObject { get; }
+        Guid Id { get; }
         int ItemNo { get; }
 
         void Initialize(Guid id, int itemNo, bool isAfterMerge = false);

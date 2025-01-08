@@ -19,7 +19,7 @@ namespace WatermelonGameClone.Presentation
 
         private Rigidbody2D _rigidbody2D;
         private bool _isDropped;
-        private Guid _id;
+        public Guid Id { get; private set; }
 
         private IInputEventProvider _inputEventProvider;
         private IDisposable _mouseMoveDisposable;
@@ -90,7 +90,7 @@ namespace WatermelonGameClone.Presentation
         // Initialize new and synthesized items
         public void Initialize(Guid id, int itemNo, bool isAfterMerge = false)
         {
-            _id = id;
+            Id = id;
             ItemNo = itemNo;
             _isDropped = isAfterMerge;
 
@@ -149,7 +149,7 @@ namespace WatermelonGameClone.Presentation
             // Detect contact with the ceiling and notify the time
             if (collision.TryGetComponent<IGameOverTrigger>(out _))
             {
-                _contactTimeUpdated.OnNext((_id, Time.deltaTime));
+                _contactTimeUpdated.OnNext((Id, Time.deltaTime));
             }
         }
 
@@ -158,7 +158,7 @@ namespace WatermelonGameClone.Presentation
             // Detects contact release with the ceiling
             if (collision.TryGetComponent<IGameOverTrigger>(out _))
             {
-                _contactExited.OnNext(_id);
+                _contactExited.OnNext(Id);
             }
         }
     }

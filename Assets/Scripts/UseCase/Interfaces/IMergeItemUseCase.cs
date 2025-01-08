@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UniRx;
-using UnityEngine;
 using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.UseCase
@@ -17,12 +16,11 @@ namespace WatermelonGameClone.UseCase
         void RemoveEntity(Guid id);
         void AddContactTime(Guid id, float deltaTime);
         void ResetContactTime(Guid id);
-
-
-        bool CanMerge(int currentItemNo, int targetItemNo);
-        MergeData CreateMergeData(Vector2 sourcePosition, Vector2 targetPosition, int itemNo);
+        bool CheckGameOver(Guid id);
+        bool CanMerge(Guid sourceId, Guid targetId);
+        MergeData CreateMergeData(Guid sourceId, Guid targetId);
         void UpdateNextItemIndex();
-        bool CheckGameOver(float contactTime);
+
 
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
         void SetNextItemIndex(int index); // Debug only method
