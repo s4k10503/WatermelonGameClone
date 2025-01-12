@@ -24,7 +24,7 @@ namespace WatermelonGameClone.Installers
                 .FromNew()
                 .AsSingle();
 
-            // View 
+            // View
             Container
                 .Bind<TitleSceneView>()
                 .FromComponentInHierarchy()
@@ -33,6 +33,12 @@ namespace WatermelonGameClone.Installers
             Container
                 .Bind<ITitlePageView>()
                 .To<TitlePageView>()
+                .FromComponentInHierarchy()
+                .AsSingle();
+
+            Container
+                .Bind<IUserNameModalView>()
+                .To<UserNameModalView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 
@@ -58,7 +64,7 @@ namespace WatermelonGameClone.Installers
                 .Bind<LoadingPageView>()
                 .FromComponentInHierarchy()
                 .AsCached();
-            
+
             Container
                 .Bind<ModalBackgroundView>()
                 .FromComponentInHierarchy()

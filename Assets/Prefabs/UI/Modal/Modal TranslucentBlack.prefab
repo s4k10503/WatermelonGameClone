@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1566948730673260089}
   - component: {fileID: 6808545798481771011}
   - component: {fileID: 9181559275078447074}
+  - component: {fileID: 863176622778326494}
   - component: {fileID: 2395623045247691463}
   - component: {fileID: 8207072204811490391}
   m_Layer: 5
@@ -70,6 +71,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 571462942847818470}
   m_CullTransparentMesh: 1
+--- !u!114 &863176622778326494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 571462942847818470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &2395623045247691463
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84,7 +102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.6}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

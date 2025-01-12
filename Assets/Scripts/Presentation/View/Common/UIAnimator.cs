@@ -44,11 +44,29 @@ namespace WatermelonGameClone.Presentation
             if (target.transform == null) return;
 
             target.transform.localScale = fromScale;
-            var tween = target.transform
+            target.transform
                 .DOScale(toScale, duration)
                 .SetEase(easeType)
                 .SetUpdate(isUpdate)
                 .SetLink(target);
+        }
+
+        public void AnimateLocalPosition(
+            Transform targetTransform,
+            Vector3 toPosition,
+            float duration,
+            Ease easeType,
+            bool isUpdate = true,
+            System.Action onComplete = null)
+        {
+            if (targetTransform == null) return;
+
+            targetTransform
+                .DOLocalMove(toPosition, duration)
+                .SetEase(easeType)
+                .SetUpdate(isUpdate)
+                .SetLink(targetTransform.gameObject)
+                .OnComplete(() => onComplete?.Invoke());
         }
     }
 }

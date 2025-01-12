@@ -7,6 +7,7 @@ namespace WatermelonGameClone.Domain
         ItemMoving,
         ItemDropping,
         Merging,
+        UserNameInput,
         DisplayingScores,
         Settings,
         License
