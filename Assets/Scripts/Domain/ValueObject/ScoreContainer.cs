@@ -18,6 +18,7 @@ namespace WatermelonGameClone.Domain
     [Serializable]
     public class ScoreDetail
     {
+        public string UserName;
         public int Best;
         public string LastPlayedDate;
     }

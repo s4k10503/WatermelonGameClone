@@ -53,6 +53,29 @@ namespace WatermelonGameClone.Presentation
     }
 
     // TitleScene Specific Handlers
+    public class UserNameInputViewStateHandler : TitleSceneViewStateHandlerBase
+    {
+        protected override async UniTask ApplyCustomStateAsync(
+            TitleSceneView view, TitleSceneViewStateData data, CancellationToken ct)
+        {
+            try
+            {
+                view.ModalBackgroundView.ShowPanel();
+                view.UserNameModalView.ShowModal();
+                await UniTask.CompletedTask.AttachExternalCancellation(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while applying the user name input view state.", ex);
+            }
+        }
+    }
+
     public class TitleSceneLoadingViewStateHandler : TitleSceneViewStateHandlerBase
     {
         protected override async UniTask ApplyCustomStateAsync(
@@ -106,6 +129,7 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 view.ModalBackgroundView.ShowPanel();
+                view.SettingsPageView.SetUserName(data.ScoreContainer.Data.Score.UserName);
                 view.SettingsPageView.ShowPanel();
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }

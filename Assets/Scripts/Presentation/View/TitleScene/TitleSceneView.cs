@@ -12,6 +12,7 @@ namespace WatermelonGameClone.Presentation
         [SerializeField] private Canvas _loadingPageRoot;
 
         public ITitlePageView TitlePageView { get; private set; }
+        public IUserNameModalView UserNameModalView;
         public IDetailedScoreRankPageView DetailedScoreRankPageView { get; private set; }
         public ISettingsModalView SettingsPageView { get; private set; }
         public ILicenseModalView LicenseModalView { get; private set; }
@@ -23,12 +24,14 @@ namespace WatermelonGameClone.Presentation
         [Inject]
         public void Construct(
             ITitlePageView titlePanellView,
+            IUserNameModalView userNameModalView,
             IDetailedScoreRankPageView detailedScoreRankView,
             ISettingsModalView settingsPanelView,
-            ILicenseModalView licenseModalView, 
+            ILicenseModalView licenseModalView,
             ModalBackgroundView modalBackgroundView)
         {
             TitlePageView = titlePanellView;
+            UserNameModalView = userNameModalView;
             DetailedScoreRankPageView = detailedScoreRankView;
             SettingsPageView = settingsPanelView;
             LicenseModalView = licenseModalView;
@@ -40,8 +43,9 @@ namespace WatermelonGameClone.Presentation
             _titlePageRoot = null;
             _titlePageMainElements = null;
             _loadingPageRoot = null;
-            
+
             TitlePageView = null;
+            UserNameModalView = null;
             DetailedScoreRankPageView = null;
             SettingsPageView = null;
             LicenseModalView = null;

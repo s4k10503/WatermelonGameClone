@@ -13,6 +13,7 @@ namespace WatermelonGameClone.UseCase
 
         UniTask InitializeAsync(CancellationToken ct);
         void UpdateCurrentScore(int itemNo);
+        UniTask UpdateUserNameAsync(string userName, CancellationToken ct);
         UniTask UpdateScoreRankingAsync(int newScore, CancellationToken ct);
         ScoreContainer GetScoreData();
     }

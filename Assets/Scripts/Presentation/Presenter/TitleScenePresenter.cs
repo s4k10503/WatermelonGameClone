@@ -6,6 +6,7 @@ using Zenject;
 using WatermelonGameClone.Domain;
 using WatermelonGameClone.UseCase;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace WatermelonGameClone.Presentation
 {
@@ -55,6 +56,7 @@ namespace WatermelonGameClone.Presentation
             _viewStateHandlers = new Dictionary<ViewState, ITitleSceneViewStateHandler>
             {
                 { ViewState.Title, new TitleViewStateHandler() },
+                { ViewState.UserNameInput, new UserNameInputViewStateHandler() },
                 { ViewState.DetailedScore, new TitleSceneDetailedScoreViewStateHandler() },
                 { ViewState.Settings, new SettingsViewStateHandler() },
                 { ViewState.License, new LicenseViewStateHandler() },
@@ -100,6 +102,10 @@ namespace WatermelonGameClone.Presentation
                 _titleSceneView.SettingsPageView.SetSeSliderValue(_soundUseCase.VolumeSe.Value);
 
                 UpdateScoreDisplay();
+
+                // Check the user name here and display the modal if it does not exist.
+                if (string.IsNullOrEmpty(_scoreContainer.Data.Score.UserName))
+                    HandleInputUserName();
             }
             catch (OperationCanceledException)
             {
@@ -142,6 +148,11 @@ namespace WatermelonGameClone.Presentation
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => OpenLicenseModal()))
                 .AddTo(_disposables);
 
+            // UserNameModal
+            _titleSceneView.UserNameModalView.OnUserNameSubmit
+                .Subscribe(userName => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleUserNameSubmitted(userName), _cts.Token).Forget())
+                .AddTo(_disposables);
+
             // DetailedScoreRankPanel
             _titleSceneView.DetailedScoreRankPageView.OnBack
                 .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePanel()))
@@ -161,6 +172,10 @@ namespace WatermelonGameClone.Presentation
             _titleSceneView.SettingsPageView.ValueSe
                 .SkipLatestValueOnSubscribe()
                 .Subscribe(value => _exceptionHandlingUseCase.SafeExecute(() => HandleSetSeVolume(value)))
+                .AddTo(_disposables);
+
+            _titleSceneView.SettingsPageView.OnUserNameChange
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => _currentViewState.Value = ViewState.UserNameInput))
                 .AddTo(_disposables);
 
             _titleSceneView.SettingsPageView.OnBack
@@ -201,6 +216,31 @@ namespace WatermelonGameClone.Presentation
             HandleSaveVolume().Forget();
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Idle);
             _currentViewState.Value = ViewState.Title;
+        }
+
+        private void HandleInputUserName()
+        {
+            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.UserNameInput);
+            _currentViewState.Value = ViewState.UserNameInput;
+
+        }
+
+        private async UniTask HandleUserNameSubmitted(string userName)
+        {
+            try
+            {
+                await _scoreUseCase.UpdateUserNameAsync(userName, _cts.Token);
+                _currentViewState.Value = ViewState.Title;
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while submitting the user name.", ex);
+            }
         }
 
         private void HandleDisplayScores()

@@ -139,6 +139,30 @@ namespace WatermelonGameClone.UseCase
             }
         }
 
+        public async UniTask UpdateUserNameAsync(string userName, CancellationToken ct)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(userName))
+                    throw new ArgumentException("User name cannot be null or empty.", nameof(userName));
+
+                if (_scoreData == null)
+                    throw new NullReferenceException("_scoreData is null. Ensure InitializeAsync was called before updating user name.");
+
+                _scoreData.Data.Score.UserName = userName;
+                await SaveScoresAsync(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("An error occurred while updating the user name.", ex);
+            }
+        }
+
         private async UniTask SaveScoresAsync(CancellationToken ct)
         {
             try

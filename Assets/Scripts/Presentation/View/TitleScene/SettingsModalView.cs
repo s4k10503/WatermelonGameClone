@@ -1,19 +1,25 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using UniRx;
 using UniRx.Triggers;
 using DG.Tweening;
 using Zenject;
+using Cysharp.Threading.Tasks;
+using System.Threading;
 
 namespace WatermelonGameClone.Presentation
 {
     public class SettingsModalView : MonoBehaviour, ISettingsModalView
     {
+        [SerializeField] private Canvas _canvas;
         [SerializeField] private Slider _sliderBGM;
         [SerializeField] private Slider _sliderSE;
+        [SerializeField] private Button _buttonUserName;
+        [SerializeField] private TextMeshProUGUI _textUserName;
         [SerializeField] private Button _buttonBack;
-        [SerializeField] private Canvas _canvas;
+
 
         private IUIAnimator _uiAnimator;
         private Vector3 _originalScale;
@@ -28,9 +34,11 @@ namespace WatermelonGameClone.Presentation
                 .OnValueChangedAsObservable()
                 .ToReactiveProperty(_sliderSE.value);
 
+        public IObservable<Unit> OnUserNameChange
+            => _buttonUserName.OnClickAsObservable();
+
         public IObservable<Unit> OnBack
             => _buttonBack.OnClickAsObservable();
-
 
         [Inject]
         public void Construct(IUIAnimator uiAnimator)
@@ -51,6 +59,8 @@ namespace WatermelonGameClone.Presentation
             _sliderBGM = null;
             _sliderSE = null;
             _buttonBack = null;
+            _buttonUserName = null;
+            _textUserName = null;
             _canvas = null;
             _uiAnimator = null;
         }
@@ -66,6 +76,11 @@ namespace WatermelonGameClone.Presentation
 
         public void HidePanel()
             => _canvas.enabled = false;
+
+        public void SetUserName(string userName)
+        {
+            _textUserName.text = userName;
+        }
 
         private void SetupButtonAnimations(Button button)
         {
