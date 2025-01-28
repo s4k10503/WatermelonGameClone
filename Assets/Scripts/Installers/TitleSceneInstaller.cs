@@ -49,8 +49,8 @@ namespace WatermelonGameClone.Installers
                 .AsSingle();
 
             Container
-                .Bind<ISettingsModalView>()
-                .To<SettingsModalView>()
+                .Bind<ISettingsPageView>()
+                .To<SettingsPageView>()
                 .FromComponentInHierarchy()
                 .AsSingle();
 

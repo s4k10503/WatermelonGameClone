@@ -1,15 +1,11 @@
 namespace WatermelonGameClone.Presentation
 {
-    public enum ViewState
+    public enum PageState
     {
         Title,
-        UserNameInput,
         Settings,
         Loading,
         Playing,
-        Paused,
-        GameOver,
-        DetailedScore,
-        License
+        DetailedScore
     }
 }

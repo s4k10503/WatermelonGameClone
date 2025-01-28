@@ -43,7 +43,7 @@ namespace WatermelonGameClone.Presentation
 
         void Start()
         {
-            HidePanel();
+            HidePage();
             SetupButtonAnimations(_buttonBack);
         }
 
@@ -80,11 +80,11 @@ namespace WatermelonGameClone.Presentation
             _uiHelper.UpdateScoreRankPanelTexts(_textsScoreRankAllTime, _allTimeScores);
         }
 
-        public void ShowPanel()
+        public void ShowPage()
         {
             _canvas.enabled = true;
         }
-        public void HidePanel() => _canvas.enabled = false;
+        public void HidePage() => _canvas.enabled = false;
 
         private void SetupButtonAnimations(Button button)
         {

@@ -9,7 +9,7 @@ namespace WatermelonGameClone.Presentation
         IObservable<Unit> OnBackToTitle { get; }
         IObservable<Unit> OnBackToGame { get; }
 
-        void ShowPanel();
-        void HidePanel();
+        void ShowModal();
+        void HideModal();
     }
 }

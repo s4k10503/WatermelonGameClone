@@ -65,7 +65,7 @@ namespace WatermelonGameClone.Presentation
 
         private void Start()
         {
-            HidePanel();
+            HideModal();
 
             _inputEventProvider
                 .OnLeftKey
@@ -106,7 +106,7 @@ namespace WatermelonGameClone.Presentation
             _canvas = null;
         }
 
-        public void ShowPanel(int score, RenderTexture screenShot, ScoreContainer scoreContainer)
+        public void ShowModal(int score, RenderTexture screenShot, ScoreContainer scoreContainer)
         {
             _canvas.enabled = true;
 
@@ -120,13 +120,13 @@ namespace WatermelonGameClone.Presentation
             _uiAnimator.AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
         }
 
-        public void ShowPanelWihtoutData()
+        public void ShowModalWihtoutData()
         {
             _canvas.enabled = true;
             _uiAnimator.AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
         }
 
-        public void HidePanel()
+        public void HideModal()
             => _canvas.enabled = false;
 
         private void ChangePanelDisplay(int direction)

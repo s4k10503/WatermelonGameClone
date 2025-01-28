@@ -52,7 +52,7 @@ namespace WatermelonGameClone.Presentation
             _uiAnimator = null;
         }
 
-        public void ShowPanel()
+        public void ShowModal()
         {
             _canvas.enabled = true;
             transform.SetAsLastSibling();
@@ -61,7 +61,7 @@ namespace WatermelonGameClone.Presentation
                 .AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
         }
 
-        public void HidePanel()
+        public void HideModal()
             => _canvas.enabled = false;
 
         private void SetupButtonAnimations(Button button)

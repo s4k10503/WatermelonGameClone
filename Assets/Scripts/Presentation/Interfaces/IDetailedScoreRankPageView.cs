@@ -9,7 +9,7 @@ namespace WatermelonGameClone.Presentation
         IObservable<Unit> OnBack { get; }
 
         void DisplayTopScores(ScoreContainer scoreContainer);
-        void ShowPanel();
-        void HidePanel();
+        void ShowPage();
+        void HidePage();
     }
 }
