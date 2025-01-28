@@ -13,8 +13,8 @@ namespace WatermelonGameClone.Presentation
         IObservable<Unit> OnDisplayScore { get; }
 
         // Methods related to game state and UI updates
-        void ShowPanel(int score, RenderTexture screenShot, ScoreContainer scoreContainer);
-        void ShowPanelWihtoutData();
-        void HidePanel();
+        void ShowModal(int score, RenderTexture screenShot, ScoreContainer scoreContainer);
+        void ShowModalWihtoutData();
+        void HideModal();
     }
 }

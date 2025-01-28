@@ -6,12 +6,10 @@ using UniRx;
 using UniRx.Triggers;
 using DG.Tweening;
 using Zenject;
-using Cysharp.Threading.Tasks;
-using System.Threading;
 
 namespace WatermelonGameClone.Presentation
 {
-    public class SettingsModalView : MonoBehaviour, ISettingsModalView
+    public class SettingsPageView : MonoBehaviour, ISettingsPageView
     {
         [SerializeField] private Canvas _canvas;
         [SerializeField] private Slider _sliderBGM;
@@ -50,7 +48,7 @@ namespace WatermelonGameClone.Presentation
 
         private void Start()
         {
-            HidePanel();
+            HidePage();
             SetupButtonAnimations(_buttonBack);
         }
 
@@ -71,10 +69,10 @@ namespace WatermelonGameClone.Presentation
         public void SetSeSliderValue(float value)
             => _sliderSE.value = value;
 
-        public void ShowPanel()
+        public void ShowPage()
             => _canvas.enabled = true;
 
-        public void HidePanel()
+        public void HidePage()
             => _canvas.enabled = false;
 
         public void SetUserName(string userName)

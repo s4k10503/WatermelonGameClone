@@ -10,7 +10,7 @@ namespace WatermelonGameClone.Presentation
         IObservable<Unit> OnSettings { get; }
         IObservable<Unit> OnLicense { get; }
 
-        void ShowPanel();
-        void HidePanel();
+        void ShowPage();
+        void HidePage();
     }
 }

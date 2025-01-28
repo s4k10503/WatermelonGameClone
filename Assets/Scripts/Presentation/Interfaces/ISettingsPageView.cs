@@ -3,7 +3,7 @@ using UniRx;
 
 namespace WatermelonGameClone.Presentation
 {
-    public interface ISettingsModalView
+    public interface ISettingsPageView
     {
         IReadOnlyReactiveProperty<float> ValueBgm { get; }
         IReadOnlyReactiveProperty<float> ValueSe { get; }
@@ -13,7 +13,7 @@ namespace WatermelonGameClone.Presentation
         void SetBgmSliderValue(float value);
         void SetSeSliderValue(float value);
         void SetUserName(string userName);
-        void ShowPanel();
-        void HidePanel();
+        void ShowPage();
+        void HidePage();
     }
 }

@@ -7,14 +7,12 @@ namespace WatermelonGameClone.Presentation
 {
     public sealed class TitleSceneView : MonoBehaviour
     {
-        [SerializeField] private Canvas _titlePageRoot;
-        [SerializeField] private Canvas _titlePageMainElements;
         [SerializeField] private Canvas _loadingPageRoot;
 
         public ITitlePageView TitlePageView { get; private set; }
         public IUserNameModalView UserNameModalView;
         public IDetailedScoreRankPageView DetailedScoreRankPageView { get; private set; }
-        public ISettingsModalView SettingsPageView { get; private set; }
+        public ISettingsPageView SettingsPageView { get; private set; }
         public ILicenseModalView LicenseModalView { get; private set; }
         public ModalBackgroundView ModalBackgroundView { get; private set; }
 
@@ -26,22 +24,20 @@ namespace WatermelonGameClone.Presentation
             ITitlePageView titlePanellView,
             IUserNameModalView userNameModalView,
             IDetailedScoreRankPageView detailedScoreRankView,
-            ISettingsModalView settingsPanelView,
+            ISettingsPageView settingsPageView,
             ILicenseModalView licenseModalView,
             ModalBackgroundView modalBackgroundView)
         {
             TitlePageView = titlePanellView;
             UserNameModalView = userNameModalView;
             DetailedScoreRankPageView = detailedScoreRankView;
-            SettingsPageView = settingsPanelView;
+            SettingsPageView = settingsPageView;
             LicenseModalView = licenseModalView;
             ModalBackgroundView = modalBackgroundView;
         }
 
         private void OnDestroy()
         {
-            _titlePageRoot = null;
-            _titlePageMainElements = null;
             _loadingPageRoot = null;
 
             TitlePageView = null;
@@ -50,26 +46,6 @@ namespace WatermelonGameClone.Presentation
             SettingsPageView = null;
             LicenseModalView = null;
             ModalBackgroundView = null;
-        }
-
-        public void ShowTitlePage()
-        {
-            _titlePageRoot.enabled = true;
-        }
-
-        public void HideTitlePage()
-        {
-            _titlePageRoot.enabled = false;
-        }
-
-        public void ShowTitlePageMainElements()
-        {
-            _titlePageMainElements.enabled = true;
-        }
-
-        public void HideTitlePageMainElements()
-        {
-            _titlePageMainElements.enabled = false;
         }
 
         public void ShowLoadingPage()

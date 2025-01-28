@@ -11,6 +11,8 @@ namespace WatermelonGameClone.Presentation
 {
     public sealed class TitlePageView : MonoBehaviour, ITitlePageView
     {
+        [SerializeField] Transform _panelTitleButtons;
+        [SerializeField] GraphicRaycaster _panelButtonsGraphicRaycaster;
         [SerializeField] Button _buttonGameStart;
         [SerializeField] Button _buttonMyScore;
         [SerializeField] Button _buttonSettings;
@@ -30,7 +32,7 @@ namespace WatermelonGameClone.Presentation
         public void Construct(IUIAnimator uiAnimator)
         {
             _uiAnimator = uiAnimator;
-            _uiAnimator.GetUIPosition(transform);
+            _uiAnimator.GetUIPosition(_panelTitleButtons);
 
             _originalScale = _buttonGameStart.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
@@ -38,22 +40,29 @@ namespace WatermelonGameClone.Presentation
 
         private void Start()
         {
-            ShowPanel();
+            ShowPage();
             SetupButtonAnimations(_buttonGameStart);
             SetupButtonAnimations(_buttonMyScore);
             SetupButtonAnimations(_buttonSettings);
             SetupButtonAnimations(_buttonLicense);
 
             this.UpdateAsObservable()
-                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionType.Sin))
+                .Where(_ => _canvas.enabled == true)
+                .Subscribe(_ => _uiAnimator.HarmonicMotion(_panelTitleButtons, HarmonicMotionType.Sin))
                 .AddTo(this);
         }
 
-        public void ShowPanel()
-            => _canvas.enabled = true;
+        public void ShowPage()
+        {
+            _canvas.enabled = true;
+            _panelButtonsGraphicRaycaster.enabled = true;
+        }
 
-        public void HidePanel()
-            => _canvas.enabled = false;
+        public void HidePage()
+        {
+            _canvas.enabled = false;
+            _panelButtonsGraphicRaycaster.enabled = false;
+        }
 
         private void SetupButtonAnimations(Button button)
         {
