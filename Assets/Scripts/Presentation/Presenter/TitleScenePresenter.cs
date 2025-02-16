@@ -103,6 +103,23 @@ namespace WatermelonGameClone.Presentation
             _cts?.Cancel();
             _cts?.Dispose();
             _disposables?.Dispose();
+            _titleSceneViewStateData?.Dispose();
+
+            foreach (var handler in _pageStateHandlers.Values)
+            {
+                if (handler is IDisposable disposableHandler)
+                {
+                    disposableHandler.Dispose();
+                }
+            }
+
+            foreach (var handler in _modalStateHandlers.Values)
+            {
+                if (handler is IDisposable disposableHandler)
+                {
+                    disposableHandler.Dispose();
+                }
+            }
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)
@@ -119,7 +136,7 @@ namespace WatermelonGameClone.Presentation
                 _titleSceneView.SettingsPageView.SetBgmSliderValue(_soundUseCase.VolumeBgm.Value);
                 _titleSceneView.SettingsPageView.SetSeSliderValue(_soundUseCase.VolumeSe.Value);
 
-                UpdateScoreDisplay();
+                _titleSceneViewStateData.ScoreContainer = _scoreUseCase.GetScoreData();
 
                 // Check the user name here and display the modal if it does not exist.
                 if (string.IsNullOrEmpty(_scoreContainer.Data.Score.UserName))
@@ -236,8 +253,7 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
-                _titleSceneView.TitlePageView.HidePage();
-                _titleSceneView.ShowLoadingPage();
+                _currentPageState.Value = PageState.Loading;
                 await _sceneLoaderUseCase.LoadSceneAsync(MainSceneName, _cts.Token);
             }
             catch (OperationCanceledException)
@@ -263,7 +279,6 @@ namespace WatermelonGameClone.Presentation
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.UserNameInput);
             _currentModalState.Value = ModalState.UserNameInput;
-
         }
 
         private async UniTask HandleUserNameSubmitted(string userName)
@@ -272,10 +287,7 @@ namespace WatermelonGameClone.Presentation
             {
                 await _scoreUseCase.UpdateUserNameAsync(userName, _cts.Token);
                 _currentModalState.Value = ModalState.None;
-
-                // Provisional implementation
-                // You should avoid calling the View method directly from Presenter
-                _titleSceneView.SettingsPageView.SetUserName(userName);
+                _titleSceneViewStateData.UserName.Value = userName;
             }
             catch (OperationCanceledException)
             {
@@ -303,11 +315,13 @@ namespace WatermelonGameClone.Presentation
         private void HandleSetBgmVolume(float value)
         {
             _soundUseCase.SetBGMVolume(value);
+            _titleSceneViewStateData.BgmVolume = value;
         }
 
         private void HandleSetSeVolume(float value)
         {
             _soundUseCase.SetSEVolume(value);
+            _titleSceneViewStateData.SeVolume = value;
         }
 
         private async UniTask HandleSaveVolume()
@@ -325,12 +339,6 @@ namespace WatermelonGameClone.Presentation
             {
                 throw new ApplicationException("An error occurred while saving volume settings.", ex);
             }
-        }
-
-        private void UpdateScoreDisplay()
-        {
-            var scoreData = _scoreUseCase.GetScoreData();
-            _titleSceneView.DetailedScoreRankPageView.DisplayTopScores(scoreData);
         }
 
         private void OpenLicenseModal()

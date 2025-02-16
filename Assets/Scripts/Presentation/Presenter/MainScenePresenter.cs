@@ -36,11 +36,12 @@ namespace WatermelonGameClone.Presentation
         private readonly Dictionary<ModalState, IModalStateHandler<MainSceneView, MainSceneViewStateData>>
             _modalStateHandlers;
 
+        // Status data (created once in Presenter and then updated)
+        private MainSceneViewStateData _mainSceneViewStateData;
 
         private bool _isNext;
         private float _mergeItemCreateDelayTime;
         private GlobalGameState _previousGlobalState;
-        private RenderTexture _screenshotCache;
         private const string TitleSceneName = "TitleScene";
         private const int _maxRetries = 3;
 
@@ -111,15 +112,26 @@ namespace WatermelonGameClone.Presentation
 
         public void Dispose()
         {
-            if (_screenshotCache != null)
-            {
-                RenderTexture.ReleaseTemporary(_screenshotCache);
-                _screenshotCache = null;
-            }
-
             _cts?.Cancel();
             _cts?.Dispose();
             _disposables?.Dispose();
+            _mainSceneViewStateData?.Dispose();
+
+            foreach (var handler in _pageStateHandlers.Values)
+            {
+                if (handler is IDisposable disposableHandler)
+                {
+                    disposableHandler.Dispose();
+                }
+            }
+
+            foreach (var handler in _modalStateHandlers.Values)
+            {
+                if (handler is IDisposable disposableHandler)
+                {
+                    disposableHandler.Dispose();
+                }
+            }
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)
@@ -131,7 +143,16 @@ namespace WatermelonGameClone.Presentation
                 await _scoreUseCase.InitializeAsync(ct);
                 _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
                 _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Initializing);
-                UpdateScoreDisplays();
+
+                // Initialize state data
+                _mainSceneViewStateData = new MainSceneViewStateData(
+                    _scoreUseCase.CurrentScore.Value,
+                    _scoreUseCase.BestScore.Value,
+                    _scoreUseCase.GetScoreData(),
+                    _mergeItemUseCase.NextItemIndex.Value
+                );
+
+                // After initialization is complete, switch to Playing state
                 _currentPageState.Value = PageState.Playing;
             }
             catch (OperationCanceledException)
@@ -154,21 +175,18 @@ namespace WatermelonGameClone.Presentation
         private void SubscribeToModelUpdates()
         {
             _mergeItemUseCase.NextItemIndex
-                .Subscribe(
-                    index => _exceptionHandlingUseCase
-                        .SafeExecute(() => _mainSceneView.NextItemPanelView.UpdateNextItemImages(index)))
+                .Where(_ => _mainSceneViewStateData != null)
+                .Subscribe(index => _mainSceneViewStateData.NextItemIndex.Value = index)
                 .AddTo(_disposables);
 
             _scoreUseCase.CurrentScore
-                .Subscribe(
-                    score => _exceptionHandlingUseCase
-                        .SafeExecute(() => UpdateCurrentScoreDisplays(score)))
+                .Where(_ => _mainSceneViewStateData != null)
+                .Subscribe(score => _mainSceneViewStateData.CurrentScore.Value = score)
                 .AddTo(_disposables);
 
             _scoreUseCase.BestScore
-                .Subscribe(
-                    score => _exceptionHandlingUseCase
-                        .SafeExecute(() => _mainSceneView.ScorePanelView.UpdateBestScore(score)))
+                .Where(_ => _mainSceneViewStateData != null)
+                .Subscribe(score => _mainSceneViewStateData.BestScore.Value = score)
                 .AddTo(_disposables);
         }
 
@@ -177,25 +195,23 @@ namespace WatermelonGameClone.Presentation
             // Update the Page when the state is changed
             _currentPageState
                 .DistinctUntilChanged()
-                .Subscribe(state => _exceptionHandlingUseCase
-                    .SafeExecute(() => UpdatePageStateUI(state, _cts.Token)))
+                .Subscribe(state =>
+                    _exceptionHandlingUseCase.SafeExecute(() => UpdatePageStateUI(state, _cts.Token)))
                 .AddTo(_disposables);
 
             // Update the Modal when the state is changed
             _currentModalState
                 .DistinctUntilChanged()
-                .Subscribe(state => _exceptionHandlingUseCase
-                    .SafeExecute(() => UpdateModalStateUI(state, _cts.Token)))
+                .Subscribe(state =>
+                    _exceptionHandlingUseCase.SafeExecute(() => UpdateModalStateUI(state, _cts.Token)))
                 .AddTo(_disposables);
 
             _mainSceneView.RestartRequested
-                .Subscribe(_ => _exceptionHandlingUseCase
-                    .SafeExecuteAsync(() => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct), ct).Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct), ct).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToTitleRequested
-                .Subscribe(_ => _exceptionHandlingUseCase
-                    .SafeExecuteAsync(() => HandleSceneChangeAsync(TitleSceneName, ct), ct).Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleSceneChangeAsync(TitleSceneName, ct), ct).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToGameRequested
@@ -209,11 +225,11 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _mainSceneView.DisplayScoreRequested
-                .Subscribe(_ => ShowDetailedScore())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ShowDetailedScore()))
                 .AddTo(_disposables);
 
             _mainSceneView.DetailedScoreRankPageView.OnBack
-                .Subscribe(_ => ReturnToGameOverScreen())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ReturnToGameOverScreen()))
                 .AddTo(_disposables);
 
             _mainSceneView.MergeItemManager.OnItemCreated
@@ -239,47 +255,26 @@ namespace WatermelonGameClone.Presentation
 
         private void UpdatePageStateUI(PageState state, CancellationToken ct)
         {
-
-            var data = new MainSceneViewStateData(
-                _scoreUseCase.CurrentScore.Value,
-                _scoreUseCase.BestScore.Value,
-                _scoreUseCase.GetScoreData(),
-                _screenshotCache
-            );
-
-            if (_pageStateHandlers.TryGetValue(state, out var mainHandler))
+            if (_pageStateHandlers.TryGetValue(state, out var handler))
             {
-                mainHandler.ApplyStateAsync(_mainSceneView, data, ct).Forget();
+                handler.ApplyStateAsync(_mainSceneView, _mainSceneViewStateData, ct).Forget();
             }
             else
             {
-                throw new ApplicationException("The specified state is not supported.");
+                throw new ApplicationException("The specified page state is not supported.");
             }
         }
 
         private void UpdateModalStateUI(ModalState state, CancellationToken ct)
         {
-            var data = new MainSceneViewStateData(
-                _scoreUseCase.CurrentScore.Value,
-                _scoreUseCase.BestScore.Value,
-                _scoreUseCase.GetScoreData(),
-                _screenshotCache
-            );
-
-            if (_modalStateHandlers.TryGetValue(state, out var modalHandler))
+            if (_modalStateHandlers.TryGetValue(state, out var handler))
             {
-                modalHandler.ApplyStateAsync(_mainSceneView, data, ct).Forget();
+                handler.ApplyStateAsync(_mainSceneView, _mainSceneViewStateData, ct).Forget();
             }
             else
             {
-                throw new ApplicationException("The specified state is not supported.");
+                throw new ApplicationException("The specified modal state is not supported.");
             }
-        }
-
-        private void UpdateCurrentScoreDisplays(int score)
-        {
-            _mainSceneView.ScorePanelView.UpdateCurrentScore(score);
-            _mainSceneView.ScoreRankView.DisplayCurrentScore(score);
         }
 
         private void HandleContactTimeUpdated(Guid id, float deltaTime)
@@ -368,12 +363,9 @@ namespace WatermelonGameClone.Presentation
             IMergeItemView targetView)
         {
             _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Merging);
-
             _mainSceneView.MergeItemManager.DestroyItem(sourceView.GameObject);
             _mainSceneView.MergeItemManager.DestroyItem(targetView.GameObject);
-
             _mainSceneView.MergeItemManager.MergeItem(id, mergeData.Position, mergeData.ItemNo);
-
             _soundUseCase.PlaySoundEffect(SoundEffect.Merge);
             _scoreUseCase.UpdateCurrentScore(mergeData.ItemNo);
         }
@@ -386,9 +378,8 @@ namespace WatermelonGameClone.Presentation
             {
                 _gameStateUseCase.SetGlobalGameState(GlobalGameState.GameOver);
                 await _scoreUseCase.UpdateScoreRankingAsync(_scoreUseCase.CurrentScore.Value, _cts.Token);
-                UpdateScoreDisplays();
+                _mainSceneViewStateData.ScoreContainer = _scoreUseCase.GetScoreData();
                 AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
-                _screenshotCache = await _mainSceneView.ScreenshotHandler.CaptureScreenshotAsync(_cts.Token);
 
                 _currentModalState.Value = ModalState.GameOver;
             }
@@ -411,7 +402,6 @@ namespace WatermelonGameClone.Presentation
             {
                 _currentModalState.Value = ModalState.None;
                 _currentPageState.Value = PageState.Loading;
-
                 AdjustTimeScale(_gameStateUseCase.TimeScaleGameStart);
                 await _sceneLoaderUseCase.LoadSceneAsync(sceneName, ct);
             }
@@ -452,14 +442,6 @@ namespace WatermelonGameClone.Presentation
         {
             _currentPageState.Value = PageState.Playing;
             _currentModalState.Value = ModalState.GameOver;
-        }
-
-        private void UpdateScoreDisplays()
-        {
-            _mainSceneView.ScorePanelView.UpdateBestScore(_scoreUseCase.BestScore.Value);
-            var scoreData = _scoreUseCase.GetScoreData();
-            _mainSceneView.ScoreRankView.DisplayTopScores(scoreData);
-            _mainSceneView.DetailedScoreRankPageView.DisplayTopScores(scoreData);
         }
 
         private void AdjustTimeScale(float timeScale)

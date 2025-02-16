@@ -1,22 +1,36 @@
+using UniRx;
 using WatermelonGameClone.Domain;
-using UnityEngine;
 
 namespace WatermelonGameClone.Presentation
 {
     public class MainSceneViewStateData
     {
-        public int CurrentScore { get; }
-        public int BestScore { get; }
-        public ScoreContainer ScoreContainer { get; }
-        public RenderTexture Screenshot { get; }
+        public ReactiveProperty<int> NextItemIndex { get; }
+        public ReactiveProperty<int> CurrentScore { get; set; }
+        public ReactiveProperty<int> BestScore { get; set; }
+        public ScoreContainer ScoreContainer { get; set; }
+        private readonly CompositeDisposable _disposables = new();
 
         public MainSceneViewStateData(
-            int currentScore, int bestScore, ScoreContainer scoreContainer, RenderTexture screenshot)
+            int currentScore,
+            int bestScore,
+            ScoreContainer scoreContainer,
+            int nextItemIndex)
         {
-            CurrentScore = currentScore;
-            BestScore = bestScore;
+            CurrentScore = new ReactiveProperty<int>(currentScore);
+            BestScore = new ReactiveProperty<int>(bestScore);
             ScoreContainer = scoreContainer;
-            Screenshot = screenshot;
+
+            NextItemIndex = new ReactiveProperty<int>(nextItemIndex);
+
+            CurrentScore.AddTo(_disposables);
+            BestScore.AddTo(_disposables);
+            NextItemIndex.AddTo(_disposables);
+        }
+
+        public void Dispose()
+        {
+            _disposables?.Dispose();
         }
     }
 }
