@@ -31,13 +31,10 @@ namespace WatermelonGameClone.Presentation
         [Inject]
         public void Construct(IInputEventProvider inputEventProvider, IUIHelper uiHelper)
         {
-            _inputEventProvider = inputEventProvider;
-            _uiHelper = uiHelper;
             _textsScoreRanks = new[] { _textScoreRank1, _textScoreRank2, _textScoreRank3 };
-        }
+            _uiHelper = uiHelper;
+            _inputEventProvider = inputEventProvider;
 
-        private void Start()
-        {
             _inputEventProvider
                 .OnLeftKey
                 .Where(_ => Time.timeScale != 0f)

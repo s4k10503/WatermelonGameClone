@@ -19,10 +19,7 @@ namespace WatermelonGameClone.Presentation
         {
             _uiAnimator = uiAnimator;
             _uiAnimator.GetUIPosition(transform);
-        }
 
-        private void Start()
-        {
             this.UpdateAsObservable()
                 .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionType.Sin))
                 .AddTo(this);

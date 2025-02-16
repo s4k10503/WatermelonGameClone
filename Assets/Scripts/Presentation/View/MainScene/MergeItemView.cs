@@ -46,10 +46,7 @@ namespace WatermelonGameClone.Presentation
         public void Construct(IInputEventProvider inputEventProvider)
         {
             _inputEventProvider = inputEventProvider;
-        }
 
-        private void Awake()
-        {
             // Subscribe this instance's lifecycle to automatically dispose of Subjects
             _dropping.AddTo(this);
             _mergeRequest.AddTo(this);
@@ -59,10 +56,7 @@ namespace WatermelonGameClone.Presentation
             _rigidbody2D = GetComponent<Rigidbody2D>();
             _rigidbody2D.simulated = false;
             _isDropped = false;
-        }
 
-        private void Start()
-        {
             // Submit the mouse movement to update the position
             _mouseMoveDisposable = _inputEventProvider
                 .OnMouseMove

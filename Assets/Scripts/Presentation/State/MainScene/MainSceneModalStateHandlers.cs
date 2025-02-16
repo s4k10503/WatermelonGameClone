@@ -15,9 +15,6 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.ModalBackgroundView.HidePanel();
-                view.GameOverModalView.HideModal();
-                view.PauseModalView.HideModal();
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }
             catch (OperationCanceledException)
@@ -43,8 +40,6 @@ namespace WatermelonGameClone.Presentation
             {
                 view.ModalBackgroundView.ShowPanel();
                 view.PauseModalView.ShowModal();
-
-                view.GameOverModalView.HideModal();
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }
             catch (OperationCanceledException)
@@ -77,8 +72,6 @@ namespace WatermelonGameClone.Presentation
                     data.CurrentScore.Value,
                     _screenshot,
                     data.ScoreContainer);
-
-                view.PauseModalView.HideModal();
 
                 view.ScorePanelView.UpdateBestScore(data.BestScore.Value);
                 view.ScoreRankView.DisplayTopScores(data.ScoreContainer);

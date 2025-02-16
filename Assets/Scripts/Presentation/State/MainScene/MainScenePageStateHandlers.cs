@@ -44,12 +44,6 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.Stageview.ShowStage();
-                view.ShowMainPageMainElements();
-
-                view.HideLoadingPage();
-                view.ModalBackgroundView.HidePanel();
-
                 view.ScorePanelView.UpdateBestScore(data.BestScore.Value);
                 view.ScoreRankView.DisplayTopScores(data.ScoreContainer);
                 view.DetailedScoreRankPageView.DisplayTopScores(data.ScoreContainer);

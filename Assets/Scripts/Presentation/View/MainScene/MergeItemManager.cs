@@ -28,10 +28,7 @@ namespace WatermelonGameClone.Presentation
             _itemPosition = itemPosition;
             _itemPrefabs = itemPrefabs;
             _container = container;
-        }
 
-        void Awake()
-        {
             _onItemCreated.AddTo(this);
         }
 

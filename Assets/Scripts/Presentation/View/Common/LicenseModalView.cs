@@ -34,11 +34,7 @@ namespace WatermelonGameClone.Presentation
             _originalScale = _buttonBack.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
             _licenseText.text = string.Empty;
-        }
 
-        private void Start()
-        {
-            HideModal();
             SetupButtonAnimations(_buttonBack);
         }
 

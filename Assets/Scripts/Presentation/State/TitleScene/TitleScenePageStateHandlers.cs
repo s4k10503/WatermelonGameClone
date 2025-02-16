@@ -15,7 +15,6 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.TitlePageView.HidePage();
                 view.ShowLoadingPage();
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }

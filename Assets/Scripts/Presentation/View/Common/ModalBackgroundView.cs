@@ -6,9 +6,6 @@ namespace WatermelonGameClone.Presentation
     {
         [SerializeField] Canvas _canvas;
 
-        private void Start()
-            => HidePanel();
-
         private void OnDestroy()
         {
             _canvas = null;

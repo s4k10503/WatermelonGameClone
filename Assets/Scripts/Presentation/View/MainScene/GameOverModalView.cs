@@ -61,11 +61,6 @@ namespace WatermelonGameClone.Presentation
             _uiHelper = uiHelper;
             _inputEventProvider = inputEventProvider;
             _textsScoreRanks = new[] { _textScoreRank1, _textScoreRank2, _textScoreRank3 };
-        }
-
-        private void Start()
-        {
-            HideModal();
 
             _inputEventProvider
                 .OnLeftKey
@@ -127,7 +122,9 @@ namespace WatermelonGameClone.Presentation
         }
 
         public void HideModal()
-            => _canvas.enabled = false;
+        {
+            _canvas.enabled = false;
+        }
 
         private void ChangePanelDisplay(int direction)
         {
