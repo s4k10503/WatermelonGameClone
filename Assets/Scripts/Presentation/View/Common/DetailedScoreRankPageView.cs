@@ -39,11 +39,7 @@ namespace WatermelonGameClone.Presentation
             _uiAnimator = uiAnimator;
             _originalScale = _buttonBack.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
-        }
 
-        void Start()
-        {
-            HidePage();
             SetupButtonAnimations(_buttonBack);
         }
 

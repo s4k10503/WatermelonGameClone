@@ -36,10 +36,7 @@ namespace WatermelonGameClone.Presentation
 
             _originalScale = _buttonGameStart.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
-        }
 
-        private void Start()
-        {
             ShowPage();
             SetupButtonAnimations(_buttonGameStart);
             SetupButtonAnimations(_buttonMyScore);

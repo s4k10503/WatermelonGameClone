@@ -44,10 +44,7 @@ namespace WatermelonGameClone.Presentation
             _buttonPressedScale = _buttonOriginalScale * 0.9f;
 
             _uiAnimator = uiAnimator;
-        }
 
-        private void Start()
-        {
             SetupButtonAnimations(_buttonSubmit);
         }
 

@@ -33,10 +33,7 @@ namespace WatermelonGameClone.Presentation
             _originalScale = _buttonBackToTitle.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
             _uiAnimator = uiAnimator;
-        }
 
-        private void Start()
-        {
             SetupButtonAnimations(_buttonBackToGame);
             SetupButtonAnimations(_buttonBackToTitle);
             SetupButtonAnimations(_buttonRestart);
