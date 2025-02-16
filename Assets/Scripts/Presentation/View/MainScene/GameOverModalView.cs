@@ -14,6 +14,8 @@ namespace WatermelonGameClone.Presentation
 {
     public sealed class GameOverModalView : MonoBehaviour, IGameOverModalView
     {
+        [SerializeField] private Canvas _canvas;
+
         [SerializeField] private Button _buttonRestart;
         [SerializeField] private Button _buttonBackToTitle;
         [SerializeField] private Button _buttonScore;
@@ -24,11 +26,11 @@ namespace WatermelonGameClone.Presentation
         [SerializeField] private GameObject _textScoreRank1;
         [SerializeField] private GameObject _textScoreRank2;
         [SerializeField] private GameObject _textScoreRank3;
-        [SerializeField] private ScoreRankTextConfig _textConfig;
 
-        [SerializeField] private Canvas _canvas;
+
         private IInputEventProvider _inputEventProvider;
         private GameObject[] _textsScoreRanks;
+        private ScoreRankTextConfig _textConfig;
 
         // 0 = Daily, 1 = Monthly, 2 = AllTime
         private int _currentPanelIndex = 0;
@@ -53,7 +55,8 @@ namespace WatermelonGameClone.Presentation
         public void Construct(
             IUIAnimator uiAnimator,
             IUIHelper uiHelper,
-            IInputEventProvider inputEventProvider)
+            IInputEventProvider inputEventProvider,
+            ScoreRankTextConfig textConfig)
         {
             _originalScale = _buttonBackToTitle.transform.localScale;
             _pressedScale = _originalScale * 0.9f;
@@ -61,6 +64,7 @@ namespace WatermelonGameClone.Presentation
             _uiHelper = uiHelper;
             _inputEventProvider = inputEventProvider;
             _textsScoreRanks = new[] { _textScoreRank1, _textScoreRank2, _textScoreRank3 };
+            _textConfig = textConfig;
 
             _inputEventProvider
                 .OnLeftKey

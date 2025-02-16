@@ -15,8 +15,8 @@ namespace WatermelonGameClone.Presentation
         [SerializeField] private GameObject _textScoreRank2;
         [SerializeField] private GameObject _textScoreRank3;
         [SerializeField] private GameObject _textCurrentScore;
-        [SerializeField] private ScoreRankTextConfig _textConfig;
 
+        private ScoreRankTextConfig _textConfig;
         private IInputEventProvider _inputEventProvider;
         private GameObject[] _textsScoreRanks;
 
@@ -29,8 +29,12 @@ namespace WatermelonGameClone.Presentation
         private List<int> _allTimeScores;
 
         [Inject]
-        public void Construct(IInputEventProvider inputEventProvider, IUIHelper uiHelper)
+        public void Construct(
+            IInputEventProvider inputEventProvider,
+            IUIHelper uiHelper,
+            ScoreRankTextConfig textConfig)
         {
+            _textConfig = textConfig;
             _textsScoreRanks = new[] { _textScoreRank1, _textScoreRank2, _textScoreRank3 };
             _uiHelper = uiHelper;
             _inputEventProvider = inputEventProvider;
