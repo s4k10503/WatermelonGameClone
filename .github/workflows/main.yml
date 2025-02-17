@@ -9,15 +9,34 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        clean: false
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          clean: false
 
-    - name: Unity Build
-      shell: cmd
-      run: |
-         "C:\Program Files\unity\2022.3.11f1\Editor\Unity.exe" -quit -batchmode -projectPath . -executeMethod CI.Build -buildTarget StandaloneWindows64 -nographics -logFile -
+      - name: Unity Build
+        shell: cmd
+        run: |
+          "C:\Program Files\unity\2022.3.11f1\Editor\Unity.exe" -quit -batchmode -projectPath . -executeMethod CI.Build -buildTarget StandaloneWindows64 -nographics -logFile -
 
-    - name: Release
-      run: Copy-Item Build\Application.exe D:\Builds\Application${{ github.run_number }}.exe
+      - name: Release
+        shell: powershell
+        run: |
+          $destPath = "D:\Builds\Application${{ github.run_number }}"
+          if (-not (Test-Path -Path $destPath)) {
+            New-Item -ItemType Directory -Path $destPath | Out-Null
+          }
+
+          robocopy Build $destPath /E
+          $rc = $LASTEXITCODE
+
+          # Examples where robocopy is treated as an actual error of 8 or higher, and less than that as a success
+          if ($rc -ge 8) {
+            Write-Host "robocopy failed with exit code $rc"
+            exit $rc
+          }
+          else {
+            Write-Host "robocopy succeeded with exit code $rc"
+            # Treat as normal termination
+            exit 0
+          }
