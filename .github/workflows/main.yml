@@ -1,0 +1,23 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        clean: false
+
+    - name: Unity Build
+      shell: cmd
+      run: |
+        "C:\Program Files\Unity\Hub\Editor\2022.3.11f1\Editor\Unity.exe" -quit -batchmode -projectPath . -executeMethod CI.Build -buildTarget StandaloneWindows64 -nographics -logFile -
+
+    - name: Release
+      run: Copy-Item Build\Application.exe D:\Builds\Application${{ github.run_number }}.exe
