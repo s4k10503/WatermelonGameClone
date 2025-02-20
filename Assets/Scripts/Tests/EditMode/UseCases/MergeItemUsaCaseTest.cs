@@ -2,7 +2,7 @@ using NUnit.Framework;
 using NSubstitute;
 using WatermelonGameClone.Domain;
 using WatermelonGameClone.UseCase;
-using UnityEngine;
+using System.Numerics;
 
 namespace WatermelonGameClone.Tests
 {
@@ -57,30 +57,30 @@ namespace WatermelonGameClone.Tests
         public void AddContactTime_ShouldIncreaseContactTimeCorrectly()
         {
             // Arrange
-            var entity = _mergeItemUseCase.CreateMergeItemEntity(1);
-            float initialTime = entity.ContactTime;
+            var dto = _mergeItemUseCase.CreateMergeItemDTO(1);
+            float initialTime = dto.ContactTime;
             float deltaTime = 2.5f;
 
             // Act
-            _mergeItemUseCase.AddContactTime(entity.Id, deltaTime);
+            _mergeItemUseCase.AddContactTime(dto.Id, deltaTime);
+            var updatedDto = _mergeItemUseCase.GetMergeItemDTOById(dto.Id);
 
             // Assert
-            var resultEntity = _mergeItemUseCase.GetEntityById(entity.Id);
-            Assert.AreEqual(initialTime + deltaTime, resultEntity.ContactTime, "ContactTime should be increased by deltaTime.");
+            Assert.AreEqual(initialTime + deltaTime, updatedDto.ContactTime, "ContactTime should be increased by deltaTime.");
         }
 
         [Test]
         public void ResetContactTime_ShouldSetContactTimeToZero()
         {
             // Arrange
-            var entity = new MergeItemEntity(1, 1.0f);
-            entity.AddContactTime(1.5f);
+            var dto = new MergeItemEntity(1, 1.0f);
+            dto.AddContactTime(1.5f);
 
             // Act
-            entity.ResetContactTime();
+            dto.ResetContactTime();
 
             // Assert
-            Assert.AreEqual(0f, entity.ContactTime, "ContactTime should be reset to zero.");
+            Assert.AreEqual(0f, dto.ContactTime, "ContactTime should be reset to zero.");
         }
 
         [Test]
@@ -104,11 +104,11 @@ namespace WatermelonGameClone.Tests
         public void CanMerge_WhenMergeJudgmentServiceReturnsTrue_ShouldReturnTrue()
         {
             // Arrange
-            var entity1 = _mergeItemUseCase.CreateMergeItemEntity(1);
-            var entity2 = _mergeItemUseCase.CreateMergeItemEntity(1);
+            var dto1 = _mergeItemUseCase.CreateMergeItemDTO(1);
+            var dto2 = _mergeItemUseCase.CreateMergeItemDTO(1);
 
             // Act
-            bool result = _mergeItemUseCase.CanMerge(entity1.Id, entity2.Id);
+            bool result = _mergeItemUseCase.CanMerge(dto1.Id, dto2.Id);
 
             // Assert
             Assert.IsTrue(result, "CanMerge should return true when MergeJudgmentService returns true.");
@@ -118,11 +118,11 @@ namespace WatermelonGameClone.Tests
         public void CanMerge_WhenMergeJudgmentServiceReturnsFalse_ShouldReturnFalse()
         {
             // Arrange
-            var entity1 = _mergeItemUseCase.CreateMergeItemEntity(1);
-            var entity2 = _mergeItemUseCase.CreateMergeItemEntity(2);
+            var dto1 = _mergeItemUseCase.CreateMergeItemDTO(1);
+            var dto2 = _mergeItemUseCase.CreateMergeItemDTO(2);
 
             // Act
-            bool result = _mergeItemUseCase.CanMerge(entity1.Id, entity2.Id);
+            bool result = _mergeItemUseCase.CanMerge(dto1.Id, dto2.Id);
 
             // Assert
             Assert.IsFalse(result, "CanMerge should return false when MergeJudgmentService returns false.");
@@ -132,21 +132,25 @@ namespace WatermelonGameClone.Tests
         public void CreateMergeData_WhenCalled_ShouldReturnExpectedMergeData()
         {
             // Arrange
-            var entity1 = _mergeItemUseCase.CreateMergeItemEntity(1);
-            entity1.Position = new Vector3(0, 0, 0);
+            var dto1 = _mergeItemUseCase.CreateMergeItemDTO(1);
+            var dto2 = _mergeItemUseCase.CreateMergeItemDTO(1);
 
-            var entity2 = _mergeItemUseCase.CreateMergeItemEntity(1);
-            entity2.Position = new Vector3(2, 2, 0);
+            Vector2 sourcePos = new(0, 0);
+            Vector2 targetPos = new(2, 2);
 
             int expectedItemNo = 1;
-            var expectedPosition = new Vector2(1, 1); // Center position
+            var expectedPosition = new Vector2(1, 1); // Center Position
 
             // Act
-            var result = _mergeItemUseCase.CreateMergeData(entity1.Id, entity2.Id);
+            var result = _mergeItemUseCase.CreateMergeDataDTO(dto1.Id, sourcePos, dto2.Id, targetPos);
 
             // Assert
             Assert.AreEqual(expectedPosition, result.Position, "Merge position should be the midpoint of source and target positions.");
             Assert.AreEqual(expectedItemNo, result.ItemNo, "MergeData should contain the correct item number.");
+
+            // Assert
+            Assert.IsNull(_mergeItemUseCase.GetMergeItemDTOById(dto1.Id), "Source entity should be removed after merge.");
+            Assert.IsNull(_mergeItemUseCase.GetMergeItemDTOById(dto2.Id), "Target entity should be removed after merge.");
         }
 
 
@@ -154,11 +158,11 @@ namespace WatermelonGameClone.Tests
         public void CheckGameOver_WhenContactTimeExceedsTimeLimit_ShouldReturnTrue()
         {
             // Arrange
-            var entity = _mergeItemUseCase.CreateMergeItemEntity(1);
-            _mergeItemUseCase.AddContactTime(entity.Id, 1.5f);
+            var dto = _mergeItemUseCase.CreateMergeItemDTO(1);
+            _mergeItemUseCase.AddContactTime(dto.Id, 1.5f);
 
             // Act
-            bool result = _mergeItemUseCase.CheckGameOver(entity.Id);
+            bool result = _mergeItemUseCase.CheckGameOver(dto.Id);
 
             // Assert
             Assert.IsTrue(result, "GameOver should be true when contact time exceeds time limit.");
@@ -168,11 +172,11 @@ namespace WatermelonGameClone.Tests
         public void CheckGameOver_WhenContactTimeIsEqualToTimeLimit_ShouldReturnFalse()
         {
             // Arrange
-            var entity = _mergeItemUseCase.CreateMergeItemEntity(1);
-            _mergeItemUseCase.AddContactTime(entity.Id, 1.0f);
+            var dto = _mergeItemUseCase.CreateMergeItemDTO(1);
+            _mergeItemUseCase.AddContactTime(dto.Id, 1.0f);
 
             // Act
-            bool result = _mergeItemUseCase.CheckGameOver(entity.Id);
+            bool result = _mergeItemUseCase.CheckGameOver(dto.Id);
 
             // Assert
             Assert.IsFalse(result, "GameOver should be false when contact time is equal to time limit.");
@@ -182,11 +186,11 @@ namespace WatermelonGameClone.Tests
         public void CheckGameOver_WhenContactTimeIsLessThanTimeLimit_ShouldReturnFalse()
         {
             // Arrange
-            var entity = _mergeItemUseCase.CreateMergeItemEntity(1);
-            _mergeItemUseCase.AddContactTime(entity.Id, 0.5f);
+            var dto = _mergeItemUseCase.CreateMergeItemDTO(1);
+            _mergeItemUseCase.AddContactTime(dto.Id, 0.5f);
 
             // Act
-            bool result = _mergeItemUseCase.CheckGameOver(entity.Id);
+            bool result = _mergeItemUseCase.CheckGameOver(dto.Id);
 
             // Assert
             Assert.IsFalse(result, "GameOver should be false when contact time is less than time limit.");

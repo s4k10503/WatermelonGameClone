@@ -4,6 +4,7 @@ using Zenject;
 using WatermelonGameClone.Domain;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
 namespace WatermelonGameClone.UseCase
 {
@@ -47,7 +48,13 @@ namespace WatermelonGameClone.UseCase
             _disposables?.Dispose();
         }
 
-        public IMergeItemEntity CreateMergeItemEntity(int itemNo)
+        public MergeItemDTO CreateMergeItemDTO(int itemNo)
+        {
+            var entity = CreateMergeItemEntity(itemNo);
+            return MapEntityToDTO(entity);
+        }
+
+        private IMergeItemEntity CreateMergeItemEntity(int itemNo)
         {
             if (itemNo < 0)
                 throw new ArgumentException("ItemNo must be non-negative.", nameof(itemNo));
@@ -57,17 +64,34 @@ namespace WatermelonGameClone.UseCase
             return entity;
         }
 
-        public IMergeItemEntity GetEntityById(Guid id)
+        public MergeItemDTO GetMergeItemDTOById(Guid id)
         {
-            return _entities.ContainsKey(id) ? _entities[id] : null;
+            if (_entities.TryGetValue(id, out var entity))
+            {
+                return MapEntityToDTO(entity);
+            }
+            return null;
         }
 
-        public IReadOnlyList<IMergeItemEntity> GetAllEntities()
+        private MergeItemDTO MapEntityToDTO(IMergeItemEntity entity)
         {
-            return _entities.Values.ToList();
+            return new MergeItemDTO
+            {
+                Id = entity.Id,
+                ItemNo = entity.ItemNo,
+                Position = entity.Position,
+                ContactTime = entity.ContactTime
+            };
         }
 
-        public void RemoveEntity(Guid id)
+        public IReadOnlyList<MergeItemDTO> GetAllMergeItemDTOs()
+        {
+            return _entities.Values
+                .Select(e => MapEntityToDTO(e))
+                .ToList();
+        }
+
+        private void RemoveEntity(Guid id)
         {
             _entities.Remove(id);
         }
@@ -92,7 +116,6 @@ namespace WatermelonGameClone.UseCase
             return entity.CheckGameOver();
         }
 
-
         public void ResetContactTime(Guid id)
         {
             if (_entities.TryGetValue(id, out var entity))
@@ -111,7 +134,7 @@ namespace WatermelonGameClone.UseCase
             return source.CanMergeWith(target);
         }
 
-        public MergeData CreateMergeData(Guid sourceId, Guid targetId)
+        public MergeResultDTO CreateMergeDataDTO(Guid sourceId, Vector2 sourcePos, Guid targetId, Vector2 targetPos)
         {
             if (!_entities.TryGetValue(sourceId, out var source) || !_entities.TryGetValue(targetId, out var target))
             {
@@ -123,7 +146,21 @@ namespace WatermelonGameClone.UseCase
                 throw new InvalidOperationException("Entities cannot be merged.");
             }
 
-            return _mergeService.CreateMergeData(source.Position, target.Position, source.ItemNo);
+            _entities.Remove(sourceId);
+            _entities.Remove(targetId);
+
+            var mergeData = _mergeService.CreateMergeData(sourcePos, targetPos, source.ItemNo);
+            return MapMergeDataToDTO(mergeData);
+        }
+
+
+        private MergeResultDTO MapMergeDataToDTO(MergeData mergeData)
+        {
+            return new MergeResultDTO
+            {
+                Position = mergeData.Position,
+                ItemNo = mergeData.ItemNo
+            };
         }
 
         public void UpdateNextItemIndex()

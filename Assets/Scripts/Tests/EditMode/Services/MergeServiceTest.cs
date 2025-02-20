@@ -1,5 +1,5 @@
+using System.Numerics;
 using NUnit.Framework;
-using UnityEngine;
 using WatermelonGameClone.Domain;
 
 namespace WatermelonGameClone.Tests

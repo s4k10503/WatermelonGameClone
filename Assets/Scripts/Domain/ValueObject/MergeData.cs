@@ -1,4 +1,4 @@
-using UnityEngine;
+using System.Numerics;
 
 namespace WatermelonGameClone.Domain
 {
@@ -9,7 +9,6 @@ namespace WatermelonGameClone.Domain
 
         public MergeData(Vector2 position, int itemNo)
         {
-            
             Position = position;
             ItemNo = itemNo;
         }

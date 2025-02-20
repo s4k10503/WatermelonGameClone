@@ -1,4 +1,4 @@
-using UnityEngine;
+using System.Numerics;
 
 namespace WatermelonGameClone.Domain
 {
@@ -26,7 +26,7 @@ namespace WatermelonGameClone.Domain
             return new MergeData(newPosition, newItemNo);
         }
 
-        private Vector3 CalculateMergePosition(Vector2 position1, Vector2 position2)
+        private Vector2 CalculateMergePosition(Vector2 position1, Vector2 position2)
         {
             return (position1 + position2) / 2;
         }

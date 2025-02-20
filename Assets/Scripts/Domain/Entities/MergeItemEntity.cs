@@ -1,12 +1,12 @@
 using System;
-using UnityEngine;
+using System.Numerics;
 
 public class MergeItemEntity : IMergeItemEntity
 {
     public Guid Id { get; private set; }
     public int ItemNo { get; private set; }
     public float ContactTime { get; private set; }
-    public Vector3 Position { get; set; }
+    public Vector2 Position { get; set; }
     private readonly float _contactTimeLimit;
 
     public MergeItemEntity(
@@ -16,7 +16,7 @@ public class MergeItemEntity : IMergeItemEntity
         Id = Guid.NewGuid();
         ItemNo = itemNo;
         ContactTime = 0f;
-        Position = Vector3.zero;
+        Position = Vector2.Zero;
         _contactTimeLimit = contactTimeLimit;
     }
 
