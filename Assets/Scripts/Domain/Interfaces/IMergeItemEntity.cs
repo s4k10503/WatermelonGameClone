@@ -1,12 +1,12 @@
 using System;
-using UnityEngine;
+using System.Numerics;
 
 public interface IMergeItemEntity
 {
     Guid Id { get; }
     int ItemNo { get; }
     float ContactTime { get; }
-    Vector3 Position { get; set; }
+    Vector2 Position { get; set; }
 
     void AddContactTime(float deltaTime);
     void ResetContactTime();

@@ -76,16 +76,22 @@ namespace WatermelonGameClone.UseCase
             await _soundVolumeRepository.SaveSoundSettingsAsync(_audioSourceBgm.volume, _audioSourceSe.volume, ct);
         }
 
-        public void PlaySoundEffect(SoundEffect effect)
+        public void PlaySoundEffect(string soundName)
         {
-            if (!_soundEffects.TryGetValue(effect, out AudioClip clip) || clip == null)
+            if (!Enum.TryParse(soundName, out SoundEffect soundEffect))
             {
-                throw new ArgumentException($"Sound effect '{effect}' not found or not initialized.", nameof(effect));
+                throw new ArgumentException($"Sound effect '{soundName}' is not a valid SoundEffect.", nameof(soundName));
+            }
+
+            if (!_soundEffects.TryGetValue(soundEffect, out AudioClip clip) || clip == null)
+            {
+                throw new ArgumentException($"Sound effect '{soundName}' not found or not initialized.", nameof(soundName));
             }
 
             _audioSourceSe.clip = clip;
             _audioSourceSe.Play();
         }
+
 
         private static float ValidateVolume(float value, string parameterName)
         {

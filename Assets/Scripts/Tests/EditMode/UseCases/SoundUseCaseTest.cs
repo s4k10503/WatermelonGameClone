@@ -131,7 +131,7 @@ namespace WatermelonGameClone.Tests
             yield return _soundUseCase.InitializeAsync(CancellationToken.None).ToCoroutine();
 
             // Act: Play the drop sound
-            _soundUseCase.PlaySoundEffect(SoundEffect.Drop);
+            _soundUseCase.PlaySoundEffect("Drop");
 
             // Proceed to the frame
             yield return null;
