@@ -1,11 +1,13 @@
-using UnityEngine;
+using Domain.ValueObject;
+using Presentation.Interfaces;
+
 using TMPro;
 using UniRx;
 using UniRx.Triggers;
+using UnityEngine;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class ScorePanelView : MonoBehaviour, IScorePanelView
     {

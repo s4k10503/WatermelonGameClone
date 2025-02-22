@@ -1,9 +1,11 @@
-using UnityEngine;
+using Presentation.Interfaces;
+
 using System;
 using UniRx;
 using UniRx.Triggers;
+using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.Common
 {
     public sealed class InputEventProvider : MonoBehaviour, IInputEventProvider
     {
@@ -35,7 +37,7 @@ namespace WatermelonGameClone.Presentation
         void Start()
         {
             this.UpdateAsObservable()
-                .Where(_ => !_isInputProcessed)
+                .Where(_ => !_isInputProcessed && Camera.main != null)
                 .Select(_ => (Vector2)Camera.main.ScreenToWorldPoint(Input.mousePosition))
                 .Where(pos => pos != _lastMousePosition)
                 .Subscribe(HandleMouseMove)

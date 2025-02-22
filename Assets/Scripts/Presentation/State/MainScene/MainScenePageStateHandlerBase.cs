@@ -1,7 +1,11 @@
+using Presentation.DTO;
+using Presentation.State.Common;
+using Presentation.View.MainScene;
+
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.MainScene
 {
     // Base class for MainScene PageState Handlers
     public abstract class MainScenePageStateHandlerBase
@@ -13,7 +17,7 @@ namespace WatermelonGameClone.Presentation
         {
             view.HideLoadingPage();
             view.DetailedScoreRankPageView.HidePage();
-            view.Stageview.ShowStage();
+            view.StageView.ShowStage();
             view.ShowMainPageMainElements();
 
             await UniTask.CompletedTask.AttachExternalCancellation(ct);

@@ -1,8 +1,10 @@
+using Presentation.Interfaces;
+
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.Common
 {
     public sealed class UIHelper : IUIHelper
     {

@@ -1,10 +1,11 @@
+using UseCase.Interfaces;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Zenject;
-using WatermelonGameClone.UseCase;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Presenter.Common
 {
     public class ProjectPresenter : IInitializable, IDisposable
     {
@@ -12,9 +13,9 @@ namespace WatermelonGameClone.Presentation
         private ISoundUseCase _soundUseCase;
         private readonly IExceptionHandlingUseCase _exceptionHandlingUseCase;
 
-        private const int _maxRetries = 3;
+        private const int MaxRetries = 3;
 
-        private CancellationTokenSource _cts;
+        private readonly CancellationTokenSource _cts;
 
         [Inject]
         public ProjectPresenter(
@@ -30,7 +31,7 @@ namespace WatermelonGameClone.Presentation
         {
             _exceptionHandlingUseCase.SafeExecuteAsync(
                 () => _exceptionHandlingUseCase.RetryAsync(
-                    () => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
+                    () => InitializeAsync(_cts.Token), MaxRetries, _cts.Token), _cts.Token).Forget();
         }
 
         private async UniTask InitializeAsync(CancellationToken ct)

@@ -1,15 +1,18 @@
+using Domain.Interfaces;
+using Domain.ValueObject;
+using Infrastructure.Services;
+
 using System;
 using System.IO;
 using System.Threading;
-using UnityEngine;
 using Cysharp.Threading.Tasks;
-using WatermelonGameClone.Domain;
+using UnityEngine;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.Repositories
 {
     public sealed class JsonScoreRepository : IScoreRepository
     {
-        private static readonly string s_scoresFilePath = Path.Combine(Application.persistentDataPath, "score.json");
+        private static readonly string ScoresFilePath = Path.Combine(Application.persistentDataPath, "score.json");
 
         public async UniTask SaveScoresAsync(ScoreContainer scoreData, CancellationToken ct)
         {
@@ -20,8 +23,8 @@ namespace WatermelonGameClone.Infrastructure
 
             try
             {
-                string json = JsonUtility.ToJson(scoreData);
-                await File.WriteAllTextAsync(s_scoresFilePath, json, ct);
+                var json = JsonUtility.ToJson(scoreData);
+                await File.WriteAllTextAsync(ScoresFilePath, json, ct);
             }
             catch (OperationCanceledException)
             {
@@ -38,16 +41,17 @@ namespace WatermelonGameClone.Infrastructure
         {
             try
             {
-                if (File.Exists(s_scoresFilePath))
-                {
-                    string json = await File.ReadAllTextAsync(s_scoresFilePath, ct);
-                    return JsonUtility.FromJson<ScoreContainer>(json);
-                }
-                else
-                {
-                    // Score file not found. Returning default score data.
+                // Score file not found. Returning default score data.
+                if (!File.Exists(ScoresFilePath)) 
                     return CreateDefaultScoreContainer();
-                }
+                
+                var json = await File.ReadAllTextAsync(ScoresFilePath, ct);
+                return JsonUtility.FromJson<ScoreContainer>(json);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancellation is considered normal behavior and the processing is terminated
+                throw;
             }
             catch (Exception ex)
             {
@@ -59,18 +63,18 @@ namespace WatermelonGameClone.Infrastructure
         {
             return new ScoreContainer
             {
-                Data = new ScoreData
+                data = new ScoreData
                 {
-                    Score = new ScoreDetail
+                    score = new ScoreDetail
                     {
-                        Best = 0,
-                        LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd")
+                        best = 0,
+                        lastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd")
                     },
-                    Rankings = new Rankings
+                    rankings = new Rankings
                     {
-                        Daily = new ScoreList { Scores = new int[0] },
-                        Monthly = new ScoreList { Scores = new int[0] },
-                        AllTime = new ScoreList { Scores = new int[0] }
+                        daily = new ScoreList { scores = Array.Empty<int>() },
+                        monthly = new ScoreList { scores = Array.Empty<int>() },
+                        allTime = new ScoreList { scores = Array.Empty<int>() }
                     }
                 }
             };

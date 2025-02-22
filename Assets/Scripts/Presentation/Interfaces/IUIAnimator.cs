@@ -1,8 +1,9 @@
-using UnityEngine;
-using DG.Tweening;
-using WatermelonGameClone.Domain;
+using Domain.ValueObject;
 
-namespace WatermelonGameClone.Presentation
+using DG.Tweening;
+using UnityEngine;
+
+namespace Presentation.Interfaces
 {
     public interface IUIAnimator
     {

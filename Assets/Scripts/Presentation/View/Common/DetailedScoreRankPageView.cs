@@ -1,15 +1,17 @@
+using Domain.ValueObject;
+using Presentation.Interfaces;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEngine.UI;
+using DG.Tweening;
 using UniRx;
 using UniRx.Triggers;
-using DG.Tweening;
+using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.Common
 {
     public sealed class DetailedScoreRankPageView : MonoBehaviour, IDetailedScoreRankPageView
     {
@@ -62,9 +64,9 @@ namespace WatermelonGameClone.Presentation
 
         public void DisplayTopScores(ScoreContainer scoreContainer)
         {
-            _dailyScores = scoreContainer.Data.Rankings.Daily.Scores.Take(7).ToList();
-            _monthlyScores = scoreContainer.Data.Rankings.Monthly.Scores.Take(7).ToList();
-            _allTimeScores = scoreContainer.Data.Rankings.AllTime.Scores.Take(7).ToList();
+            _dailyScores = scoreContainer.data.rankings.daily.scores.Take(7).ToList();
+            _monthlyScores = scoreContainer.data.rankings.monthly.scores.Take(7).ToList();
+            _allTimeScores = scoreContainer.data.rankings.allTime.scores.Take(7).ToList();
 
             UpdatePanelDisplay();
         }

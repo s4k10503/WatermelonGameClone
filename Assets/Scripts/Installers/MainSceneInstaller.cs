@@ -1,10 +1,15 @@
+using Domain.Interfaces;
+using Domain.Services;
+using UseCases.UseCase;
+using Presentation.Interfaces;
+using Presentation.Presenter;
+using Presentation.View.Common;
+using Presentation.View.MainScene;
+
 using UnityEngine;
 using Zenject;
-using WatermelonGameClone.Domain;
-using WatermelonGameClone.UseCase;
-using WatermelonGameClone.Presentation;
 
-namespace WatermelonGameClone.Installers
+namespace Installers
 {
     public sealed class MainSceneInstaller : MonoInstaller
     {

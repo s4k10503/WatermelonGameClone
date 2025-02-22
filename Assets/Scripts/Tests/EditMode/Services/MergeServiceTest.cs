@@ -1,8 +1,9 @@
+using Domain.Services;
+
 using System.Numerics;
 using NUnit.Framework;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Tests
+namespace Tests.EditMode.Services
 {
     public class MergeServiceTest
     {

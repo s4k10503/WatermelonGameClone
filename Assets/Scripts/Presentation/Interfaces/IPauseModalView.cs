@@ -1,7 +1,7 @@
 using System;
 using UniRx;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IPauseModalView
     {

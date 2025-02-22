@@ -1,11 +1,14 @@
-using Cysharp.Threading.Tasks;
-using UniRx;
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCase.Interfaces;
+
 using System;
 using System.Threading;
+using Cysharp.Threading.Tasks;
+using UniRx;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.UseCases.Common
 {
     public class ScoreUseCase : IScoreUseCase, IDisposable
     {
@@ -47,20 +50,20 @@ namespace WatermelonGameClone.UseCase
                     ?? throw new ApplicationException("Failed to load score data. The returned data is null.");
 
                 DateTime currentDate = DateTime.Today;
-                DateTime lastPlayedDate = DateTime.Parse(_scoreData.Data.Score.LastPlayedDate);
+                DateTime lastPlayedDate = DateTime.Parse(_scoreData.data.score.lastPlayedDate);
 
                 if (_scoreResetService.ShouldResetDailyScores(lastPlayedDate, currentDate))
                 {
-                    _scoreResetService.ResetScores(ref _scoreData.Data.Rankings.Daily.Scores);
+                    _scoreResetService.ResetScores(ref _scoreData.data.rankings.daily.scores);
                 }
 
                 if (_scoreResetService.ShouldResetMonthlyScores(lastPlayedDate, currentDate))
                 {
-                    _scoreResetService.ResetScores(ref _scoreData.Data.Rankings.Monthly.Scores);
+                    _scoreResetService.ResetScores(ref _scoreData.data.rankings.monthly.scores);
                 }
 
                 _currentScore.Value = 0;
-                _bestScore.Value = _scoreData.Data.Score.Best;
+                _bestScore.Value = _scoreData.data.score.best;
             }
             catch (OperationCanceledException)
             {
@@ -114,12 +117,12 @@ namespace WatermelonGameClone.UseCase
 
             try
             {
-                _scoreData.Data.Rankings.Daily.Scores = _scoreRankingService.UpdateTopScores(
-                    _scoreData.Data.Rankings.Daily.Scores, newScore, 7);
-                _scoreData.Data.Rankings.Monthly.Scores = _scoreRankingService.UpdateTopScores(
-                    _scoreData.Data.Rankings.Monthly.Scores, newScore, 7);
-                _scoreData.Data.Rankings.AllTime.Scores = _scoreRankingService.UpdateTopScores(
-                    _scoreData.Data.Rankings.AllTime.Scores, newScore, 7);
+                _scoreData.data.rankings.daily.scores = _scoreRankingService.UpdateTopScores(
+                    _scoreData.data.rankings.daily.scores, newScore, 7);
+                _scoreData.data.rankings.monthly.scores = _scoreRankingService.UpdateTopScores(
+                    _scoreData.data.rankings.monthly.scores, newScore, 7);
+                _scoreData.data.rankings.allTime.scores = _scoreRankingService.UpdateTopScores(
+                    _scoreData.data.rankings.allTime.scores, newScore, 7);
 
                 if (_scoreRankingService.IsNewBestScore(_bestScore.Value, newScore))
                 {
@@ -149,7 +152,7 @@ namespace WatermelonGameClone.UseCase
                 if (_scoreData == null)
                     throw new NullReferenceException("_scoreData is null. Ensure InitializeAsync was called before updating user name.");
 
-                _scoreData.Data.Score.UserName = userName;
+                _scoreData.data.score.userName = userName;
                 await SaveScoresAsync(ct);
             }
             catch (OperationCanceledException)
@@ -172,8 +175,8 @@ namespace WatermelonGameClone.UseCase
                     throw new ApplicationException("Cannot save null score data.");
                 }
 
-                _scoreData.Data.Score.Best = _bestScore.Value;
-                _scoreData.Data.Score.LastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd");
+                _scoreData.data.score.best = _bestScore.Value;
+                _scoreData.data.score.lastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd");
 
                 await _scoreRepository.SaveScoresAsync(_scoreData, ct);
             }

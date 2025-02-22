@@ -1,12 +1,18 @@
-using UniRx;
+using UseCase.Interfaces;
+using Presentation.DTO;
+using Presentation.Interfaces;
+using Presentation.State.Common;
+using Presentation.State.TitleScene;
+using Presentation.View.TitleScene;
+
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UniRx;
 using Zenject;
-using System.Collections.Generic;
-using WatermelonGameClone.UseCase;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Presenter
 {
     public sealed class TitleScenePresenter : IInitializable, IDisposable
     {
@@ -35,7 +41,7 @@ namespace WatermelonGameClone.Presentation
             _modalStateHandlers;
 
         private const string MainSceneName = "MainScene";
-        private const int _maxRetries = 3;
+        private const int MaxRetries = 3;
 
         TitleSceneViewStateData _titleSceneViewStateData;
 
@@ -89,7 +95,7 @@ namespace WatermelonGameClone.Presentation
                 .SafeExecuteAsync(
                     () => _exceptionHandlingUseCase.RetryAsync(
                         () => InitializeAsync(_cts.Token),
-                        _maxRetries,
+                        MaxRetries,
                         _cts.Token
                     ),
                     _cts.Token
@@ -138,7 +144,7 @@ namespace WatermelonGameClone.Presentation
 
                 _titleSceneViewStateData.ScoreContainer = _scoreUseCase.GetScoreData();
 
-                // Check the user name here and display the modal if it does not exist.
+                // Check the username here and display the modal if it does not exist.
                 if (string.IsNullOrEmpty(_titleSceneViewStateData.UserName.Value))
                     HandleInputUserName();
             }
@@ -174,24 +180,24 @@ namespace WatermelonGameClone.Presentation
 
             // TitlePage
             _titleSceneView.GameStartRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleGameStart(), _cts.Token).Forget())
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(HandleGameStart, _cts.Token).Forget())
                 .AddTo(_disposables);
 
             _titleSceneView.MyScoreRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleDisplayScores()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(HandleDisplayScores))
                 .AddTo(_disposables);
 
             _titleSceneView.TitlePageView.OnSettings
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleDisplaySettings()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(HandleDisplaySettings))
                 .AddTo(_disposables);
 
             _titleSceneView.TitlePageView.OnLicense
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => OpenLicenseModal()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(OpenLicenseModal))
                 .AddTo(_disposables);
 
             // DetailedScoreRankPage
             _titleSceneView.DetailedScoreRankPageView.OnBack
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePage()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(HandleBackToTitlePage))
                 .AddTo(_disposables);
 
             // SettingsPage
@@ -210,7 +216,7 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _titleSceneView.SettingsPageView.OnBack
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePage()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(HandleBackToTitlePage))
                 .AddTo(_disposables);
 
             // UserNameModal
@@ -220,7 +226,7 @@ namespace WatermelonGameClone.Presentation
 
             // LicenseModal
             _titleSceneView.LicenseModalView.OnBack
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleBackToTitlePage()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(HandleBackToTitlePage))
                 .AddTo(_disposables);
         }
 
@@ -315,7 +321,7 @@ namespace WatermelonGameClone.Presentation
 
         private void HandleSetSeVolume(float value)
         {
-            _soundUseCase.SetSEVolume(value);
+            _soundUseCase.SetSeVolume(value);
             _titleSceneViewStateData.SeVolume = value;
         }
 

@@ -1,10 +1,10 @@
-using NUnit.Framework;
-using System;
-using WatermelonGameClone.Domain;
+using Domain.Entities;
 
-namespace WatermelonGameClone.Tests
+using NUnit.Framework;
+
+namespace Tests.EditMode.Entities
 {
-    public class MergeItemEntityTests
+    public sealed class MergeItemEntityTests
     {
         private MergeItemEntity _mergeItemEntity;
 

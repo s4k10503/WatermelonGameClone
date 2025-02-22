@@ -1,43 +1,48 @@
+using Domain.Interfaces;
+
 using System;
 using System.Numerics;
 
-public class MergeItemEntity : IMergeItemEntity
+namespace Domain.Entities
 {
-    public Guid Id { get; private set; }
-    public int ItemNo { get; private set; }
-    public float ContactTime { get; private set; }
-    public Vector2 Position { get; set; }
-    private readonly float _contactTimeLimit;
-
-    public MergeItemEntity(
-        int itemNo,
-        float contactTimeLimit)
+    public sealed class MergeItemEntity : IMergeItemEntity
     {
-        Id = Guid.NewGuid();
-        ItemNo = itemNo;
-        ContactTime = 0f;
-        Position = Vector2.Zero;
-        _contactTimeLimit = contactTimeLimit;
-    }
+        public Guid Id { get; private set; }
+        public int ItemNo { get; private set; }
+        public float ContactTime { get; private set; }
+        public Vector2 Position { get; set; }
+        private readonly float _contactTimeLimit;
 
-    public void AddContactTime(float deltaTime)
-    {
-        ContactTime += deltaTime;
-    }
+        public MergeItemEntity(
+            int itemNo,
+            float contactTimeLimit)
+        {
+            Id = Guid.NewGuid();
+            ItemNo = itemNo;
+            ContactTime = 0f;
+            Position = Vector2.Zero;
+            _contactTimeLimit = contactTimeLimit;
+        }
 
-    public void ResetContactTime()
-    {
-        ContactTime = 0f;
-    }
+        public void AddContactTime(float deltaTime)
+        {
+            ContactTime += deltaTime;
+        }
 
-    public bool CanMergeWith(IMergeItemEntity other)
-    {
-        if (other == null) throw new ArgumentNullException(nameof(other));
-        return ItemNo == other.ItemNo;
-    }
+        public void ResetContactTime()
+        {
+            ContactTime = 0f;
+        }
 
-    public bool CheckGameOver()
-    {
-        return ContactTime > _contactTimeLimit;
+        public bool CanMergeWith(IMergeItemEntity other)
+        {
+            if (other == null) throw new ArgumentNullException(nameof(other));
+            return ItemNo == other.ItemNo;
+        }
+
+        public bool CheckGameOver()
+        {
+            return ContactTime > _contactTimeLimit;
+        }
     }
 }

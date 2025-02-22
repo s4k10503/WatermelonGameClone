@@ -1,9 +1,10 @@
-using UniRx;
+using Domain.Interfaces;
+
 using System.Linq;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Services
 {
-    public class ScoreRankingService : IScoreRankingService
+    public sealed class ScoreRankingService : IScoreRankingService
     {
         // Update score ranking
         public int[] UpdateTopScores(int[] currentScores, int newScore, int maxEntries)

@@ -1,13 +1,15 @@
+using Domain.ValueObject;
+using Presentation.Interfaces;
+
 using System;
-using UnityEngine;
-using UnityEngine.UI;
 using UniRx;
 using UniRx.Triggers;
+using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.TitleScene
 {
     public sealed class TitlePageView : MonoBehaviour, ITitlePageView
     {

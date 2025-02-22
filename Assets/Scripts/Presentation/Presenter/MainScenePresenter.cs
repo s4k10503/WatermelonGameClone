@@ -1,14 +1,21 @@
+using UseCase.DTO;
+using UseCase.Interfaces;
+using Presentation.DTO;
+using Presentation.Interfaces;
+using Presentation.State.Common;
+using Presentation.State.MainScene;
+using Presentation.View.MainScene;
+
 using System;
-using System.Threading;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UniRx;
-using Cysharp.Threading.Tasks;
 using Zenject;
-using WatermelonGameClone.UseCase;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Presenter
 {
     public sealed class MainScenePresenter : IInitializable, ITickable, IDisposable
     {
@@ -41,7 +48,7 @@ namespace WatermelonGameClone.Presentation
         private string _previousGlobalState;
 
         private const string TitleSceneName = "TitleScene";
-        private const int _maxRetries = 3;
+        private const int MaxRetries = 3;
 
         private readonly CompositeDisposable _disposables;
         private readonly CancellationTokenSource _cts;
@@ -90,7 +97,7 @@ namespace WatermelonGameClone.Presentation
             _exceptionHandlingUseCase.SafeExecuteAsync(
                 () => _exceptionHandlingUseCase.RetryAsync(
                     () => InitializeAsync(_cts.Token),
-                    _maxRetries,
+                    MaxRetries,
                     _cts.Token
                 ),
                 _cts.Token
@@ -110,8 +117,8 @@ namespace WatermelonGameClone.Presentation
             {
                 _exceptionHandlingUseCase.SafeExecuteAsync(
                     () => _exceptionHandlingUseCase.RetryAsync(
-                        () => CreateNextItemAsync(),
-                        _maxRetries,
+                        CreateNextItemAsync,
+                        MaxRetries,
                         _cts.Token
                     ),
                     _cts.Token
@@ -224,21 +231,21 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _mainSceneView.BackToGameRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ResumeGame()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(ResumeGame))
                 .AddTo(_disposables);
 
             _mainSceneView.PauseRequested
                 .Where(_ => _gameStateUseCase.GlobalStateString.Value != "GameOver" &&
                             _gameStateUseCase.GlobalStateString.Value != "Paused")
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => PauseGame()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(PauseGame))
                 .AddTo(_disposables);
 
             _mainSceneView.DisplayScoreRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ShowDetailedScore()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(ShowDetailedScore))
                 .AddTo(_disposables);
 
             _mainSceneView.DetailedScoreRankPageView.OnBack
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ReturnToGameOverScreen()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(ReturnToGameOverScreen))
                 .AddTo(_disposables);
 
             _mainSceneView.MergeItemManager.OnItemCreated
@@ -253,7 +260,7 @@ namespace WatermelonGameClone.Presentation
                         .AddTo(_disposables);
 
                     mergeItem.OnDropping
-                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleItemDropping()))
+                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(HandleItemDropping))
                         .AddTo(_disposables);
 
                     mergeItem.OnMergeRequest
@@ -313,10 +320,10 @@ namespace WatermelonGameClone.Presentation
                 _isNext = false;
 
                 // Generate entity from use case
-                var mergeItemDTO = _mergeItemUseCase.CreateMergeItemDTO(_mergeItemUseCase.NextItemIndex.Value);
+                var mergeItemDto = _mergeItemUseCase.CreateMergeItemDTO(_mergeItemUseCase.NextItemIndex.Value);
 
                 await _mainSceneView.MergeItemManager.CreateItemAsync(
-                    mergeItemDTO.Id,
+                    mergeItemDto.Id,
                     _mergeItemUseCase.NextItemIndex.Value,
                     _mergeItemCreateDelayTime,
                     _cts.Token);
@@ -343,29 +350,28 @@ namespace WatermelonGameClone.Presentation
 
         private void HandleMergeRequest(IMergeItemView sourceView, IMergeItemView targetView)
         {
-            var sourceDTO = _mergeItemUseCase.GetMergeItemDTOById(sourceView.Id);
-            var targetDTO = _mergeItemUseCase.GetMergeItemDTOById(targetView.Id);
+            var sourceDto = _mergeItemUseCase.GetMergeItemDTOById(sourceView.Id);
+            var targetDto = _mergeItemUseCase.GetMergeItemDTOById(targetView.Id);
 
-            if (sourceDTO != null
-                && targetDTO != null
-                && _mergeItemUseCase.CanMerge(sourceView.Id, targetView.Id))
-            {
-                Vector2 unityPosSource = sourceView.GameObject.transform.position;
-                Vector2 unityPosTarget = targetView.GameObject.transform.position;
+            if (sourceDto == null
+                || targetDto == null
+                || !_mergeItemUseCase.CanMerge(sourceView.Id, targetView.Id)) return;
+            
+            Vector2 unityPosSource = sourceView.GameObject.transform.position;
+            Vector2 unityPosTarget = targetView.GameObject.transform.position;
 
-                System.Numerics.Vector2 numericsPosSource = new(unityPosSource.x, unityPosSource.y);
-                System.Numerics.Vector2 numericsPosTarget = new(unityPosTarget.x, unityPosTarget.y);
+            System.Numerics.Vector2 numericsPosSource = new(unityPosSource.x, unityPosSource.y);
+            System.Numerics.Vector2 numericsPosTarget = new(unityPosTarget.x, unityPosTarget.y);
 
-                var mergeDataDTO = _mergeItemUseCase.CreateMergeDataDTO(sourceView.Id, numericsPosSource, targetView.Id, numericsPosTarget);
-                var newMergeItemDTO = _mergeItemUseCase.CreateMergeItemDTO(mergeDataDTO.ItemNo);
+            var mergeDataDto = _mergeItemUseCase.CreateMergeDataDTO(sourceView.Id, numericsPosSource, targetView.Id, numericsPosTarget);
+            var newMergeItemDto = _mergeItemUseCase.CreateMergeItemDTO(mergeDataDto.ItemNo);
 
-                HandleItemMerging(newMergeItemDTO.Id, mergeDataDTO, sourceView, targetView);
-            }
+            HandleItemMerging(newMergeItemDto.Id, mergeDataDto, sourceView, targetView);
         }
 
         private void HandleItemMerging(
             Guid id,
-            MergeResultDTO mergeResultData,
+            MergeResultDto mergeResultData,
             IMergeItemView sourceView,
             IMergeItemView targetView)
         {

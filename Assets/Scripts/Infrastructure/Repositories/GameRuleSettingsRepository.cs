@@ -1,10 +1,13 @@
+using Domain.Interfaces;
+using Infrastructure.Services;
+using Infrastructure.SODefinitions;
+
 using System;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.Repositories
 {
-    public class GameRuleSettingsRepository : IGameRuleSettingsRepository
+    public sealed class GameRuleSettingsRepository : IGameRuleSettingsRepository
     {
         private readonly GameRuleSettings _gameRuleSettings;
 
@@ -14,19 +17,19 @@ namespace WatermelonGameClone.Infrastructure
             _gameRuleSettings = gameRuleSettings ?? throw new ArgumentNullException(nameof(gameRuleSettings));
 
             // Validate TimeSettings properties
-            if (_gameRuleSettings.DelayedTime < 0)
+            if (_gameRuleSettings.delayedTime < 0)
             {
                 throw new InfrastructureException("DelayedTime cannot be negative in TimeSettings.");
             }
-            if (_gameRuleSettings.TimeScaleGameStart <= 0)
+            if (_gameRuleSettings.timeScaleGameStart <= 0)
             {
                 throw new InfrastructureException("TimeScaleGameStart must be greater than zero in TimeSettings.");
             }
-            if (_gameRuleSettings.TimeScaleGameOver != 0)
+            if (_gameRuleSettings.timeScaleGameOver != 0)
             {
-                throw new InfrastructureException("TimesCalegameOver must be 0");
+                throw new InfrastructureException("TimesScaleGameOver must be 0");
             }
-            if (_gameRuleSettings.ContactTimeLimit <= 0)
+            if (_gameRuleSettings.contactTimeLimit <= 0)
             {
                 throw new InfrastructureException("ContactTimeLimit must be greater than zero in TimeSettings.");
             }
@@ -34,22 +37,22 @@ namespace WatermelonGameClone.Infrastructure
 
         public float GetDelayedTime()
         {
-            return _gameRuleSettings.DelayedTime;
+            return _gameRuleSettings.delayedTime;
         }
 
         public float GetTimeScaleGameStart()
         {
-            return _gameRuleSettings.TimeScaleGameStart;
+            return _gameRuleSettings.timeScaleGameStart;
         }
 
         public float GetTimeScaleGameOver()
         {
-            return _gameRuleSettings.TimeScaleGameOver;
+            return _gameRuleSettings.timeScaleGameOver;
         }
 
         public float GetContactTimeLimit()
         {
-            return _gameRuleSettings.ContactTimeLimit;
+            return _gameRuleSettings.contactTimeLimit;
         }
     }
 }

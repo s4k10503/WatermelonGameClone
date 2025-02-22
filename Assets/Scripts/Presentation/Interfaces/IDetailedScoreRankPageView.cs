@@ -1,8 +1,9 @@
+using Domain.ValueObject;
+
 using System;
 using UniRx;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IDetailedScoreRankPageView
     {

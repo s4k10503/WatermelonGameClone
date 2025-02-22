@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.Common
 {
     public class LoadingPageView : MonoBehaviour
     {

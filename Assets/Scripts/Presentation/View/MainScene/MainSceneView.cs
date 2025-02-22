@@ -1,9 +1,12 @@
+using Presentation.Interfaces;
+using Presentation.View.Common;
+
 using System;
-using UnityEngine;
 using UniRx;
+using UnityEngine;
 using Zenject;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class MainSceneView : MonoBehaviour
     {
@@ -22,7 +25,7 @@ namespace WatermelonGameClone.Presentation
         public ModalBackgroundView ModalBackgroundView { get; private set; }
         public IScreenshotHandler ScreenshotHandler { get; private set; }
         public IMergeItemManager MergeItemManager { get; private set; }
-        public StageView Stageview { get; private set; }
+        public StageView StageView { get; private set; }
 
 
         [Inject]
@@ -37,7 +40,7 @@ namespace WatermelonGameClone.Presentation
             IScreenshotHandler screenshotHandler,
             IInputEventProvider inputEventProvider,
             IMergeItemManager mergeItemManager,
-            StageView stageview)
+            StageView stageView)
         {
             ScorePanelView = scorePanelView;
             ScoreRankView = scoreRankView;
@@ -49,7 +52,7 @@ namespace WatermelonGameClone.Presentation
             ScreenshotHandler = screenshotHandler;
             MergeItemManager = mergeItemManager;
             _inputEventProvider = inputEventProvider;
-            Stageview = stageview;
+            StageView = stageView;
         }
 
         private void OnDestroy()
@@ -67,23 +70,19 @@ namespace WatermelonGameClone.Presentation
             ModalBackgroundView = null;
             ScreenshotHandler = null;
             MergeItemManager = null;
-            Stageview = null;
+            StageView = null;
 
             _inputEventProvider = null;
         }
 
         public IObservable<Unit> RestartRequested =>
-            Observable.Merge
-            (
-                GameOverModalView.OnRestart,
-                PauseModalView.OnRestart
+            GameOverModalView.OnRestart.Merge
+            (PauseModalView.OnRestart
             );
 
         public IObservable<Unit> BackToTitleRequested =>
-            Observable.Merge
-            (
-                GameOverModalView.OnBackToTitle,
-                PauseModalView.OnBackToTitle
+            GameOverModalView.OnBackToTitle.Merge
+            (PauseModalView.OnBackToTitle
             );
 
         public IObservable<Unit> BackToGameRequested

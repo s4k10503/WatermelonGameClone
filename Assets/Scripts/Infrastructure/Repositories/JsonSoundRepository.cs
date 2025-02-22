@@ -1,19 +1,22 @@
+using Domain.Interfaces;
+using Domain.ValueObject;
+using Infrastructure.Services;
+
 using System;
 using System.IO;
 using System.Threading;
-using UnityEngine;
 using Cysharp.Threading.Tasks;
-using WatermelonGameClone.Domain;
+using UnityEngine;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.Repositories
 {
     public sealed class JsonSoundVolumeRepository : ISoundVolumeRepository
     {
-        private static readonly string s_soundSettingsFilePath = Path.Combine(Application.persistentDataPath, "sound_settings.json");
+        private static readonly string SSoundSettingsFilePath = Path.Combine(Application.persistentDataPath, "sound_settings.json");
 
-        public async UniTask SaveSoundSettingsAsync(float volumeBGM, float volumeSE, CancellationToken ct)
+        public async UniTask SaveSoundSettingsAsync(float volumeBGM, float volumeSe, CancellationToken ct)
         {
-            if (volumeBGM < 0 || volumeBGM > 1 || volumeSE < 0 || volumeSE > 1)
+            if (volumeBGM < 0 || volumeBGM > 1 || volumeSe < 0 || volumeSe > 1)
             {
                 throw new InfrastructureException("Sound volumes must be between 0 and 1.");
             }
@@ -22,11 +25,11 @@ namespace WatermelonGameClone.Infrastructure
             {
                 VolumeSettings volumeSettings = new VolumeSettings
                 {
-                    VolumeBGM = volumeBGM,
-                    VolumeSE = volumeSE
+                    volumeBGM = volumeBGM,
+                    volumeSe = volumeSe
                 };
                 string json = JsonUtility.ToJson(volumeSettings);
-                await File.WriteAllTextAsync(s_soundSettingsFilePath, json, ct);
+                await File.WriteAllTextAsync(SSoundSettingsFilePath, json, ct);
             }
             catch (OperationCanceledException)
             {
@@ -43,11 +46,11 @@ namespace WatermelonGameClone.Infrastructure
         {
             try
             {
-                if (File.Exists(s_soundSettingsFilePath))
+                if (File.Exists(SSoundSettingsFilePath))
                 {
-                    string json = await File.ReadAllTextAsync(s_soundSettingsFilePath, ct);
+                    string json = await File.ReadAllTextAsync(SSoundSettingsFilePath, ct);
                     VolumeSettings volumeSettings = JsonUtility.FromJson<VolumeSettings>(json);
-                    return (volumeSettings.VolumeBGM, volumeSettings.VolumeSE);
+                    return (volumeSettings.volumeBGM, volumeSettings.volumeSe);
                 }
                 else
                 {

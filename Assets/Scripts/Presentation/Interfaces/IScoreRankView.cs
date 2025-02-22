@@ -1,6 +1,6 @@
-using WatermelonGameClone.Domain;
+using Domain.ValueObject;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IScoreRankView
     {

@@ -1,14 +1,14 @@
 using UnityEngine;
 using Zenject;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.SODefinitions
 {
     [CreateAssetMenu(fileName = "SoundSettings", menuName = "Audio/SoundSettings")]
     public class SoundSettings : ScriptableObjectInstaller
     {
-        public AudioClip ClipBGM;
-        public AudioClip ClipDrop;
-        public AudioClip ClipMerge;
+        public AudioClip clipBGM;
+        public AudioClip clipDrop;
+        public AudioClip clipMerge;
 
         public override void InstallBindings()
         {

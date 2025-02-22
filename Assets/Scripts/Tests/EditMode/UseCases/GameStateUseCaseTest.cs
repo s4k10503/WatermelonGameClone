@@ -1,13 +1,15 @@
+using Domain.Interfaces;
+using UseCase.UseCases.Common;
+
+using System;
+using NSubstitute;
 using NUnit.Framework;
 using UniRx;
-using WatermelonGameClone.UseCase;
-using WatermelonGameClone.Domain;
-using NSubstitute;
-using System;
 
-namespace WatermelonGameClone.Tests
+
+namespace Tests.EditMode.UseCases
 {
-    public class GameStateUseCaseTest
+    public sealed class GameStateUseCaseTest
     {
         private GameStateUseCase _gameStateUseCase;
         private IGameRuleSettingsRepository _mockGameRuleSettingsRepository;
@@ -60,7 +62,7 @@ namespace WatermelonGameClone.Tests
             // Subscription
             _gameStateUseCase.GlobalStateString
                 .Skip(1) // Skip the notification of the initial value
-                .Subscribe(state => notified = true);
+                .Subscribe(_ => notified = true);
 
             // Change the global status
             _gameStateUseCase.SetGlobalGameState("Playing");

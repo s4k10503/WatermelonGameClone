@@ -1,10 +1,12 @@
-using UnityEngine;
+using Domain.ValueObject;
+using Presentation.Interfaces;
+
 using UniRx;
 using UniRx.Triggers;
+using UnityEngine;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class NextItemPanelView : MonoBehaviour, INextItemPanelView
     {

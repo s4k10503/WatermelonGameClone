@@ -1,16 +1,15 @@
+using Domain.Interfaces;
+using Domain.ValueObject;
+
 using System.Numerics;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Services
 {
-    public class MergeService : IMergeService
+    public sealed class MergeService : IMergeService
     {
-        private readonly System.Random _random;
+        private readonly System.Random _random = new();
 
-        public MergeService()
-        {
-            // Random generation with reproducible by specifying seeds
-            _random = new System.Random();
-        }
+        // Random generation with reproducible by specifying seeds
 
         public MergeData CreateMergeData(Vector2 sourcePosition, Vector2 targetPosition, int itemNo)
         {

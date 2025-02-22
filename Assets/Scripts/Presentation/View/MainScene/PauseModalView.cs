@@ -1,12 +1,14 @@
+using Presentation.Interfaces;
+
 using System;
+using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using UniRx;
-using UniRx.Triggers;
 using Zenject;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class PauseModalView : MonoBehaviour, IPauseModalView
     {

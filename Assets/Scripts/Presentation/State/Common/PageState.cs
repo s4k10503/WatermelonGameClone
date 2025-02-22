@@ -1,4 +1,4 @@
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.Common
 {
     public enum PageState
     {

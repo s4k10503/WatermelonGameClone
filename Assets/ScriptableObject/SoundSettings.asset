@@ -12,8 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85d30d1b9a94cab4a9f7659e6d804933, type: 3}
   m_Name: SoundSettings
   m_EditorClassIdentifier: 
-  ClipBGM: {fileID: 8300000, guid: d78319e609df331499e124264ff15c4c, type: 3}
-  ClipDrop: {fileID: 8300000, guid: a9cdf03ebba0c00478412f816a119230, type: 3}
-  ClipMerge: {fileID: 8300000, guid: ed020d4417a832545892522a7901876a, type: 3}
-  VolumeBGM: 1
-  VolumeSE: 1
+  clipBGM: {fileID: 8300000, guid: d78319e609df331499e124264ff15c4c, type: 3}
+  clipDrop: {fileID: 8300000, guid: a9cdf03ebba0c00478412f816a119230, type: 3}
+  clipMerge: {fileID: 8300000, guid: ed020d4417a832545892522a7901876a, type: 3}

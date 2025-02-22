@@ -1,6 +1,6 @@
 using System;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Interfaces
 {
     public interface IScoreResetService
     {

@@ -1,8 +1,11 @@
+using Presentation.DTO;
+using Presentation.View.TitleScene;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.TitleScene
 {
     // TitleScene Specific ModalState Handlers
     public class TitleNoneStateHandler : TitleSceneModalStateHandlerBase

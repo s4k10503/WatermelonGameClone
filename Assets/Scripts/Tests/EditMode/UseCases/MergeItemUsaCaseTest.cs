@@ -1,12 +1,15 @@
-using NUnit.Framework;
-using NSubstitute;
-using WatermelonGameClone.Domain;
-using WatermelonGameClone.UseCase;
-using System.Numerics;
+using Domain.Entities;
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCases.UseCase;
 
-namespace WatermelonGameClone.Tests
+using System.Numerics;
+using NSubstitute;
+using NUnit.Framework;
+
+namespace Tests.EditMode.UseCases
 {
-    public class MergeItemUseCaseTests
+    public sealed class MergeItemUseCaseTests
     {
         private MergeItemUseCase _mergeItemUseCase;
         private IMergeService _mockMergeService;
@@ -36,7 +39,7 @@ namespace WatermelonGameClone.Tests
                 return new MergeData(mergePosition, itemNo);
             });
 
-            // Specify Maxitemno to initialize the test target
+            // Specify MaxItemNo to initialize the test target
             _mergeItemUseCase = new MergeItemUseCase(
                 10,
                 _mockMergeService,
@@ -87,7 +90,7 @@ namespace WatermelonGameClone.Tests
         public void UpdateNextItemIndex_ShouldUpdateNextItemIndexValue()
         {
             // Arrange
-            // Mock settings to return 5 when GeneraTenextitemindex is called
+            // Mock settings to return 5 when GenerateNextItemIndex is called
             _mockMergeService.GenerateNextItemIndex(Arg.Any<int>()).Returns(5);
 
             // Act
@@ -96,7 +99,7 @@ namespace WatermelonGameClone.Tests
             // Assert
             Assert.AreEqual(5, _mergeItemUseCase.NextItemIndex.Value);
 
-            // Confirm that GenerateNextItiteMindex was called by Maxitemno
+            // Confirm that GenerateNextItemIndex was called by MaxItemNo
             _mockMergeService.Received(1).GenerateNextItemIndex(10);
         }
 
