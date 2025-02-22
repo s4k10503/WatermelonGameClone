@@ -1,9 +1,11 @@
-using UnityEngine;
+using Presentation.Interfaces;
+
 using System;
 using UniRx;
+using UnityEngine;
 using Zenject;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class MergeItemView : MonoBehaviour, IMergeItemView
     {
@@ -88,13 +90,11 @@ namespace WatermelonGameClone.Presentation
             ItemNo = itemNo;
             _isDropped = isAfterMerge;
 
-            if (isAfterMerge)
-            {
-                // After the merge, it is treated with the dropped and simulated the rigid body
-                _mouseMoveDisposable?.Dispose();
-                _mouseClickDisposable?.Dispose();
-                _rigidbody2D.simulated = true;
-            }
+            if (!isAfterMerge) return;
+            // After the merge, it is treated with the dropped and simulated the rigid body
+            _mouseMoveDisposable?.Dispose();
+            _mouseClickDisposable?.Dispose();
+            _rigidbody2D.simulated = true;
         }
 
         // Update the position of the item according to the mouse position
@@ -128,7 +128,7 @@ namespace WatermelonGameClone.Presentation
         // Collision / Trigger Handlers
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            // If the collision partner does not implement iMergeiteMView
+            // If the collision partner does not implement MergeItemMView
             if (!collision.gameObject.TryGetComponent(out IMergeItemView targetItem)) return;
 
             // If your GetinstanceID () is larger than the collision partner, it will be processed first

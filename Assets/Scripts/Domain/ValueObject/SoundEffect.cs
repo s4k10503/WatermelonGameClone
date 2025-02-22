@@ -1,4 +1,4 @@
-namespace WatermelonGameClone.Domain
+namespace Domain.ValueObject
 {
     public enum SoundEffect
     {

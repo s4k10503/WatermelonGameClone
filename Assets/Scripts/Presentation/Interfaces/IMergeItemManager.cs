@@ -1,11 +1,9 @@
 using System;
-using UniRx;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IMergeItemManager
     {

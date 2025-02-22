@@ -1,9 +1,12 @@
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCase.Interfaces;
+
 using System;
 using UniRx;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.UseCases.Common
 {
     public sealed class GameStateUseCase : IGameStateUseCase, IDisposable
     {
@@ -17,18 +20,16 @@ namespace WatermelonGameClone.UseCase
         public float TimeScaleGameStart { get; private set; }
         public float TimeScaleGameOver { get; private set; }
 
-        private readonly IGameRuleSettingsRepository _gameRuleSettingsRepository;
-
         [Inject]
         public GameStateUseCase(IGameRuleSettingsRepository gameRuleSettingsRepository)
         {
-            _gameRuleSettingsRepository = gameRuleSettingsRepository ??
-                throw new ArgumentNullException(nameof(gameRuleSettingsRepository));
+            var gameRuleSettingsRepository1 = gameRuleSettingsRepository ??
+                                              throw new ArgumentNullException(nameof(gameRuleSettingsRepository));
 
             // Get time settings
-            DelayedTime = ValidateTimeValue(_gameRuleSettingsRepository.GetDelayedTime(), "DelayedTime");
-            TimeScaleGameStart = ValidateTimeValue(_gameRuleSettingsRepository.GetTimeScaleGameStart(), "TimeScaleGameStart");
-            TimeScaleGameOver = ValidateTimeValue(_gameRuleSettingsRepository.GetTimeScaleGameOver(), "TimeScaleGameOver");
+            DelayedTime = ValidateTimeValue(gameRuleSettingsRepository1.GetDelayedTime(), "DelayedTime");
+            TimeScaleGameStart = ValidateTimeValue(gameRuleSettingsRepository1.GetTimeScaleGameStart(), "TimeScaleGameStart");
+            TimeScaleGameOver = ValidateTimeValue(gameRuleSettingsRepository1.GetTimeScaleGameOver(), "TimeScaleGameOver");
 
             _globalStateString = new ReactiveProperty<string>(_globalState.Value.ToString());
 

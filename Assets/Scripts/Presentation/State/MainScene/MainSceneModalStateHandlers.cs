@@ -1,12 +1,15 @@
+using Presentation.DTO;
+using Presentation.View.MainScene;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.MainScene
 {
     // When not over (modals are hidden), hide all necessary modals.
-    public class MainNoneStateHandler : MainSceneModalStateHandlerBase
+    public sealed class MainNoneStateHandler : MainSceneModalStateHandlerBase
     {
         protected override async UniTask ApplyModalAsync(
             MainSceneView view,
@@ -28,7 +31,7 @@ namespace WatermelonGameClone.Presentation
         }
     }
 
-    // When pause, the background panel is displayed and the pause modal is displayed.
+    // When paused, the background panel is displayed and the pause modal is displayed.
     public class PausedStateHandler : MainSceneModalStateHandlerBase
     {
         protected override async UniTask ApplyModalAsync(
@@ -91,11 +94,9 @@ namespace WatermelonGameClone.Presentation
         }
         public override void Dispose()
         {
-            if (_screenshot != null)
-            {
-                RenderTexture.ReleaseTemporary(_screenshot);
-                _screenshot = null;
-            }
+            if (_screenshot == null) return;
+            RenderTexture.ReleaseTemporary(_screenshot);
+            _screenshot = null;
         }
     }
 }

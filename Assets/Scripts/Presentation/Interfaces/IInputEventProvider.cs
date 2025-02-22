@@ -1,8 +1,8 @@
 using System;
-using UnityEngine;
 using UniRx;
+using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IInputEventProvider
     {

@@ -1,9 +1,12 @@
+using Presentation.DTO;
+using Presentation.View.TitleScene;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.TitleScene
 {
     // TitleScene Specific PageState Handlers
     public class TitleLoadingStateHandler : TitleScenePageStateHandlerBase
@@ -66,7 +69,7 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.SettingsPageView.SetUserName(data.ScoreContainer.Data.Score.UserName);
+                view.SettingsPageView.SetUserName(data.ScoreContainer.data.score.userName);
                 data.UserName
                     .DistinctUntilChanged()
                     .Subscribe(newName => view.SettingsPageView.SetUserName(newName))

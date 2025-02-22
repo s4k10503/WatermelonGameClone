@@ -1,10 +1,10 @@
+using Domain.ValueObject;
+
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
-using WatermelonGameClone.Domain;
 
-
-namespace WatermelonGameClone.UseCase
+namespace UseCase.Interfaces
 {
     public interface IScoreUseCase
     {

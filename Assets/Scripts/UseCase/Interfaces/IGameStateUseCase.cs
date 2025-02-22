@@ -1,6 +1,6 @@
 using UniRx;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.Interfaces
 {
     public interface IGameStateUseCase
     {

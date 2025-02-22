@@ -1,17 +1,18 @@
-using NUnit.Framework;
-using NSubstitute;
-using System;
-using Cysharp.Threading.Tasks;
-using System.Threading;
-using System.Collections;
-using UniRx;
-using UnityEngine.TestTools;
-using WatermelonGameClone.Domain;
-using WatermelonGameClone.UseCase;
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCase.UseCases.Common;
 
-namespace WatermelonGameClone.Tests
+using System;
+using System.Collections;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using NSubstitute;
+using NUnit.Framework;
+using UnityEngine.TestTools;
+
+namespace Tests.EditMode.UseCases
 {
-    public class ScoreUseCaseTest
+    public sealed class ScoreUseCaseTest
     {
         private ScoreUseCase _scoreUseCase;
         private IScoreRepository _mockScoreRepository;
@@ -32,14 +33,14 @@ namespace WatermelonGameClone.Tests
             // Mock data creation
             _mockScoreContainer = new ScoreContainer
             {
-                Data = new ScoreData
+                data = new ScoreData
                 {
-                    Score = new ScoreDetail { Best = 100, LastPlayedDate = "2024-09-30" },
-                    Rankings = new Rankings
+                    score = new ScoreDetail { best = 100, lastPlayedDate = "2024-09-30" },
+                    rankings = new Rankings
                     {
-                        Daily = new ScoreList { Scores = new int[] { 10, 20, 30 } },
-                        Monthly = new ScoreList { Scores = new int[] { 50, 60, 70 } },
-                        AllTime = new ScoreList { Scores = new int[] { 100, 150, 200 } }
+                        daily = new ScoreList { scores = new[] { 10, 20, 30 } },
+                        monthly = new ScoreList { scores = new[] { 50, 60, 70 } },
+                        allTime = new ScoreList { scores = new[] { 100, 150, 200 } }
                     }
                 }
             };
@@ -63,7 +64,7 @@ namespace WatermelonGameClone.Tests
             _mockScoreResetService.ShouldResetMonthlyScores(Arg.Any<DateTime>(), Arg.Any<DateTime>()).Returns(false);
 
             // Reset ranking data
-            var dailyScores = _mockScoreContainer.Data.Rankings.Daily.Scores;
+            var dailyScores = _mockScoreContainer.data.rankings.daily.scores;
 
             // Act
             await _scoreUseCase.InitializeAsync(CancellationToken.None);
@@ -102,7 +103,7 @@ namespace WatermelonGameClone.Tests
             // Act & Assert
             var ex = Assert.Throws<ApplicationException>(() => _scoreUseCase.UpdateCurrentScore(-1));
             Assert.IsInstanceOf<ArgumentOutOfRangeException>(ex.InnerException);
-            Assert.That(ex.InnerException.Message, Does.Contain("Item number is out of range."));
+            Assert.That(ex.InnerException?.Message, Does.Contain("Item number is out of range."));
         }
 
         [Test]
@@ -115,7 +116,7 @@ namespace WatermelonGameClone.Tests
             // Act & Assert
             var ex = Assert.Throws<ApplicationException>(() => _scoreUseCase.UpdateCurrentScore(4));
             Assert.IsInstanceOf<ArgumentOutOfRangeException>(ex.InnerException);
-            Assert.That(ex.InnerException.Message, Does.Contain("Item number is out of range."));
+            Assert.That(ex.InnerException?.Message, Does.Contain("Item number is out of range."));
         }
 
         [UnityTest]
@@ -125,7 +126,7 @@ namespace WatermelonGameClone.Tests
             int newScore = 120;
             _mockScoreRankingService.IsNewBestScore(Arg.Any<int>(), Arg.Any<int>()).Returns(true);
 
-            // Call InitializEasync to load score data
+            // Call InitializeAsync to load score data
             await _scoreUseCase.InitializeAsync(CancellationToken.None);
 
             // Act

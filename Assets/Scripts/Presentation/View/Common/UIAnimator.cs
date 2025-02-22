@@ -1,8 +1,11 @@
-using UnityEngine;
-using DG.Tweening;
-using WatermelonGameClone.Domain;
+using Domain.ValueObject;
+using Presentation.Interfaces;
 
-namespace WatermelonGameClone.Presentation
+using System;
+using DG.Tweening;
+using UnityEngine;
+
+namespace Presentation.View.Common
 {
     public sealed class UIAnimator : IUIAnimator
     {
@@ -57,7 +60,7 @@ namespace WatermelonGameClone.Presentation
             float duration,
             Ease easeType,
             bool isUpdate = true,
-            System.Action onComplete = null)
+            Action onComplete = null)
         {
             if (targetTransform == null) return;
 

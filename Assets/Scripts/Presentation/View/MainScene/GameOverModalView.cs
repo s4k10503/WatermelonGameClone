@@ -1,16 +1,19 @@
+using Domain.ValueObject;
+using Presentation.Interfaces;
+using Presentation.SODefinitions;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UniRx;
+using UniRx.Triggers;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UniRx;
-using UniRx.Triggers;
 using DG.Tweening;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class GameOverModalView : MonoBehaviour, IGameOverModalView
     {
@@ -109,9 +112,9 @@ namespace WatermelonGameClone.Presentation
         {
             _canvas.enabled = true;
 
-            _dailyScores = scoreContainer.Data.Rankings.Daily.Scores.Take(3).ToList();
-            _monthlyScores = scoreContainer.Data.Rankings.Monthly.Scores.Take(3).ToList();
-            _allTimeScores = scoreContainer.Data.Rankings.AllTime.Scores.Take(3).ToList();
+            _dailyScores = scoreContainer.data.rankings.daily.scores.Take(3).ToList();
+            _monthlyScores = scoreContainer.data.rankings.monthly.scores.Take(3).ToList();
+            _allTimeScores = scoreContainer.data.rankings.allTime.scores.Take(3).ToList();
 
             _uiHelper.UpdateCurrentScoreText(_scoreText, score);
             UpdatePanelElements();
@@ -119,7 +122,7 @@ namespace WatermelonGameClone.Presentation
             _uiAnimator.AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);
         }
 
-        public void ShowModalWihtoutData()
+        public void ShowModalWithoutData()
         {
             _canvas.enabled = true;
             _uiAnimator.AnimateScale(gameObject, Vector3.zero, Vector3.one, 0.5f, Ease.OutBack);

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Interfaces
 {
     public interface IExceptionHandler
     {

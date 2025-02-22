@@ -1,15 +1,15 @@
 using UnityEngine;
 using Zenject;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.SODefinitions
 {
     [CreateAssetMenu(fileName = "TimeSettings", menuName = "Configs/TimeSettings")]
     public class GameRuleSettings : ScriptableObjectInstaller
     {
-        public float DelayedTime = 1.0f;
-        public float TimeScaleGameStart = 1.0f;
-        public float TimeScaleGameOver = 0.0f;
-        public float ContactTimeLimit = 1.0f;
+        public float delayedTime = 1.0f;
+        public float timeScaleGameStart = 1.0f;
+        public float timeScaleGameOver = 0.0f;
+        public float contactTimeLimit = 1.0f;
 
         public override void InstallBindings()
         {

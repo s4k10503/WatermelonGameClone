@@ -1,9 +1,10 @@
-using System;
-using UnityEngine;
-using UniRx;
-using WatermelonGameClone.Domain;
+using Domain.ValueObject;
 
-namespace WatermelonGameClone.Presentation
+using System;
+using UniRx;
+using UnityEngine;
+
+namespace Presentation.Interfaces
 {
     public interface IGameOverModalView
     {
@@ -14,7 +15,7 @@ namespace WatermelonGameClone.Presentation
 
         // Methods related to game state and UI updates
         void ShowModal(int score, RenderTexture screenShot, ScoreContainer scoreContainer);
-        void ShowModalWihtoutData();
+        void ShowModalWithoutData();
         void HideModal();
     }
 }

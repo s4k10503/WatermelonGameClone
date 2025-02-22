@@ -1,17 +1,14 @@
+using Domain.Interfaces;
+
 using System;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Services
 {
-    public class ScoreResetService : IScoreResetService
+    public sealed class ScoreResetService : IScoreResetService
     {
         // Determine whether to reset the daily score
         public bool ShouldResetDailyScores(DateTime lastPlayedDate, DateTime currentDate)
         {
-            if (lastPlayedDate.Date == null || currentDate.Date == null)
-            {
-                throw new DomainException("Invalid date provided for daily score reset check.");
-            }
-
             return lastPlayedDate.Date != currentDate.Date;
         }
 
@@ -34,7 +31,7 @@ namespace WatermelonGameClone.Domain
                 throw new DomainException("Scores array cannot be null during reset.");
             }
 
-            scores = new int[0];
+            scores = Array.Empty<int>();
         }
     }
 }

@@ -1,8 +1,10 @@
+using Domain.ValueObject;
+
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Interfaces
 {
     public interface ILicenseRepository
     {

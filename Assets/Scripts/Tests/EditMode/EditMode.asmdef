@@ -8,7 +8,8 @@
         "UseCase",
         "Infrastructure",
         "UniRx",
-        "UniTask"
+        "UniTask",
+        "Zenject"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,4 +1,4 @@
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IGameOverTrigger
     {

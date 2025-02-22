@@ -1,14 +1,17 @@
-using WatermelonGameClone.Domain;
+using Domain.Interfaces;
+using Domain.ValueObject;
+using Infrastructure.Services;
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using System;
-using System.Threading;
-using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.Repositories
 {
-    public class JsonLicenseRepository : ILicenseRepository
+    public sealed class JsonLicenseRepository : ILicenseRepository
     {
         private const string LicenseAddressableKey = "License";
 
@@ -19,24 +22,21 @@ namespace WatermelonGameClone.Infrastructure
             try
             {
                 await handle.ToUniTask(cancellationToken: ct);
-                TextAsset textAsset = handle.Result;
+                var textAsset = handle.Result;
 
-                if (textAsset == null)
+                if (!textAsset)
                 {
                     throw new InfrastructureException($"License asset with key '{LicenseAddressableKey}' not found.");
                 }
 
-                // Acquired the JSON character string from TextAsset.Text and Perth
-                string json = textAsset.text;
-                var container = JsonUtility.FromJson<LicenseContainerDto>(json);
-
-                var licenses = new List<License>();
-                foreach (var dto in container.Licenses)
+                var json = textAsset.text;
+                var container = JsonUtility.FromJson<LicenseContainer>(json);
+                if (container?.licenses == null)
                 {
-                    licenses.Add(new License(dto.Name, dto.Type, dto.Copyright, dto.Terms));
+                    throw new InfrastructureException("License file content is invalid.");
                 }
 
-                return licenses;
+                return container.licenses;
             }
             catch (OperationCanceledException)
             {
@@ -45,27 +45,12 @@ namespace WatermelonGameClone.Infrastructure
             }
             catch (Exception ex)
             {
-                throw new InfrastructureException("Failed to load license file from Addressables.", ex);
+                throw new InfrastructureException("Failed to load license file from Addressable.", ex);
             }
             finally
             {
                 Addressables.Release(handle);
             }
-        }
-
-        [Serializable]
-        private class LicenseContainerDto
-        {
-            public LicenseDto[] Licenses;
-        }
-
-        [Serializable]
-        private class LicenseDto
-        {
-            public string Name;
-            public string Type;
-            public string Copyright;
-            public string[] Terms;
         }
     }
 }

@@ -1,6 +1,8 @@
+using Domain.ValueObject;
+
 using System.Numerics;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Interfaces
 {
     public interface IMergeService
     {

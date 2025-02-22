@@ -1,11 +1,12 @@
-using WatermelonGameClone.Domain;
-using System.Collections.Generic;
-using System;
-using UniRx;
-using Cysharp.Threading.Tasks;
-using System.Threading;
+using Domain.ValueObject;
 
-namespace WatermelonGameClone.Presentation
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using UniRx;
+
+namespace Presentation.Interfaces
 {
     public interface ILicenseModalView
     {

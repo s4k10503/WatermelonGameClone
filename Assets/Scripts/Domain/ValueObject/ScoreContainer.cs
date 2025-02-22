@@ -1,40 +1,40 @@
 using System;
+using UnityEngine.Serialization;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.ValueObject
 {
     [Serializable]
     public class ScoreContainer
     {
-        public ScoreData Data;
+        [FormerlySerializedAs("Data")] public ScoreData data;
     }
 
     [Serializable]
     public class ScoreData
     {
-        public ScoreDetail Score;
-        public Rankings Rankings;
+        [FormerlySerializedAs("Score")] public ScoreDetail score;
+        [FormerlySerializedAs("Rankings")] public Rankings rankings;
     }
 
     [Serializable]
     public class ScoreDetail
     {
-        public string UserName;
-        public int Best;
-        public string LastPlayedDate;
+        [FormerlySerializedAs("UserName")] public string userName;
+        [FormerlySerializedAs("Best")] public int best;
+        [FormerlySerializedAs("LastPlayedDate")] public string lastPlayedDate;
     }
 
     [Serializable]
     public class Rankings
     {
-        public ScoreList Daily;
-        public ScoreList Monthly;
-        public ScoreList AllTime;
+        [FormerlySerializedAs("Daily")] public ScoreList daily;
+        [FormerlySerializedAs("Monthly")] public ScoreList monthly;
+        [FormerlySerializedAs("AllTime")] public ScoreList allTime;
     }
 
     [Serializable]
     public class ScoreList
     {
-        public int[] Scores;
+        [FormerlySerializedAs("Scores")] public int[] scores;
     }
-
 }

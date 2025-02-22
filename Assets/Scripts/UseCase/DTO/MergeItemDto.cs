@@ -1,9 +1,9 @@
 using System;
 using System.Numerics;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.DTO
 {
-    public sealed class MergeItemDTO
+    public sealed class MergeItemDto
     {
         public Guid Id { get; set; }
         public int ItemNo { get; set; }
@@ -11,7 +11,7 @@ namespace WatermelonGameClone.UseCase
         public float ContactTime { get; set; }
     }
 
-    public sealed class MergeResultDTO
+    public sealed class MergeResultDto
     {
         public Vector2 Position { get; set; }
         public int ItemNo { get; set; }

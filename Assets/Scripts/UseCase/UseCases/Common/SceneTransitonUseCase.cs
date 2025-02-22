@@ -1,11 +1,13 @@
+using UseCase.Interfaces;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine.SceneManagement;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.UseCases.Common
 {
-    public class SceneLoaderUseCase : ISceneLoaderUseCase
+    public sealed class SceneLoaderUseCase : ISceneLoaderUseCase
     {
         public async UniTask LoadSceneAsync(string sceneName, CancellationToken ct)
         {

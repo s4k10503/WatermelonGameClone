@@ -1,13 +1,19 @@
-using Zenject;
-using UnityEngine;
-using WatermelonGameClone.Domain;
-using WatermelonGameClone.UseCase;
-using WatermelonGameClone.Presentation;
-using WatermelonGameClone.Infrastructure;
+using Domain.Interfaces;
+using Domain.Services;
+using UseCase.Interfaces;
+using UseCase.UseCases.Common;
+using Infrastructure.Repositories;
+using Infrastructure.Services;
+using Presentation.Interfaces;
+using Presentation.Presenter.Common;
+using Presentation.View.Common;
 
-namespace WatermelonGameClone.Installers
+using UnityEngine;
+using Zenject;
+
+namespace Installers
 {
-    public class ProjectInstaller : MonoInstaller
+    public sealed class ProjectInstaller : MonoInstaller
     {
         [SerializeField] AudioSource _audioSourceBGM;
         [SerializeField] AudioSource _audioSourceSE;
@@ -15,7 +21,7 @@ namespace WatermelonGameClone.Installers
 
         public override void InstallBindings()
         {
-            // Commom Services
+            // Common Services
             Container
                 .Bind<IScoreRankingService>()
                 .To<ScoreRankingService>()

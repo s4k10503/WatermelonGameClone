@@ -1,12 +1,15 @@
+using Presentation.DTO;
+using Presentation.View.MainScene;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.MainScene
 {
     // When loading, hide the stage and main UI elements and display the loading screen.
-    public class MainLoadingStateHandler : MainScenePageStateHandlerBase
+    public sealed class MainLoadingStateHandler : MainScenePageStateHandlerBase
     {
         protected override async UniTask ApplyPageAsync(
             MainSceneView view,
@@ -15,7 +18,7 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.Stageview.HideStage();
+                view.StageView.HideStage();
                 view.HideMainPageMainElements();
 
                 view.ShowLoadingPage();
@@ -96,7 +99,7 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.Stageview.HideStage();
+                view.StageView.HideStage();
                 view.HideMainPageMainElements();
                 view.GameOverModalView.HideModal();
 
