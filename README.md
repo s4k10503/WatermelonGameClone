@@ -1,13 +1,13 @@
 # Watermelon Game Clone
 
-"Watermelon Game" is a puzzle game that combines the systems of a falling object puzzle game and a merge game.  
+"Watermelon Game" is a puzzle game that combines the systems of a falling object puzzle game and a merge game.
 This repository aims to clone that game in Unity.
 
 ![WatermelonGameClone](https://github.com/user-attachments/assets/9fac8743-cc80-443a-9c88-c53c01932522)
 
 ## Requirements
 
-Unity 2022.3.11f1 LTS or later
+Unity 2022.3.22f1 LTS or later
 
 ## How to Work
 
