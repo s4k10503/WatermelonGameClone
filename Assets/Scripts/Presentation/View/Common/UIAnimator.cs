@@ -1,5 +1,5 @@
-using Domain.ValueObject;
 using Presentation.Interfaces;
+using Presentation.DTO;
 
 using System;
 using DG.Tweening;
@@ -18,17 +18,17 @@ namespace Presentation.View.Common
             _originalPos = targetTransform?.localPosition ?? Vector3.zero;
         }
 
-        public void HarmonicMotion(Transform targetTransform, HarmonicMotionType animationType)
+        public void HarmonicMotion(Transform targetTransform, HarmonicMotionTypeDto animationType)
         {
             if (targetTransform == null) return;
 
             float offset = 0f;
             switch (animationType)
             {
-                case HarmonicMotionType.Sin:
+                case HarmonicMotionTypeDto.Sin:
                     offset = Mathf.Sin(Time.time * _moveSpeed) * _moveHeight;
                     break;
-                case HarmonicMotionType.Cos:
+                case HarmonicMotionTypeDto.Cos:
                     offset = Mathf.Cos(Time.time * _moveSpeed) * _moveHeight;
                     break;
             }

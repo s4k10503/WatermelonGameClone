@@ -3,6 +3,7 @@ using Presentation.View.MainScene;
 
 using System;
 using System.Threading;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UniRx;
 
@@ -48,8 +49,29 @@ namespace Presentation.State.MainScene
             try
             {
                 view.ScorePanelView.UpdateBestScore(data.BestScore.Value);
-                view.ScoreRankView.DisplayTopScores(data.ScoreContainer);
-                view.DetailedScoreRankPageView.DisplayTopScores(data.ScoreContainer);
+                var scoreContainerDto = new ScoreContainerDto
+                {
+                    data = new ScoreContainerDto.RankingData
+                    {
+                        rankings = new ScoreContainerDto.RankingData.Rankings
+                        {
+                            daily = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.daily.scores.ToList()
+                            },
+                            monthly = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.monthly.scores.ToList()
+                            },
+                            allTime = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.allTime.scores.ToList()
+                            }
+                        }
+                    }
+                };
+                view.ScoreRankView.DisplayTopScores(scoreContainerDto);
+                view.DetailedScoreRankPageView.DisplayTopScores(scoreContainerDto);
 
                 data.NextItemIndex
                     .DistinctUntilChanged()

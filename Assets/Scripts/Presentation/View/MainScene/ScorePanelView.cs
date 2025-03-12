@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using Presentation.DTO;
 using Presentation.Interfaces;
 
 using TMPro;
@@ -23,7 +23,7 @@ namespace Presentation.View.MainScene
             _uiAnimator.GetUIPosition(transform);
 
             this.UpdateAsObservable()
-                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionType.Sin))
+                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionTypeDto.Sin))
                 .AddTo(this);
         }
 

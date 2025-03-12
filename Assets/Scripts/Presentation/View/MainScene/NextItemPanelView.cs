@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using Presentation.DTO;
 using Presentation.Interfaces;
 
 using UniRx;
@@ -25,7 +25,7 @@ namespace Presentation.View.MainScene
 
             CreateNextItemImages();
             this.UpdateAsObservable()
-                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionType.Cos))
+                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionTypeDto.Cos))
                 .AddTo(this);
         }
 

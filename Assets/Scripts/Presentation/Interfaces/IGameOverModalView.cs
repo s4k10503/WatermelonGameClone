@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using Presentation.DTO;
 
 using System;
 using UniRx;
@@ -14,7 +14,7 @@ namespace Presentation.Interfaces
         IObservable<Unit> OnDisplayScore { get; }
 
         // Methods related to game state and UI updates
-        void ShowModal(int score, RenderTexture screenShot, ScoreContainer scoreContainer);
+        void ShowModal(int score, RenderTexture screenShot, ScoreContainerDto scoreContainer);
         void ShowModalWithoutData();
         void HideModal();
     }

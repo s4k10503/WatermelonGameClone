@@ -1,6 +1,6 @@
-using Domain.ValueObject;
 using Presentation.Interfaces;
 using Presentation.SODefinitions;
+using Presentation.DTO;
 
 using System;
 using System.Collections.Generic;
@@ -108,7 +108,7 @@ namespace Presentation.View.MainScene
             _canvas = null;
         }
 
-        public void ShowModal(int score, RenderTexture screenShot, ScoreContainer scoreContainer)
+        public void ShowModal(int score, RenderTexture screenShot, ScoreContainerDto scoreContainer)
         {
             _canvas.enabled = true;
 

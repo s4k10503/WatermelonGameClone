@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using Presentation.DTO;
 
 using System;
 using UniRx;
@@ -9,7 +9,7 @@ namespace Presentation.Interfaces
     {
         IObservable<Unit> OnBack { get; }
 
-        void DisplayTopScores(ScoreContainer scoreContainer);
+        void DisplayTopScores(ScoreContainerDto scoreContainer);
         void ShowPage();
         void HidePage();
     }

@@ -4,6 +4,7 @@ using Presentation.View.TitleScene;
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using System.Linq;
 
 namespace Presentation.State.TitleScene
 {
@@ -74,7 +75,14 @@ namespace Presentation.State.TitleScene
                 // License word setting
                 if (!_isLicenseTextSet)
                 {
-                    await licenseModalView.SetLicensesAsync(data.Licenses, ct);
+                    var licenseDtos = data.Licenses.Select(license => new LicenseDto(
+                        $"{license.name}\n" +
+                        $"{license.type}\n" +
+                        $"{license.copyright}\n" +
+                        "\n" +
+                        string.Join("\n", license.terms.Select(term => $"{term}"))
+                    )).ToList();
+                    await licenseModalView.SetLicensesAsync(licenseDtos, ct);
                     _isLicenseTextSet = true;
                 }
                 // Layout adjustment, etc.

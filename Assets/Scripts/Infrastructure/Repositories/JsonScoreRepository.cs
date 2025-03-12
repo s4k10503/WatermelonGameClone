@@ -42,11 +42,15 @@ namespace Infrastructure.Repositories
             try
             {
                 // Score file not found. Returning default score data.
-                if (!File.Exists(ScoresFilePath)) 
+                if (!File.Exists(ScoresFilePath))
                     return CreateDefaultScoreContainer();
-                
+
                 var json = await File.ReadAllTextAsync(ScoresFilePath, ct);
-                return JsonUtility.FromJson<ScoreContainer>(json);
+                var scoreContainer = JsonUtility.FromJson<ScoreContainer>(json);
+
+                return IsValidScoreContainer(scoreContainer)
+                    ? scoreContainer
+                    : CreateDefaultScoreContainer();
             }
             catch (OperationCanceledException)
             {
@@ -59,6 +63,14 @@ namespace Infrastructure.Repositories
             }
         }
 
+        private bool IsValidScoreContainer(ScoreContainer container)
+        {
+            return container?.data?.score != null
+                && container.data.rankings?.daily?.scores != null
+                && container.data.rankings.monthly?.scores != null
+                && container.data.rankings.allTime?.scores != null;
+        }
+
         private ScoreContainer CreateDefaultScoreContainer()
         {
             return new ScoreContainer
@@ -67,6 +79,7 @@ namespace Infrastructure.Repositories
                 {
                     score = new ScoreDetail
                     {
+                        userName = null,
                         best = 0,
                         lastPlayedDate = DateTime.Today.ToString("yyyy-MM-dd")
                     },

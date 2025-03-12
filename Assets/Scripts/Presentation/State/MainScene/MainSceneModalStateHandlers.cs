@@ -3,6 +3,7 @@ using Presentation.View.MainScene;
 
 using System;
 using System.Threading;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -71,14 +72,35 @@ namespace Presentation.State.MainScene
                 _screenshot = await view.ScreenshotHandler.CaptureScreenshotAsync(ct);
 
                 view.ModalBackgroundView.ShowPanel();
+                var scoreContainerDto = new ScoreContainerDto
+                {
+                    data = new ScoreContainerDto.RankingData
+                    {
+                        rankings = new ScoreContainerDto.RankingData.Rankings
+                        {
+                            daily = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.daily.scores.ToList()
+                            },
+                            monthly = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.monthly.scores.ToList()
+                            },
+                            allTime = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.allTime.scores.ToList()
+                            }
+                        }
+                    }
+                };
                 view.GameOverModalView.ShowModal(
                     data.CurrentScore.Value,
                     _screenshot,
-                    data.ScoreContainer);
+                    scoreContainerDto);
 
                 view.ScorePanelView.UpdateBestScore(data.BestScore.Value);
-                view.ScoreRankView.DisplayTopScores(data.ScoreContainer);
-                view.DetailedScoreRankPageView.DisplayTopScores(data.ScoreContainer);
+                view.ScoreRankView.DisplayTopScores(scoreContainerDto);
+                view.DetailedScoreRankPageView.DisplayTopScores(scoreContainerDto);
 
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }

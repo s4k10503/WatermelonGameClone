@@ -1,6 +1,6 @@
-using Domain.ValueObject;
 using Presentation.Interfaces;
 using Presentation.SODefinitions;
+using Presentation.DTO;
 
 using System.Collections.Generic;
 using System.Linq;
@@ -77,7 +77,7 @@ namespace Presentation.View.MainScene
                 .UpdateCurrentScoreText(_textCurrentScore.GetComponent<TextMeshProUGUI>(), currentScore);
         }
 
-        public void DisplayTopScores(ScoreContainer scoreContainer)
+        public void DisplayTopScores(ScoreContainerDto scoreContainer)
         {
             _dailyScores = scoreContainer.data.rankings.daily.scores.Take(3).ToList();
             _monthlyScores = scoreContainer.data.rankings.monthly.scores.Take(3).ToList();

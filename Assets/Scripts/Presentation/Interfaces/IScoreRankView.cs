@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using Presentation.DTO;
 
 namespace Presentation.Interfaces
 {
@@ -6,6 +6,6 @@ namespace Presentation.Interfaces
     {
         // Methods related to UI updates
         void DisplayCurrentScore(int currentScore);
-        void DisplayTopScores(ScoreContainer scoreContainer);
+        void DisplayTopScores(ScoreContainerDto scoreContainer);
     }
 }

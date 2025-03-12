@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using Presentation.DTO;
 using Presentation.Interfaces;
 
 using System;
@@ -62,7 +62,7 @@ namespace Presentation.View.Common
             _uiAnimator = null;
         }
 
-        public void DisplayTopScores(ScoreContainer scoreContainer)
+        public void DisplayTopScores(ScoreContainerDto scoreContainer)
         {
             _dailyScores = scoreContainer.data.rankings.daily.scores.Take(7).ToList();
             _monthlyScores = scoreContainer.data.rankings.monthly.scores.Take(7).ToList();

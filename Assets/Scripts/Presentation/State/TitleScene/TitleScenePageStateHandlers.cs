@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
+using System.Linq;
 
 namespace Presentation.State.TitleScene
 {
@@ -43,7 +44,28 @@ namespace Presentation.State.TitleScene
             try
             {
                 view.DetailedScoreRankPageView.ShowPage();
-                view.DetailedScoreRankPageView.DisplayTopScores(data.ScoreContainer);
+                var scoreContainerDto = new ScoreContainerDto
+                {
+                    data = new ScoreContainerDto.RankingData
+                    {
+                        rankings = new ScoreContainerDto.RankingData.Rankings
+                        {
+                            daily = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.daily.scores.ToList()
+                            },
+                            monthly = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.monthly.scores.ToList()
+                            },
+                            allTime = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.allTime.scores.ToList()
+                            }
+                        }
+                    }
+                };
+                view.DetailedScoreRankPageView.DisplayTopScores(scoreContainerDto);
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }
             catch (OperationCanceledException)

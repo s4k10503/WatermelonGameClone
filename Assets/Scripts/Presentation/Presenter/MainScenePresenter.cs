@@ -356,7 +356,7 @@ namespace Presentation.Presenter
             if (sourceDto == null
                 || targetDto == null
                 || !_mergeItemUseCase.CanMerge(sourceView.Id, targetView.Id)) return;
-            
+
             Vector2 unityPosSource = sourceView.GameObject.transform.position;
             Vector2 unityPosTarget = targetView.GameObject.transform.position;
 

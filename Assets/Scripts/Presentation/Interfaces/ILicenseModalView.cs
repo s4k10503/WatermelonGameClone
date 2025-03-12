@@ -1,9 +1,8 @@
-using Domain.ValueObject;
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Presentation.DTO;
 using UniRx;
 
 namespace Presentation.Interfaces
@@ -15,7 +14,7 @@ namespace Presentation.Interfaces
         // Methods related to game state and UI updates
         public void ShowModal();
         public void HideModal();
-        UniTask SetLicensesAsync(IReadOnlyList<License> licenses, CancellationToken ct);
+        UniTask SetLicensesAsync(IReadOnlyList<LicenseDto> licenses, CancellationToken ct);
         void ForceMeshUpdateText();
     }
 }

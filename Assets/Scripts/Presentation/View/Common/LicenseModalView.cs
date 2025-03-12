@@ -1,9 +1,8 @@
-using Domain.ValueObject;
+using Presentation.DTO;
 using Presentation.Interfaces;
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -54,17 +53,14 @@ namespace Presentation.View.Common
         public void HideModal()
             => _canvas.enabled = false;
 
-        public async UniTask SetLicensesAsync(IReadOnlyList<License> licenses, CancellationToken ct)
+        public async UniTask SetLicensesAsync(IReadOnlyList<LicenseDto> licenses, CancellationToken ct)
         {
             try
             {
-                var sb = new StringBuilder();
+                var sb = new System.Text.StringBuilder();
                 foreach (var license in licenses)
                 {
-                    sb.AppendLine($"{license.name}\n");
-                    sb.AppendLine($"{license.type}\n");
-                    sb.AppendLine($"{license.copyright}\n");
-                    sb.AppendLine(string.Join("\n", license.terms));
+                    sb.AppendLine(license.DisplayText);
                     sb.AppendLine("\n");
 
                     // Divide large amounts of data processing and process each frame

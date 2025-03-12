@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using Presentation.DTO;
 using Presentation.Interfaces;
 
 using System;
@@ -47,7 +47,7 @@ namespace Presentation.View.TitleScene
 
             this.UpdateAsObservable()
                 .Where(_ => _canvas.enabled == true)
-                .Subscribe(_ => _uiAnimator.HarmonicMotion(_panelTitleButtons, HarmonicMotionType.Sin))
+                .Subscribe(_ => _uiAnimator.HarmonicMotion(_panelTitleButtons, HarmonicMotionTypeDto.Sin))
                 .AddTo(this);
         }
 
