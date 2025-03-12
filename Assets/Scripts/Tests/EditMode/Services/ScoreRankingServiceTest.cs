@@ -1,7 +1,8 @@
-using NUnit.Framework;
-using WatermelonGameClone.Domain;
+using Domain.Services;
 
-namespace WatermelonGameClone.Tests
+using NUnit.Framework;
+
+namespace Tests.EditMode.Services
 {
     public class ScoreRankingServiceTest
     {

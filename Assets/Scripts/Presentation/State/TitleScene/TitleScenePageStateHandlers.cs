@@ -1,9 +1,13 @@
+using Presentation.DTO;
+using Presentation.View.TitleScene;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
+using System.Linq;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.TitleScene
 {
     // TitleScene Specific PageState Handlers
     public class TitleLoadingStateHandler : TitleScenePageStateHandlerBase
@@ -40,7 +44,28 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 view.DetailedScoreRankPageView.ShowPage();
-                view.DetailedScoreRankPageView.DisplayTopScores(data.ScoreContainer);
+                var scoreContainerDto = new ScoreContainerDto
+                {
+                    data = new ScoreContainerDto.RankingData
+                    {
+                        rankings = new ScoreContainerDto.RankingData.Rankings
+                        {
+                            daily = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.daily.scores.ToList()
+                            },
+                            monthly = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.monthly.scores.ToList()
+                            },
+                            allTime = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.allTime.scores.ToList()
+                            }
+                        }
+                    }
+                };
+                view.DetailedScoreRankPageView.DisplayTopScores(scoreContainerDto);
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }
             catch (OperationCanceledException)
@@ -66,7 +91,7 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.SettingsPageView.SetUserName(data.ScoreContainer.Data.Score.UserName);
+                view.SettingsPageView.SetUserName(data.ScoreContainer.data.score.userName);
                 data.UserName
                     .DistinctUntilChanged()
                     .Subscribe(newName => view.SettingsPageView.SetUserName(newName))

@@ -1,6 +1,6 @@
 using System;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Services
 {
     public class DomainException : Exception
     {

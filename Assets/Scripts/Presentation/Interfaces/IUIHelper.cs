@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IUIHelper
     {

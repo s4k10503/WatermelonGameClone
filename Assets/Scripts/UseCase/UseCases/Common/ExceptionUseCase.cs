@@ -1,11 +1,13 @@
+using Domain.Interfaces;
+using UseCase.Interfaces;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.UseCases.Common
 {
-    public class ExceptionHandlingUseCase : IExceptionHandlingUseCase
+    public sealed class ExceptionHandlingUseCase : IExceptionHandlingUseCase
     {
         private readonly IExceptionHandler _exceptionHandler;
 

@@ -1,13 +1,15 @@
+using Presentation.DTO;
+using Presentation.Interfaces;
+
 using System;
-using UnityEngine;
-using UnityEngine.UI;
 using UniRx;
 using UniRx.Triggers;
+using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.TitleScene
 {
     public sealed class TitlePageView : MonoBehaviour, ITitlePageView
     {
@@ -45,7 +47,7 @@ namespace WatermelonGameClone.Presentation
 
             this.UpdateAsObservable()
                 .Where(_ => _canvas.enabled == true)
-                .Subscribe(_ => _uiAnimator.HarmonicMotion(_panelTitleButtons, HarmonicMotionType.Sin))
+                .Subscribe(_ => _uiAnimator.HarmonicMotion(_panelTitleButtons, HarmonicMotionTypeDto.Sin))
                 .AddTo(this);
         }
 

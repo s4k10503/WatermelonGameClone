@@ -1,10 +1,15 @@
-using Zenject;
-using WatermelonGameClone.Domain;
-using WatermelonGameClone.UseCase;
-using WatermelonGameClone.Presentation;
-using WatermelonGameClone.Infrastructure;
+using Domain.Interfaces;
+using UseCase.Interfaces;
+using UseCase.UseCases.Common;
+using Infrastructure.Repositories;
+using Presentation.Interfaces;
+using Presentation.Presenter;
+using Presentation.View.Common;
+using Presentation.View.TitleScene;
 
-namespace WatermelonGameClone.Installers
+using Zenject;
+
+namespace Installers
 {
     public sealed class TitleSceneInstaller : MonoInstaller
     {

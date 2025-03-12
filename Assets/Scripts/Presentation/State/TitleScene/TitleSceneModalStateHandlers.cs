@@ -1,8 +1,12 @@
+using Presentation.DTO;
+using Presentation.View.TitleScene;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using System.Linq;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.TitleScene
 {
     // TitleScene Specific ModalState Handlers
     public class TitleNoneStateHandler : TitleSceneModalStateHandlerBase
@@ -71,7 +75,14 @@ namespace WatermelonGameClone.Presentation
                 // License word setting
                 if (!_isLicenseTextSet)
                 {
-                    await licenseModalView.SetLicensesAsync(data.Licenses, ct);
+                    var licenseDtos = data.Licenses.Select(license => new LicenseDto(
+                        $"{license.name}\n" +
+                        $"{license.type}\n" +
+                        $"{license.copyright}\n" +
+                        "\n" +
+                        string.Join("\n", license.terms.Select(term => $"{term}"))
+                    )).ToList();
+                    await licenseModalView.SetLicensesAsync(licenseDtos, ct);
                     _isLicenseTextSet = true;
                 }
                 // Layout adjustment, etc.

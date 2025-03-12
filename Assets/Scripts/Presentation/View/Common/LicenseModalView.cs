@@ -1,20 +1,21 @@
-using UnityEngine;
-using TMPro;
-using System.Collections.Generic;
-using WatermelonGameClone.Domain;
-using UnityEngine.UI;
-using System;
-using UniRx;
-using Zenject;
-using UniRx.Triggers;
-using DG.Tweening;
-using System.Text;
-using Cysharp.Threading.Tasks;
-using System.Threading;
+using Presentation.DTO;
+using Presentation.Interfaces;
 
-namespace WatermelonGameClone.Presentation
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using UniRx;
+using UniRx.Triggers;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using Zenject;
+
+namespace Presentation.View.Common
 {
-    public class LicenseModalView : MonoBehaviour, ILicenseModalView
+    public sealed class LicenseModalView : MonoBehaviour, ILicenseModalView
     {
         [SerializeField] private Canvas _canvas;
         [SerializeField] private Button _buttonBack;
@@ -52,26 +53,21 @@ namespace WatermelonGameClone.Presentation
         public void HideModal()
             => _canvas.enabled = false;
 
-        public async UniTask SetLicensesAsync(IReadOnlyList<License> licenses, CancellationToken ct)
+        public async UniTask SetLicensesAsync(IReadOnlyList<LicenseDto> licenses, CancellationToken ct)
         {
             try
             {
-                var sb = new StringBuilder();
+                var sb = new System.Text.StringBuilder();
                 foreach (var license in licenses)
                 {
-                    sb.AppendLine($"{license.Name}\n");
-                    sb.AppendLine($"{license.Type}\n");
-                    sb.AppendLine($"{license.Copyright}\n");
-                    sb.AppendLine(string.Join("\n", license.Terms));
+                    sb.AppendLine(license.DisplayText);
                     sb.AppendLine("\n");
 
                     // Divide large amounts of data processing and process each frame
-                    if (sb.Length > 500)
-                    {
-                        _licenseText.text += sb.ToString();
-                        sb.Clear();
-                        await UniTask.Yield(ct);
-                    }
+                    if (sb.Length <= 500) continue;
+                    _licenseText.text += sb.ToString();
+                    sb.Clear();
+                    await UniTask.Yield(ct);
                 }
 
                 // Set the remaining text

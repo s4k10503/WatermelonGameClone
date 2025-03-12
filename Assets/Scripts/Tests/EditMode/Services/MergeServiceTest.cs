@@ -1,8 +1,9 @@
-using NUnit.Framework;
-using UnityEngine;
-using WatermelonGameClone.Domain;
+using Domain.Services;
 
-namespace WatermelonGameClone.Tests
+using System.Numerics;
+using NUnit.Framework;
+
+namespace Tests.EditMode.Services
 {
     public class MergeServiceTest
     {

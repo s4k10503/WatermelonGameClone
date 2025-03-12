@@ -1,9 +1,8 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.Interfaces
 {
     public interface ISoundUseCase
     {
@@ -12,9 +11,9 @@ namespace WatermelonGameClone.UseCase
 
         UniTask InitializeAsync(CancellationToken ct);
         void SetBGMVolume(float volumeBGM);
-        void SetSEVolume(float volumeSE);
+        void SetSeVolume(float volumeSe);
         UniTask SaveVolume(CancellationToken ct);
-        void PlaySoundEffect(SoundEffect effect);
+        void PlaySoundEffect(string soundName);
         void PlayBGM();
     }
 }

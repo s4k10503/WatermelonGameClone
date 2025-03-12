@@ -1,17 +1,18 @@
-using NUnit.Framework;
-using NSubstitute;
-using UnityEngine;
-using Cysharp.Threading.Tasks;
-using System.Threading;
-using System.Collections;
-using UniRx;
-using UnityEngine.TestTools;
-using WatermelonGameClone.Domain;
-using WatermelonGameClone.UseCase;
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCase.UseCases.Common;
 
-namespace WatermelonGameClone.Tests
+using System.Collections;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using NSubstitute;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace Tests.EditMode.UseCases
 {
-    public class SoundUseCaseTest
+    public sealed class SoundUseCaseTest
     {
         private SoundUseCase _soundUseCase;
         private AudioSource _audioSourceBgm;
@@ -23,7 +24,7 @@ namespace WatermelonGameClone.Tests
         [SetUp]
         public void SetUp()
         {
-            // Attach the actual Audiosource instance to GameObject
+            // Attach the actual AudioSource instance to GameObject
             _gameObject = new GameObject();
             _audioSourceBgm = _gameObject.AddComponent<AudioSource>();
             _audioSourceSe = _gameObject.AddComponent<AudioSource>();
@@ -34,7 +35,7 @@ namespace WatermelonGameClone.Tests
             // Mock of sound effect lodge
             _mockSoundEffectsRepository = Substitute.For<ISoundEffectsRepository>();
 
-            // Initialize the Soundusecase to be tested
+            // Initialize the SoundUseCase to be tested
             _soundUseCase = new SoundUseCase(
                 _audioSourceBgm,
                 _audioSourceSe,
@@ -46,11 +47,11 @@ namespace WatermelonGameClone.Tests
         [UnityTest]
         public IEnumerator InitializeAsync_ShouldLoadSoundSettingsAndSetVolumes() => UniTask.ToCoroutine(async () =>
         {
-            // Arrange: Set Mock LoadSoundSettingsASASASASYNC
+            // Arrange: Set Mock LoadSoundSettingsAsync
             _mockSoundVolumeRepository.LoadSoundSettingsAsync(Arg.Any<CancellationToken>())
                 .Returns(UniTask.FromResult((0.5f, 0.7f)));
 
-            // Use the actual Audioclip
+            // Use the actual AudioClip
             var dropClip = AudioClip.Create("DropSound", 44100, 1, 44100, false);
             var mergeClip = AudioClip.Create("MergeSound", 44100, 1, 44100, false);
 
@@ -83,7 +84,7 @@ namespace WatermelonGameClone.Tests
         public void SetSEVolume_ShouldUpdateSEVolume()
         {
             // Act: Set SE volume
-            _soundUseCase.SetSEVolume(0.9f);
+            _soundUseCase.SetSeVolume(0.9f);
 
             // Assert: Check if the volume of SE is set correctly
             Assert.AreEqual(0.9f, _audioSourceSe.volume);
@@ -102,7 +103,7 @@ namespace WatermelonGameClone.Tests
             // Proceed with the frame and check the playback status
             yield return null;
 
-            // Assert: Check if it is played with BGM Audiosource
+            // Assert: Check if it is played with BGM AudioSource
             Assert.IsTrue(_audioSourceBgm.isPlaying);
         }
 
@@ -123,20 +124,20 @@ namespace WatermelonGameClone.Tests
         [UnityTest]
         public IEnumerator PlaySoundEffect_ShouldPlayCorrectSoundEffect()
         {
-            // Arrange: Use the actual Audioclip
+            // Arrange: Use the actual AudioClip
             var dropClip = AudioClip.Create("DropSound", 44100, 1, 44100, false);
             _mockSoundEffectsRepository.GetClip(SoundEffect.Drop).Returns(dropClip);
 
-            // Call InitializEasync and load the sound effect
+            // Call InitializeAsync and load the sound effect
             yield return _soundUseCase.InitializeAsync(CancellationToken.None).ToCoroutine();
 
             // Act: Play the drop sound
-            _soundUseCase.PlaySoundEffect(SoundEffect.Drop);
+            _soundUseCase.PlaySoundEffect("Drop");
 
             // Proceed to the frame
             yield return null;
 
-            // Assert: The correct clip is set in SE's Audiosource and confirm that it has been played
+            // Assert: The correct clip is set in SE's AudioSource and confirm that it has been played
             Assert.AreEqual(dropClip, _audioSourceSe.clip);  // Is AudioClip set?
             Assert.IsTrue(_audioSourceSe.isPlaying);         // Is it regenerated?
         }
@@ -147,7 +148,7 @@ namespace WatermelonGameClone.Tests
             _mockSoundVolumeRepository = null;
             _mockSoundEffectsRepository = null;
             // Discard GameObject after testing
-            GameObject.DestroyImmediate(_gameObject);
+            Object.DestroyImmediate(_gameObject);
         }
     }
 }

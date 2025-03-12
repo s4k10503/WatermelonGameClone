@@ -1,4 +1,6 @@
-namespace WatermelonGameClone.Presentation
+using System.Collections.Generic;
+
+namespace Presentation.DTO
 {
     public class LicenseDto
     {

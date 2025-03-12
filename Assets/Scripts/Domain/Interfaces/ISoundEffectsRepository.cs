@@ -1,6 +1,8 @@
+using Domain.ValueObject;
+
 using UnityEngine;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Interfaces
 {
     public interface ISoundEffectsRepository
     {

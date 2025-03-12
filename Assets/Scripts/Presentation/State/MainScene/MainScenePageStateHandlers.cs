@@ -1,12 +1,16 @@
+using Presentation.DTO;
+using Presentation.View.MainScene;
+
 using System;
 using System.Threading;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UniRx;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.MainScene
 {
     // When loading, hide the stage and main UI elements and display the loading screen.
-    public class MainLoadingStateHandler : MainScenePageStateHandlerBase
+    public sealed class MainLoadingStateHandler : MainScenePageStateHandlerBase
     {
         protected override async UniTask ApplyPageAsync(
             MainSceneView view,
@@ -15,7 +19,7 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.Stageview.HideStage();
+                view.StageView.HideStage();
                 view.HideMainPageMainElements();
 
                 view.ShowLoadingPage();
@@ -45,8 +49,29 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 view.ScorePanelView.UpdateBestScore(data.BestScore.Value);
-                view.ScoreRankView.DisplayTopScores(data.ScoreContainer);
-                view.DetailedScoreRankPageView.DisplayTopScores(data.ScoreContainer);
+                var scoreContainerDto = new ScoreContainerDto
+                {
+                    data = new ScoreContainerDto.RankingData
+                    {
+                        rankings = new ScoreContainerDto.RankingData.Rankings
+                        {
+                            daily = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.daily.scores.ToList()
+                            },
+                            monthly = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.monthly.scores.ToList()
+                            },
+                            allTime = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.allTime.scores.ToList()
+                            }
+                        }
+                    }
+                };
+                view.ScoreRankView.DisplayTopScores(scoreContainerDto);
+                view.DetailedScoreRankPageView.DisplayTopScores(scoreContainerDto);
 
                 data.NextItemIndex
                     .DistinctUntilChanged()
@@ -96,7 +121,7 @@ namespace WatermelonGameClone.Presentation
         {
             try
             {
-                view.Stageview.HideStage();
+                view.StageView.HideStage();
                 view.HideMainPageMainElements();
                 view.GameOverModalView.HideModal();
 

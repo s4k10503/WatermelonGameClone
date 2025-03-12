@@ -1,67 +1,59 @@
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCase.Interfaces;
+
 using System;
 using UniRx;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.UseCases.Common
 {
     public sealed class GameStateUseCase : IGameStateUseCase, IDisposable
     {
         // State of the entire game (global state)
-        private readonly ReactiveProperty<GlobalGameState> _globalState
-            = new ReactiveProperty<GlobalGameState>(GlobalGameState.Title);
-        public IReadOnlyReactiveProperty<GlobalGameState> GlobalState
-            => _globalState;
-
-        // scene specific state
-        private readonly ReactiveProperty<SceneSpecificState> _sceneState
-            = new ReactiveProperty<SceneSpecificState>(SceneSpecificState.Initializing);
-        public IReadOnlyReactiveProperty<SceneSpecificState> SceneState
-            => _sceneState;
+        private readonly ReactiveProperty<GlobalGameState> _globalState = new(GlobalGameState.Title);
+        private readonly ReactiveProperty<string> _globalStateString;
+        public IReadOnlyReactiveProperty<string> GlobalStateString => _globalStateString;
 
         // Time related settings
         public float DelayedTime { get; private set; }
         public float TimeScaleGameStart { get; private set; }
         public float TimeScaleGameOver { get; private set; }
 
-        private readonly IGameRuleSettingsRepository _gameRuleSettingsRepository;
-
         [Inject]
         public GameStateUseCase(IGameRuleSettingsRepository gameRuleSettingsRepository)
         {
-            _gameRuleSettingsRepository = gameRuleSettingsRepository ?? throw new ArgumentNullException(nameof(gameRuleSettingsRepository));
+            var gameRuleSettingsRepository1 = gameRuleSettingsRepository ??
+                                              throw new ArgumentNullException(nameof(gameRuleSettingsRepository));
 
             // Get time settings
-            DelayedTime = ValidateTimeValue(_gameRuleSettingsRepository.GetDelayedTime(), "DelayedTime");
-            TimeScaleGameStart = ValidateTimeValue(_gameRuleSettingsRepository.GetTimeScaleGameStart(), "TimeScaleGameStart");
-            TimeScaleGameOver = ValidateTimeValue(_gameRuleSettingsRepository.GetTimeScaleGameOver(), "TimeScaleGameOver");
+            DelayedTime = ValidateTimeValue(gameRuleSettingsRepository1.GetDelayedTime(), "DelayedTime");
+            TimeScaleGameStart = ValidateTimeValue(gameRuleSettingsRepository1.GetTimeScaleGameStart(), "TimeScaleGameStart");
+            TimeScaleGameOver = ValidateTimeValue(gameRuleSettingsRepository1.GetTimeScaleGameOver(), "TimeScaleGameOver");
+
+            _globalStateString = new ReactiveProperty<string>(_globalState.Value.ToString());
+
+            // Every time the value of _globalState changes, the _globalStateString reflects an update
+            _globalState.Subscribe(state => _globalStateString.Value = state.ToString());
         }
 
         public void Dispose()
         {
             _globalState?.Dispose();
-            _sceneState?.Dispose();
+            _globalStateString?.Dispose();
         }
 
-        // set global game state
-        public void SetGlobalGameState(GlobalGameState newState)
+        // Set global game state
+        public void SetGlobalGameState(string newState)
         {
-            if (!Enum.IsDefined(typeof(GlobalGameState), newState))
+            if (Enum.TryParse<GlobalGameState>(newState, out var parsedState))
             {
-                throw new ArgumentException("The invalid globalgamestate value is specified", nameof(newState));
+                _globalState.Value = parsedState;
             }
-
-            _globalState.Value = newState;
-        }
-
-        //Set scene-specific state
-        public void SetSceneSpecificState(SceneSpecificState newState)
-        {
-            if (!Enum.IsDefined(typeof(SceneSpecificState), newState))
+            else
             {
-                throw new ArgumentException($"Invalid scene-specific state: {newState}", nameof(newState));
+                throw new ArgumentException("Invalid global game state string", nameof(newState));
             }
-            _sceneState.Value = newState;
         }
 
         private static float ValidateTimeValue(float value, string parameterName)

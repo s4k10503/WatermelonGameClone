@@ -1,13 +1,16 @@
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCase.Interfaces;
+
 using System;
-using UnityEngine;
-using System.Threading;
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
+using UnityEngine;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.UseCases.Common
 {
     public sealed class SoundUseCase : ISoundUseCase, IDisposable
     {
@@ -23,12 +26,12 @@ namespace WatermelonGameClone.UseCase
         [Inject]
         public SoundUseCase(
             [Inject(Id = "BGM")] AudioSource audioSourceBGM,
-            [Inject(Id = "SE")] AudioSource audioSourceSE,
+            [Inject(Id = "SE")] AudioSource audioSourceSe,
             ISoundVolumeRepository soundVolumeRepository,
             ISoundEffectsRepository soundEffectsRepository)
         {
             _audioSourceBgm = audioSourceBGM ?? throw new ArgumentNullException(nameof(audioSourceBGM));
-            _audioSourceSe = audioSourceSE ?? throw new ArgumentNullException(nameof(audioSourceSE));
+            _audioSourceSe = audioSourceSe ?? throw new ArgumentNullException(nameof(audioSourceSe));
             _soundVolumeRepository = soundVolumeRepository ?? throw new ArgumentNullException(nameof(soundVolumeRepository));
             _soundEffectsRepository = soundEffectsRepository ?? throw new ArgumentNullException(nameof(soundEffectsRepository));
         }
@@ -47,10 +50,10 @@ namespace WatermelonGameClone.UseCase
         {
             try
             {
-                (float volumeBgm, float volumeSE) = await _soundVolumeRepository.LoadSoundSettingsAsync(ct);
+                (float volumeBgm, float volumeSe) = await _soundVolumeRepository.LoadSoundSettingsAsync(ct);
 
                 _audioSourceBgm.volume = ValidateVolume(volumeBgm, "VolumeBgm");
-                _audioSourceSe.volume = ValidateVolume(volumeSE, "VolumeSe");
+                _audioSourceSe.volume = ValidateVolume(volumeSe, "VolumeSe");
 
                 _soundEffects[SoundEffect.Drop] = _soundEffectsRepository.GetClip(SoundEffect.Drop);
                 _soundEffects[SoundEffect.Merge] = _soundEffectsRepository.GetClip(SoundEffect.Merge);
@@ -65,8 +68,8 @@ namespace WatermelonGameClone.UseCase
         public void SetBGMVolume(float volumeBgm)
             => _audioSourceBgm.volume = ValidateVolume(volumeBgm, nameof(volumeBgm));
 
-        public void SetSEVolume(float volumeSE)
-            => _audioSourceSe.volume = ValidateVolume(volumeSE, nameof(volumeSE));
+        public void SetSeVolume(float volumeSe)
+            => _audioSourceSe.volume = ValidateVolume(volumeSe, nameof(volumeSe));
 
         public void PlayBGM()
             => _audioSourceBgm.Play();
@@ -76,16 +79,22 @@ namespace WatermelonGameClone.UseCase
             await _soundVolumeRepository.SaveSoundSettingsAsync(_audioSourceBgm.volume, _audioSourceSe.volume, ct);
         }
 
-        public void PlaySoundEffect(SoundEffect effect)
+        public void PlaySoundEffect(string soundName)
         {
-            if (!_soundEffects.TryGetValue(effect, out AudioClip clip) || clip == null)
+            if (!Enum.TryParse(soundName, out SoundEffect soundEffect))
             {
-                throw new ArgumentException($"Sound effect '{effect}' not found or not initialized.", nameof(effect));
+                throw new ArgumentException($"Sound effect '{soundName}' is not a valid SoundEffect.", nameof(soundName));
+            }
+
+            if (!_soundEffects.TryGetValue(soundEffect, out AudioClip clip) || clip == null)
+            {
+                throw new ArgumentException($"Sound effect '{soundName}' not found or not initialized.", nameof(soundName));
             }
 
             _audioSourceSe.clip = clip;
             _audioSourceSe.Play();
         }
+
 
         private static float ValidateVolume(float value, string parameterName)
         {

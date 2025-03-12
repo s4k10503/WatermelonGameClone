@@ -1,11 +1,12 @@
 using System;
+using UnityEngine.Serialization;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.ValueObject
 {
     [Serializable]
     public class VolumeSettings
     {
-        public float VolumeBGM;
-        public float VolumeSE;
+        [FormerlySerializedAs("VolumeBGM")] public float volumeBGM;
+        [FormerlySerializedAs("VolumeSE")] public float volumeSe;
     }
 }

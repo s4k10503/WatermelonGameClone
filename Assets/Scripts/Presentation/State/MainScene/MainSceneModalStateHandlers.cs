@@ -1,12 +1,16 @@
+using Presentation.DTO;
+using Presentation.View.MainScene;
+
 using System;
 using System.Threading;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.MainScene
 {
     // When not over (modals are hidden), hide all necessary modals.
-    public class MainNoneStateHandler : MainSceneModalStateHandlerBase
+    public sealed class MainNoneStateHandler : MainSceneModalStateHandlerBase
     {
         protected override async UniTask ApplyModalAsync(
             MainSceneView view,
@@ -28,7 +32,7 @@ namespace WatermelonGameClone.Presentation
         }
     }
 
-    // When pause, the background panel is displayed and the pause modal is displayed.
+    // When paused, the background panel is displayed and the pause modal is displayed.
     public class PausedStateHandler : MainSceneModalStateHandlerBase
     {
         protected override async UniTask ApplyModalAsync(
@@ -68,14 +72,35 @@ namespace WatermelonGameClone.Presentation
                 _screenshot = await view.ScreenshotHandler.CaptureScreenshotAsync(ct);
 
                 view.ModalBackgroundView.ShowPanel();
+                var scoreContainerDto = new ScoreContainerDto
+                {
+                    data = new ScoreContainerDto.RankingData
+                    {
+                        rankings = new ScoreContainerDto.RankingData.Rankings
+                        {
+                            daily = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.daily.scores.ToList()
+                            },
+                            monthly = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.monthly.scores.ToList()
+                            },
+                            allTime = new ScoreContainerDto.RankingData.RankingScores
+                            {
+                                scores = data.ScoreContainer.data.rankings.allTime.scores.ToList()
+                            }
+                        }
+                    }
+                };
                 view.GameOverModalView.ShowModal(
                     data.CurrentScore.Value,
                     _screenshot,
-                    data.ScoreContainer);
+                    scoreContainerDto);
 
                 view.ScorePanelView.UpdateBestScore(data.BestScore.Value);
-                view.ScoreRankView.DisplayTopScores(data.ScoreContainer);
-                view.DetailedScoreRankPageView.DisplayTopScores(data.ScoreContainer);
+                view.ScoreRankView.DisplayTopScores(scoreContainerDto);
+                view.DetailedScoreRankPageView.DisplayTopScores(scoreContainerDto);
 
                 await UniTask.CompletedTask.AttachExternalCancellation(ct);
             }
@@ -91,11 +116,9 @@ namespace WatermelonGameClone.Presentation
         }
         public override void Dispose()
         {
-            if (_screenshot != null)
-            {
-                RenderTexture.ReleaseTemporary(_screenshot);
-                _screenshot = null;
-            }
+            if (_screenshot == null) return;
+            RenderTexture.ReleaseTemporary(_screenshot);
+            _screenshot = null;
         }
     }
 }

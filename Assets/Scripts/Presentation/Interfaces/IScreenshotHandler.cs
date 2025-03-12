@@ -1,8 +1,8 @@
-using UnityEngine;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IScreenshotHandler
     {

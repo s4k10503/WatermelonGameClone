@@ -2,7 +2,7 @@ using System;
 using UniRx;
 using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IMergeItemView
     {
