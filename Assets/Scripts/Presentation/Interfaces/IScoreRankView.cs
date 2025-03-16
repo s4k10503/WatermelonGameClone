@@ -1,11 +1,11 @@
-using WatermelonGameClone.Domain;
+using Presentation.DTO;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface IScoreRankView
     {
         // Methods related to UI updates
         void DisplayCurrentScore(int currentScore);
-        void DisplayTopScores(ScoreContainer scoreContainer);
+        void DisplayTopScores(ScoreContainerDto scoreContainer);
     }
 }

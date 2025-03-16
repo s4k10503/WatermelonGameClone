@@ -1,19 +1,25 @@
+using UseCase.DTO;
+using UseCase.Interfaces;
+using Presentation.DTO;
+using Presentation.Interfaces;
+using Presentation.State.Common;
+using Presentation.State.MainScene;
+using Presentation.View.MainScene;
+
 using System;
+using System.Collections.Generic;
 using System.Threading;
+using Cysharp.Threading.Tasks;
+using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UniRx;
-using Cysharp.Threading.Tasks;
 using Zenject;
-using WatermelonGameClone.Domain;
-using WatermelonGameClone.UseCase;
-using System.Collections.Generic;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Presenter
 {
     public sealed class MainScenePresenter : IInitializable, ITickable, IDisposable
     {
-        // Model
+        // UseCases
         private readonly IMergeItemUseCase _mergeItemUseCase;
         private readonly IScoreUseCase _scoreUseCase;
         private readonly ISoundUseCase _soundUseCase;
@@ -23,10 +29,8 @@ namespace WatermelonGameClone.Presentation
 
         // View
         private readonly MainSceneView _mainSceneView;
-        private readonly ReactiveProperty<PageState> _currentPageState
-            = new(PageState.Loading);
-        private readonly ReactiveProperty<ModalState> _currentModalState
-            = new(ModalState.None);
+        private readonly ReactiveProperty<PageState> _currentPageState = new(PageState.Loading);
+        private readonly ReactiveProperty<ModalState> _currentModalState = new(ModalState.None);
 
         // Dictionary to manage the page state
         private readonly Dictionary<PageState, IPageStateHandler<MainSceneView, MainSceneViewStateData>>
@@ -41,9 +45,10 @@ namespace WatermelonGameClone.Presentation
 
         private bool _isNext;
         private float _mergeItemCreateDelayTime;
-        private GlobalGameState _previousGlobalState;
+        private string _previousGlobalState;
+
         private const string TitleSceneName = "TitleScene";
-        private const int _maxRetries = 3;
+        private const int MaxRetries = 3;
 
         private readonly CompositeDisposable _disposables;
         private readonly CancellationTokenSource _cts;
@@ -91,7 +96,13 @@ namespace WatermelonGameClone.Presentation
         {
             _exceptionHandlingUseCase.SafeExecuteAsync(
                 () => _exceptionHandlingUseCase.RetryAsync(
-                    () => InitializeAsync(_cts.Token), _maxRetries, _cts.Token), _cts.Token).Forget();
+                    () => InitializeAsync(_cts.Token),
+                    MaxRetries,
+                    _cts.Token
+                ),
+                _cts.Token
+            ).Forget();
+
             SetupSubscriptions(_cts.Token);
         }
 
@@ -106,7 +117,12 @@ namespace WatermelonGameClone.Presentation
             {
                 _exceptionHandlingUseCase.SafeExecuteAsync(
                     () => _exceptionHandlingUseCase.RetryAsync(
-                        () => CreateNextItemAsync(), _maxRetries, _cts.Token), _cts.Token).Forget();
+                        CreateNextItemAsync,
+                        MaxRetries,
+                        _cts.Token
+                    ),
+                    _cts.Token
+                ).Forget();
             }
         }
 
@@ -141,10 +157,9 @@ namespace WatermelonGameClone.Presentation
             try
             {
                 await _scoreUseCase.InitializeAsync(ct);
-                _gameStateUseCase.SetGlobalGameState(GlobalGameState.Playing);
-                _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Initializing);
+                _gameStateUseCase.SetGlobalGameState("Playing");
 
-                // Initialize state data
+                // Initialize View state data
                 _mainSceneViewStateData = new MainSceneViewStateData(
                     _scoreUseCase.CurrentScore.Value,
                     _scoreUseCase.BestScore.Value,
@@ -207,7 +222,8 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _mainSceneView.RestartRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct), ct).Forget())
+                .Subscribe(_ =>
+                    _exceptionHandlingUseCase.SafeExecuteAsync(() => HandleSceneChangeAsync(SceneManager.GetActiveScene().name, ct), ct).Forget())
                 .AddTo(_disposables);
 
             _mainSceneView.BackToTitleRequested
@@ -215,21 +231,21 @@ namespace WatermelonGameClone.Presentation
                 .AddTo(_disposables);
 
             _mainSceneView.BackToGameRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ResumeGame()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(ResumeGame))
                 .AddTo(_disposables);
 
             _mainSceneView.PauseRequested
-                .Where(_ => _gameStateUseCase.GlobalState.Value != GlobalGameState.GameOver &&
-                            _gameStateUseCase.GlobalState.Value != GlobalGameState.Paused)
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => PauseGame()))
+                .Where(_ => _gameStateUseCase.GlobalStateString.Value != "GameOver" &&
+                            _gameStateUseCase.GlobalStateString.Value != "Paused")
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(PauseGame))
                 .AddTo(_disposables);
 
             _mainSceneView.DisplayScoreRequested
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ShowDetailedScore()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(ShowDetailedScore))
                 .AddTo(_disposables);
 
             _mainSceneView.DetailedScoreRankPageView.OnBack
-                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => ReturnToGameOverScreen()))
+                .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(ReturnToGameOverScreen))
                 .AddTo(_disposables);
 
             _mainSceneView.MergeItemManager.OnItemCreated
@@ -244,7 +260,7 @@ namespace WatermelonGameClone.Presentation
                         .AddTo(_disposables);
 
                     mergeItem.OnDropping
-                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(() => HandleItemDropping()))
+                        .Subscribe(_ => _exceptionHandlingUseCase.SafeExecute(HandleItemDropping))
                         .AddTo(_disposables);
 
                     mergeItem.OnMergeRequest
@@ -293,9 +309,8 @@ namespace WatermelonGameClone.Presentation
 
         private bool CanCreateNextItem()
         {
-            return _isNext && _gameStateUseCase.GlobalState.Value != GlobalGameState.GameOver;
+            return _isNext && _gameStateUseCase.GlobalStateString.Value != "GameOver";
         }
-
         private async UniTask CreateNextItemAsync()
         {
             if (_cts == null || _cts.IsCancellationRequested) return;
@@ -305,13 +320,13 @@ namespace WatermelonGameClone.Presentation
                 _isNext = false;
 
                 // Generate entity from use case
-                var entity = _mergeItemUseCase.CreateMergeItemEntity(_mergeItemUseCase.NextItemIndex.Value);
-                var id = entity.Id;
+                var mergeItemDto = _mergeItemUseCase.CreateMergeItemDTO(_mergeItemUseCase.NextItemIndex.Value);
 
                 await _mainSceneView.MergeItemManager.CreateItemAsync(
-                    id,
+                    mergeItemDto.Id,
                     _mergeItemUseCase.NextItemIndex.Value,
-                    _mergeItemCreateDelayTime, _cts.Token);
+                    _mergeItemCreateDelayTime,
+                    _cts.Token);
 
                 _mergeItemUseCase.UpdateNextItemIndex();
                 _mergeItemCreateDelayTime = 1.0f;
@@ -329,46 +344,47 @@ namespace WatermelonGameClone.Presentation
 
         private void HandleItemDropping()
         {
-            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.ItemDropping);
-            _soundUseCase.PlaySoundEffect(SoundEffect.Drop);
+            _soundUseCase.PlaySoundEffect("Drop");
             _isNext = true;
         }
 
         private void HandleMergeRequest(IMergeItemView sourceView, IMergeItemView targetView)
         {
-            var sourceEntity = _mergeItemUseCase.GetEntityById(sourceView.Id);
-            var targetEntity = _mergeItemUseCase.GetEntityById(targetView.Id);
+            var sourceDto = _mergeItemUseCase.GetMergeItemDTOById(sourceView.Id);
+            var targetDto = _mergeItemUseCase.GetMergeItemDTOById(targetView.Id);
 
-            if (sourceEntity != null
-                && targetEntity != null
-                && sourceEntity.CanMergeWith(targetEntity))
-            {
-                // Update the position of the entity
-                sourceEntity.Position = sourceView.GameObject.transform.position;
-                targetEntity.Position = targetView.GameObject.transform.position;
+            if (sourceDto == null
+                || targetDto == null
+                || !_mergeItemUseCase.CanMerge(sourceView.Id, targetView.Id)) return;
 
-                var mergeData = _mergeItemUseCase.CreateMergeData(sourceView.Id, targetView.Id);
+            Vector2 unityPosSource = sourceView.GameObject.transform.position;
+            Vector2 unityPosTarget = targetView.GameObject.transform.position;
 
-                // Generate a new entity in the use case
-                var newId = _mergeItemUseCase.CreateMergeItemEntity(mergeData.ItemNo).Id;
+            System.Numerics.Vector2 numericsPosSource = new(unityPosSource.x, unityPosSource.y);
+            System.Numerics.Vector2 numericsPosTarget = new(unityPosTarget.x, unityPosTarget.y);
 
-                HandleItemMerging(newId, mergeData, sourceView, targetView);
-            }
+            var mergeDataDto = _mergeItemUseCase.CreateMergeDataDTO(sourceView.Id, numericsPosSource, targetView.Id, numericsPosTarget);
+            var newMergeItemDto = _mergeItemUseCase.CreateMergeItemDTO(mergeDataDto.ItemNo);
+
+            HandleItemMerging(newMergeItemDto.Id, mergeDataDto, sourceView, targetView);
         }
 
         private void HandleItemMerging(
             Guid id,
-            MergeData mergeData,
+            MergeResultDto mergeResultData,
             IMergeItemView sourceView,
             IMergeItemView targetView)
         {
-            _gameStateUseCase.SetSceneSpecificState(SceneSpecificState.Merging);
             _mainSceneView.MergeItemManager.DestroyItem(sourceView.GameObject);
             _mainSceneView.MergeItemManager.DestroyItem(targetView.GameObject);
-            _mainSceneView.MergeItemManager.MergeItem(id, mergeData.Position, mergeData.ItemNo);
-            _soundUseCase.PlaySoundEffect(SoundEffect.Merge);
-            _scoreUseCase.UpdateCurrentScore(mergeData.ItemNo);
+
+            Vector2 unityPos = new(mergeResultData.Position.X, mergeResultData.Position.Y);
+            _mainSceneView.MergeItemManager.MergeItem(id, unityPos, mergeResultData.ItemNo);
+
+            _soundUseCase.PlaySoundEffect("Merge");
+            _scoreUseCase.UpdateCurrentScore(mergeResultData.ItemNo);
         }
+
 
         private async UniTask HandleGameOverAsync()
         {
@@ -376,7 +392,7 @@ namespace WatermelonGameClone.Presentation
 
             try
             {
-                _gameStateUseCase.SetGlobalGameState(GlobalGameState.GameOver);
+                _gameStateUseCase.SetGlobalGameState("GameOver");
                 await _scoreUseCase.UpdateScoreRankingAsync(_scoreUseCase.CurrentScore.Value, _cts.Token);
                 _mainSceneViewStateData.ScoreContainer = _scoreUseCase.GetScoreData();
                 AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
@@ -426,8 +442,8 @@ namespace WatermelonGameClone.Presentation
 
         private void PauseGame()
         {
-            _previousGlobalState = _gameStateUseCase.GlobalState.Value;
-            _gameStateUseCase.SetGlobalGameState(GlobalGameState.Paused);
+            _previousGlobalState = _gameStateUseCase.GlobalStateString.Value;
+            _gameStateUseCase.SetGlobalGameState("Paused");
             AdjustTimeScale(_gameStateUseCase.TimeScaleGameOver);
             _currentModalState.Value = ModalState.Paused;
         }

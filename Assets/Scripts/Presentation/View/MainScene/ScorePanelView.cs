@@ -1,11 +1,13 @@
-using UnityEngine;
+using Presentation.DTO;
+using Presentation.Interfaces;
+
 using TMPro;
 using UniRx;
 using UniRx.Triggers;
+using UnityEngine;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class ScorePanelView : MonoBehaviour, IScorePanelView
     {
@@ -21,7 +23,7 @@ namespace WatermelonGameClone.Presentation
             _uiAnimator.GetUIPosition(transform);
 
             this.UpdateAsObservable()
-                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionType.Sin))
+                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionTypeDto.Sin))
                 .AddTo(this);
         }
 

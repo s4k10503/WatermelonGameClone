@@ -1,6 +1,6 @@
 using System;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.Services
 {
     public class InfrastructureException : Exception
     {

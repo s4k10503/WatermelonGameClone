@@ -1,9 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.Interfaces
 {
     public interface IExceptionHandlingUseCase
     {

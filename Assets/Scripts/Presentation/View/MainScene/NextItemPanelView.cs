@@ -1,10 +1,12 @@
-using UnityEngine;
+using Presentation.DTO;
+using Presentation.Interfaces;
+
 using UniRx;
 using UniRx.Triggers;
+using UnityEngine;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class NextItemPanelView : MonoBehaviour, INextItemPanelView
     {
@@ -23,7 +25,7 @@ namespace WatermelonGameClone.Presentation
 
             CreateNextItemImages();
             this.UpdateAsObservable()
-                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionType.Cos))
+                .Subscribe(_ => _uiAnimator.HarmonicMotion(transform, HarmonicMotionTypeDto.Cos))
                 .AddTo(this);
         }
 

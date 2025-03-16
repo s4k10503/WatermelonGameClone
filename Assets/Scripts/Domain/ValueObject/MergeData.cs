@@ -1,15 +1,14 @@
-using UnityEngine;
+using System.Numerics;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.ValueObject
 {
-    public class MergeData
+    public sealed class MergeData
     {
         public Vector2 Position;
-        public int ItemNo;
+        public readonly int ItemNo;
 
         public MergeData(Vector2 position, int itemNo)
         {
-            
             Position = position;
             ItemNo = itemNo;
         }

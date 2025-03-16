@@ -1,11 +1,14 @@
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCase.Interfaces;
+
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.UseCases.Common
 {
-    public class LicenseUseCase : ILicenseUseCase
+    public sealed class LicenseUseCase : ILicenseUseCase
     {
         private readonly ILicenseRepository _licenseRepository;
 

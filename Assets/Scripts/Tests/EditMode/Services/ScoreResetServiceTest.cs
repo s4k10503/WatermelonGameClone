@@ -1,8 +1,9 @@
-using NUnit.Framework;
-using System;
-using WatermelonGameClone.Domain;
+using Domain.Services;
 
-namespace WatermelonGameClone.Tests
+using System;
+using NUnit.Framework;
+
+namespace Tests.EditMode.Services
 {
     public class ScoreResetServiceTest
     {

@@ -1,9 +1,11 @@
-namespace WatermelonGameClone.Presentation
-{
-    using Cysharp.Threading.Tasks;
-    using System;
-    using System.Threading;
+using Presentation.Interfaces;
 
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+
+namespace Presentation.State.Common
+{
     public abstract class PageStateHandlerBase<TView, TData>
         : IPageStateHandler<TView, TData>, IDisposable
     {

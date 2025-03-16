@@ -1,8 +1,11 @@
+using Domain.Interfaces;
+using Infrastructure.Services;
+using Infrastructure.SODefinitions;
+
 using System;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.Repositories
 {
     public class ScoreTableRepository : IScoreTableRepository
     {
@@ -13,7 +16,7 @@ namespace WatermelonGameClone.Infrastructure
         {
             _scoreTableSettings = scoreTableSettings ?? throw new ArgumentNullException(nameof(scoreTableSettings));
 
-            if (_scoreTableSettings.Scores == null || _scoreTableSettings.Scores.Length == 0)
+            if (_scoreTableSettings.scores == null || _scoreTableSettings.scores.Length == 0)
             {
                 throw new InfrastructureException("Score table settings must contain a valid score array.");
             }
@@ -21,7 +24,7 @@ namespace WatermelonGameClone.Infrastructure
 
         public int[] GetScoreTable()
         {
-            return _scoreTableSettings.Scores;
+            return _scoreTableSettings.scores;
         }
     }
 }

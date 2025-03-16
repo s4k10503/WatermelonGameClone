@@ -1,9 +1,13 @@
+using Domain.Interfaces;
+using Domain.ValueObject;
+using Infrastructure.Services;
+using Infrastructure.SODefinitions;
+
 using System;
 using UnityEngine;
 using Zenject;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.Repositories
 {
     public class SoundEffectsRepository : ISoundEffectsRepository
     {
@@ -15,11 +19,11 @@ namespace WatermelonGameClone.Infrastructure
             _soundSettings = soundSettings ?? throw new ArgumentNullException(nameof(soundSettings));
 
             // Validate sound settings
-            if (_soundSettings.ClipDrop == null)
+            if (_soundSettings.clipDrop == null)
             {
                 throw new InfrastructureException("Drop sound clip is not configured in SoundSettings.");
             }
-            if (_soundSettings.ClipMerge == null)
+            if (_soundSettings.clipMerge == null)
             {
                 throw new InfrastructureException("Merge sound clip is not configured in SoundSettings.");
             }
@@ -29,8 +33,8 @@ namespace WatermelonGameClone.Infrastructure
         {
             return effect switch
             {
-                SoundEffect.Drop => _soundSettings.ClipDrop,
-                SoundEffect.Merge => _soundSettings.ClipMerge,
+                SoundEffect.Drop => _soundSettings.clipDrop,
+                SoundEffect.Merge => _soundSettings.clipMerge,
                 _ => throw new ArgumentOutOfRangeException(nameof(effect), effect, "Sound effect not found in settings.")
             };
         }

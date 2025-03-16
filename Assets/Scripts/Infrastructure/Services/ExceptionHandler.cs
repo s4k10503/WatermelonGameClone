@@ -1,13 +1,13 @@
+using Domain.Interfaces;
+
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.Services
 {
-    public class ExceptionHandler : IExceptionHandler
+    public sealed class ExceptionHandler : IExceptionHandler
     {
         public async UniTask RetryAsync(Func<UniTask> action, int maxRetries, CancellationToken cts)
         {

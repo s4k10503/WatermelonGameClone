@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Domain.ValueObject;
 using UniRx;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.DTO
 {
     public class TitleSceneViewStateData : IDisposable
     {
@@ -20,7 +20,7 @@ namespace WatermelonGameClone.Presentation
         {
             ScoreContainer = scoreContainer;
             Licenses = licenses;
-            UserName = new ReactiveProperty<string>(scoreContainer.Data.Score.UserName);
+            UserName = new ReactiveProperty<string>(scoreContainer.data.score.userName);
 
             UserName.AddTo(_disposables);
         }

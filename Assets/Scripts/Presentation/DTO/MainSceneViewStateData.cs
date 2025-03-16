@@ -1,7 +1,8 @@
-using UniRx;
-using WatermelonGameClone.Domain;
+using Domain.ValueObject;
 
-namespace WatermelonGameClone.Presentation
+using UniRx;
+
+namespace Presentation.DTO
 {
     public class MainSceneViewStateData
     {

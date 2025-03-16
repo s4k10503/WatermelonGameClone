@@ -1,8 +1,11 @@
-using UnityEngine;
-using DG.Tweening;
-using WatermelonGameClone.Domain;
+using Presentation.Interfaces;
+using Presentation.DTO;
 
-namespace WatermelonGameClone.Presentation
+using System;
+using DG.Tweening;
+using UnityEngine;
+
+namespace Presentation.View.Common
 {
     public sealed class UIAnimator : IUIAnimator
     {
@@ -15,17 +18,17 @@ namespace WatermelonGameClone.Presentation
             _originalPos = targetTransform?.localPosition ?? Vector3.zero;
         }
 
-        public void HarmonicMotion(Transform targetTransform, HarmonicMotionType animationType)
+        public void HarmonicMotion(Transform targetTransform, HarmonicMotionTypeDto animationType)
         {
             if (targetTransform == null) return;
 
             float offset = 0f;
             switch (animationType)
             {
-                case HarmonicMotionType.Sin:
+                case HarmonicMotionTypeDto.Sin:
                     offset = Mathf.Sin(Time.time * _moveSpeed) * _moveHeight;
                     break;
-                case HarmonicMotionType.Cos:
+                case HarmonicMotionTypeDto.Cos:
                     offset = Mathf.Cos(Time.time * _moveSpeed) * _moveHeight;
                     break;
             }
@@ -57,7 +60,7 @@ namespace WatermelonGameClone.Presentation
             float duration,
             Ease easeType,
             bool isUpdate = true,
-            System.Action onComplete = null)
+            Action onComplete = null)
         {
             if (targetTransform == null) return;
 

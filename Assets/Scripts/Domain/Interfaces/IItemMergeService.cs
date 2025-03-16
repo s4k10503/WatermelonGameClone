@@ -1,7 +1,6 @@
-
 using UnityEngine;
 
-namespace WatermelonGameClone.Domain
+namespace Domain.Interfaces
 {
     public interface IItemMergeService
     {

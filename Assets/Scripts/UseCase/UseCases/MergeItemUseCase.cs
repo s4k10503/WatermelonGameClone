@@ -1,11 +1,17 @@
+using Domain.Entities;
+using Domain.Interfaces;
+using Domain.ValueObject;
+using UseCase.Interfaces;
+using UseCase.DTO;
+
 using System;
 using UniRx;
 using Zenject;
-using WatermelonGameClone.Domain;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCases.UseCase
 {
     public sealed class MergeItemUseCase : IMergeItemUseCase, IDisposable
     {
@@ -17,7 +23,6 @@ namespace WatermelonGameClone.UseCase
             => _nextItemIndex.ToReadOnlyReactiveProperty();
 
         private readonly IMergeService _mergeService;
-        private readonly IGameRuleSettingsRepository _gameRuleSettingsRepository;
 
         private readonly CompositeDisposable _disposables;
 
@@ -36,8 +41,7 @@ namespace WatermelonGameClone.UseCase
 
             MaxItemNo = maxItemNo;
             _mergeService = mergeService ?? throw new ArgumentNullException(nameof(mergeService));
-            _gameRuleSettingsRepository = gameRuleSettingsRepository ?? throw new ArgumentNullException(nameof(_gameRuleSettingsRepository));
-            _contactTimeLimit = _gameRuleSettingsRepository.GetContactTimeLimit();
+            _contactTimeLimit = gameRuleSettingsRepository.GetContactTimeLimit();
 
             _nextItemIndex.AddTo(_disposables);
         }
@@ -47,7 +51,13 @@ namespace WatermelonGameClone.UseCase
             _disposables?.Dispose();
         }
 
-        public IMergeItemEntity CreateMergeItemEntity(int itemNo)
+        public MergeItemDto CreateMergeItemDTO(int itemNo)
+        {
+            var entity = CreateMergeItemEntity(itemNo);
+            return MapEntityToDto(entity);
+        }
+
+        private IMergeItemEntity CreateMergeItemEntity(int itemNo)
         {
             if (itemNo < 0)
                 throw new ArgumentException("ItemNo must be non-negative.", nameof(itemNo));
@@ -57,17 +67,34 @@ namespace WatermelonGameClone.UseCase
             return entity;
         }
 
-        public IMergeItemEntity GetEntityById(Guid id)
+        public MergeItemDto GetMergeItemDTOById(Guid id)
         {
-            return _entities.ContainsKey(id) ? _entities[id] : null;
+            if (_entities.TryGetValue(id, out var entity))
+            {
+                return MapEntityToDto(entity);
+            }
+            return null;
         }
 
-        public IReadOnlyList<IMergeItemEntity> GetAllEntities()
+        private MergeItemDto MapEntityToDto(IMergeItemEntity entity)
         {
-            return _entities.Values.ToList();
+            return new MergeItemDto
+            {
+                Id = entity.Id,
+                ItemNo = entity.ItemNo,
+                Position = entity.Position,
+                ContactTime = entity.ContactTime
+            };
         }
 
-        public void RemoveEntity(Guid id)
+        public IReadOnlyList<MergeItemDto> GetAllMergeItemDTOs()
+        {
+            return _entities.Values
+                .Select(MapEntityToDto)
+                .ToList();
+        }
+
+        private void RemoveEntity(Guid id)
         {
             _entities.Remove(id);
         }
@@ -92,7 +119,6 @@ namespace WatermelonGameClone.UseCase
             return entity.CheckGameOver();
         }
 
-
         public void ResetContactTime(Guid id)
         {
             if (_entities.TryGetValue(id, out var entity))
@@ -111,7 +137,7 @@ namespace WatermelonGameClone.UseCase
             return source.CanMergeWith(target);
         }
 
-        public MergeData CreateMergeData(Guid sourceId, Guid targetId)
+        public MergeResultDto CreateMergeDataDTO(Guid sourceId, Vector2 sourcePos, Guid targetId, Vector2 targetPos)
         {
             if (!_entities.TryGetValue(sourceId, out var source) || !_entities.TryGetValue(targetId, out var target))
             {
@@ -123,7 +149,21 @@ namespace WatermelonGameClone.UseCase
                 throw new InvalidOperationException("Entities cannot be merged.");
             }
 
-            return _mergeService.CreateMergeData(source.Position, target.Position, source.ItemNo);
+            RemoveEntity(sourceId);
+            RemoveEntity(targetId);
+
+            var mergeData = _mergeService.CreateMergeData(sourcePos, targetPos, source.ItemNo);
+            return MapMergeDataToDto(mergeData);
+        }
+
+
+        private MergeResultDto MapMergeDataToDto(MergeData mergeData)
+        {
+            return new MergeResultDto
+            {
+                Position = mergeData.Position,
+                ItemNo = mergeData.ItemNo
+            };
         }
 
         public void UpdateNextItemIndex()

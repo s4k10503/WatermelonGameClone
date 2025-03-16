@@ -1,11 +1,11 @@
-using WatermelonGameClone.Domain;
-using System.Collections.Generic;
 using System;
-using UniRx;
-using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using System.Threading;
+using Cysharp.Threading.Tasks;
+using Presentation.DTO;
+using UniRx;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.Interfaces
 {
     public interface ILicenseModalView
     {
@@ -14,7 +14,7 @@ namespace WatermelonGameClone.Presentation
         // Methods related to game state and UI updates
         public void ShowModal();
         public void HideModal();
-        UniTask SetLicensesAsync(IReadOnlyList<License> licenses, CancellationToken ct);
+        UniTask SetLicensesAsync(IReadOnlyList<LicenseDto> licenses, CancellationToken ct);
         void ForceMeshUpdateText();
     }
 }

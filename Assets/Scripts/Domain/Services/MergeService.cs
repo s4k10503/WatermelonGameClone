@@ -1,16 +1,15 @@
-using UnityEngine;
+using Domain.Interfaces;
+using Domain.ValueObject;
 
-namespace WatermelonGameClone.Domain
+using System.Numerics;
+
+namespace Domain.Services
 {
-    public class MergeService : IMergeService
+    public sealed class MergeService : IMergeService
     {
-        private readonly System.Random _random;
+        private readonly System.Random _random = new();
 
-        public MergeService()
-        {
-            // Random generation with reproducible by specifying seeds
-            _random = new System.Random();
-        }
+        // Random generation with reproducible by specifying seeds
 
         public MergeData CreateMergeData(Vector2 sourcePosition, Vector2 targetPosition, int itemNo)
         {
@@ -26,7 +25,7 @@ namespace WatermelonGameClone.Domain
             return new MergeData(newPosition, newItemNo);
         }
 
-        private Vector3 CalculateMergePosition(Vector2 position1, Vector2 position2)
+        private Vector2 CalculateMergePosition(Vector2 position1, Vector2 position2)
         {
             return (position1 + position2) / 2;
         }

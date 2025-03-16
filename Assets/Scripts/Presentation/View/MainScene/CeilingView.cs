@@ -1,9 +1,10 @@
+using Presentation.Interfaces;
+
 using UnityEngine;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public class CeilingVIew : MonoBehaviour, IGameOverTrigger
     {
-
     }
 }

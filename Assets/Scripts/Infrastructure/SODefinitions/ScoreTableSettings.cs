@@ -1,12 +1,12 @@
 using UnityEngine;
 using Zenject;
 
-namespace WatermelonGameClone.Infrastructure
+namespace Infrastructure.SODefinitions
 {
     [CreateAssetMenu(fileName = "ScoreTableSettings", menuName = "Configs/ScoreTableSettings")]
     public class ScoreTableSettings : ScriptableObjectInstaller
     {
-        public int[] Scores;
+        public int[] scores;
 
         public override void InstallBindings()
         {

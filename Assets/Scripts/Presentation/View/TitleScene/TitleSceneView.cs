@@ -1,9 +1,12 @@
+using Presentation.Interfaces;
+using Presentation.View.Common;
+
 using System;
-using UnityEngine;
 using UniRx;
+using UnityEngine;
 using Zenject;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.TitleScene
 {
     public sealed class TitleSceneView : MonoBehaviour
     {
@@ -21,14 +24,14 @@ namespace WatermelonGameClone.Presentation
 
         [Inject]
         public void Construct(
-            ITitlePageView titlePanellView,
+            ITitlePageView titlePageView,
             IUserNameModalView userNameModalView,
             IDetailedScoreRankPageView detailedScoreRankView,
             ISettingsPageView settingsPageView,
             ILicenseModalView licenseModalView,
             ModalBackgroundView modalBackgroundView)
         {
-            TitlePageView = titlePanellView;
+            TitlePageView = titlePageView;
             UserNameModalView = userNameModalView;
             DetailedScoreRankPageView = detailedScoreRankView;
             SettingsPageView = settingsPageView;

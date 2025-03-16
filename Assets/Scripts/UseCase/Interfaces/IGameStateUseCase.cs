@@ -1,17 +1,15 @@
 using UniRx;
-using WatermelonGameClone.Domain;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.Interfaces
 {
     public interface IGameStateUseCase
     {
+        IReadOnlyReactiveProperty<string> GlobalStateString { get; }
+
         float DelayedTime { get; }
         float TimeScaleGameStart { get; }
         float TimeScaleGameOver { get; }
-        IReadOnlyReactiveProperty<GlobalGameState> GlobalState { get; }
-        IReadOnlyReactiveProperty<SceneSpecificState> SceneState { get; }
 
-        void SetGlobalGameState(GlobalGameState newState);
-        void SetSceneSpecificState(SceneSpecificState newState);
+        void SetGlobalGameState(string newState);
     }
 }

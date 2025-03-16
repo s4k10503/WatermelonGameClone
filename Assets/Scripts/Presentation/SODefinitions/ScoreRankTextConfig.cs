@@ -1,7 +1,7 @@
 using UnityEngine;
 using Zenject;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.SODefinitions
 {
     [CreateAssetMenu(fileName = "ScoreRankTextConfig", menuName = "Configs/ScoreRankTextConfig")]
     public class ScoreRankTextConfig : ScriptableObjectInstaller

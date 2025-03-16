@@ -1,8 +1,12 @@
+using Presentation.DTO;
+using Presentation.State.Common;
+using Presentation.View.MainScene;
+
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.State.MainScene
 {
     public abstract class MainSceneModalStateHandlerBase
         : ModalStateHandlerBase<MainSceneView, MainSceneViewStateData>

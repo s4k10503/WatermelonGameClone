@@ -1,11 +1,13 @@
-using UnityEngine;
-using UnityEngine.Rendering;
+using Presentation.Interfaces;
+
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.Rendering;
 using Zenject;
-using System;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.Common
 {
     public sealed class ScreenshotHandler : MonoBehaviour, IScreenshotHandler
     {
@@ -27,11 +29,9 @@ namespace WatermelonGameClone.Presentation
             _mainCamera = null;
             _uiCamera = null;
 
-            if (_currentRenderTexture != null)
-            {
-                RenderTexture.ReleaseTemporary(_currentRenderTexture);
-                _currentRenderTexture = null;
-            }
+            if (_currentRenderTexture == null) return;
+            RenderTexture.ReleaseTemporary(_currentRenderTexture);
+            _currentRenderTexture = null;
         }
 
         public async UniTask<RenderTexture> CaptureScreenshotAsync(CancellationToken ct)
@@ -63,14 +63,11 @@ namespace WatermelonGameClone.Presentation
                 var request = AsyncGPUReadback.Request(_currentRenderTexture);
                 await UniTask.WaitUntil(() => request.done, cancellationToken: ct);
 
-                if (request.hasError)
-                {
-                    // An error occurred in AsyncGPUReadback.
-                    RenderTexture.ReleaseTemporary(_currentRenderTexture);
-                    _currentRenderTexture = null;
-                    return null;
-                }
-                return _currentRenderTexture;
+                if (!request.hasError) return _currentRenderTexture;
+                // An error occurred in AsyncGPUReadback.
+                RenderTexture.ReleaseTemporary(_currentRenderTexture);
+                _currentRenderTexture = null;
+                return null;
             }
             catch (OperationCanceledException)
             {

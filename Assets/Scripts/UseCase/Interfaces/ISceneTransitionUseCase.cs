@@ -1,7 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace WatermelonGameClone.UseCase
+namespace UseCase.Interfaces
 {
     public interface ISceneLoaderUseCase
     {

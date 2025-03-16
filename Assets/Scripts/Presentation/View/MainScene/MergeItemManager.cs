@@ -1,11 +1,13 @@
+using Presentation.Interfaces;
+
 using System;
 using System.Threading;
-using UnityEngine;
-using UniRx;
 using Cysharp.Threading.Tasks;
+using UniRx;
+using UnityEngine;
 using Zenject;
 
-namespace WatermelonGameClone.Presentation
+namespace Presentation.View.MainScene
 {
     public sealed class MergeItemManager : MonoBehaviour, IMergeItemManager
     {
@@ -14,7 +16,7 @@ namespace WatermelonGameClone.Presentation
 
         private DiContainer _container;
 
-        public readonly Subject<IMergeItemView> _onItemCreated
+        private readonly Subject<IMergeItemView> _onItemCreated
             = new Subject<IMergeItemView>();
         public IObservable<IMergeItemView> OnItemCreated
             => _onItemCreated;
