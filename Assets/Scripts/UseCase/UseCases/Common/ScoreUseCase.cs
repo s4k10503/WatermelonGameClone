@@ -1,6 +1,7 @@
 using Domain.Interfaces;
 using Domain.ValueObject;
 using UseCase.Interfaces;
+using UseCase.DTO;
 
 using System;
 using System.Threading;
@@ -191,7 +192,9 @@ namespace UseCase.UseCases.Common
             }
         }
 
-        public ScoreContainer GetScoreData()
-            => _scoreData;
+        public ScoreDataDto? GetScoreData()
+        {
+            return ScoreDataMapper.ToScoreDataDto(_scoreData);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using Domain.Interfaces;
 using Domain.ValueObject;
 using UseCase.UseCases.Common;
+using UseCase.DTO;
 
 using System;
 using System.Collections;
@@ -137,9 +138,44 @@ namespace Tests.EditMode.UseCases
             Assert.AreEqual(120, _scoreUseCase.BestScore.Value);
         });
 
+        [UnityTest]
+        public IEnumerator GetScoreData_ShouldReturnScoreDataDto_WhenDataIsLoaded() => UniTask.ToCoroutine(async () =>
+        {
+            // Arrange: Initialize to load score data
+            await _scoreUseCase.InitializeAsync(CancellationToken.None);
+
+            // Act: Get score data
+            var result = _scoreUseCase.GetScoreData();
+
+            // Assert: Check that proper DTO is returned
+            Assert.IsNotNull(result);
+            Assert.IsTrue(result.HasValue);
+            
+            var scoreData = result.Value;
+            Assert.AreEqual(100, scoreData.Score.Best);
+            Assert.AreEqual("2024-09-30", scoreData.Score.LastPlayedDate);
+            
+            // Check rankings data
+            CollectionAssert.AreEqual(new[] { 10, 20, 30 }, scoreData.Rankings.Daily.Scores);
+            CollectionAssert.AreEqual(new[] { 50, 60, 70 }, scoreData.Rankings.Monthly.Scores);
+            CollectionAssert.AreEqual(new[] { 100, 150, 200 }, scoreData.Rankings.AllTime.Scores);
+        });
+
+        [Test]
+        public void GetScoreData_ShouldReturnNull_WhenDataIsNotLoaded()
+        {
+            // Act: Get score data without initialization
+            var result = _scoreUseCase.GetScoreData();
+
+            // Assert: Should return null when data is not loaded
+            Assert.IsNull(result);
+            Assert.IsFalse(result.HasValue);
+        }
+
         [TearDown]
         public void TearDown()
         {
+            _scoreUseCase?.Dispose();
             _scoreUseCase = null;
             _mockScoreRepository = null;
             _mockScoreRankingService = null;
