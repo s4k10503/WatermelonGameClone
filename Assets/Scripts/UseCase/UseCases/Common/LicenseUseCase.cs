@@ -1,6 +1,7 @@
 using Domain.Interfaces;
 using Domain.ValueObject;
 using UseCase.Interfaces;
+using UseCase.DTO;
 
 using System.Collections.Generic;
 using System.Threading;
@@ -17,9 +18,11 @@ namespace UseCase.UseCases.Common
             _licenseRepository = licenseRepository;
         }
 
-        public async UniTask<IReadOnlyList<License>> GetLicensesAsync(CancellationToken ct)
+        public async UniTask<IReadOnlyList<LicenseDto>> GetLicensesAsync(CancellationToken ct)
         {
-            return await _licenseRepository.LoadLicensesAsync(ct);
+            var domainLicenses = await _licenseRepository.LoadLicensesAsync(ct);
+            
+            return LicenseDataMapper.ToLicenseDtoList(domainLicenses);
         }
     }
 }

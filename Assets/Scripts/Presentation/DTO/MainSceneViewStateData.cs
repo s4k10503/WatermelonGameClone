@@ -1,5 +1,4 @@
-using Domain.ValueObject;
-
+using UseCase.DTO;
 using UniRx;
 
 namespace Presentation.DTO
@@ -9,13 +8,13 @@ namespace Presentation.DTO
         public ReactiveProperty<int> NextItemIndex { get; }
         public ReactiveProperty<int> CurrentScore { get; set; }
         public ReactiveProperty<int> BestScore { get; set; }
-        public ScoreContainer ScoreContainer { get; set; }
+        public ScoreDataDto? ScoreContainer { get; set; }
         private readonly CompositeDisposable _disposables = new();
 
         public MainSceneViewStateData(
             int currentScore,
             int bestScore,
-            ScoreContainer scoreContainer,
+            ScoreDataDto? scoreContainer,
             int nextItemIndex)
         {
             CurrentScore = new ReactiveProperty<int>(currentScore);

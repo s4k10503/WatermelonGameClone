@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using UseCase.DTO;
 
 using System.Collections.Generic;
 using System.Threading;
@@ -8,6 +8,6 @@ namespace UseCase.Interfaces
 {
     public interface ILicenseUseCase
     {
-        UniTask<IReadOnlyList<License>> GetLicensesAsync(CancellationToken ct);
+        UniTask<IReadOnlyList<LicenseDto>> GetLicensesAsync(CancellationToken ct);
     }
 }

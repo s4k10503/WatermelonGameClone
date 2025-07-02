@@ -1,4 +1,4 @@
-using Domain.ValueObject;
+using UseCase.DTO;
 
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -15,6 +15,6 @@ namespace UseCase.Interfaces
         void UpdateCurrentScore(int itemNo);
         UniTask UpdateUserNameAsync(string userName, CancellationToken ct);
         UniTask UpdateScoreRankingAsync(int newScore, CancellationToken ct);
-        ScoreContainer GetScoreData();
+        ScoreDataDto? GetScoreData();
     }
 }
